@@ -4,6 +4,60 @@
   
   
   <entry>
+    <title>一种高性能的 Kafka 消费模型</title>
+    <link href="/tech/%E4%B8%80%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84%20Kafka%20%E6%B6%88%E8%B4%B9%E6%A8%A1%E5%9E%8B/"/>
+    <url>/tech/%E4%B8%80%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84%20Kafka%20%E6%B6%88%E8%B4%B9%E6%A8%A1%E5%9E%8B/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>Kafka 无疑是现在最流行的消息队列。</p></blockquote><h2 id="闲话">闲话</h2><p>对于消息队列的选型，在国内环境中， RocketMQ 是一个强大的对手，网络上也有各种各样的对比和指导思想，有兴趣的读者可以自行搜索查看，在本文中并不会让这两者分个高下。</p><p>网络上林林总总的文档中，比较有参考意义的是 Apache RocketMQ 官方文档中的对比：<a href="https://rocketmq.apache.org/zh/docs/">Apache RocketMQ 5.0 中文文档</a>。</p><p>可以看到，相比之下RocketMQ 是一个更为“现代化”的消息队列中间件，原生支持了 Kafka 不具备的许多功能，同时也对 Kafka 已有的功能做了一些补充和改进。同时，从文中也可以看到 RocketMQ 相比 Kafka 有着“低延时”和“高可用”的优点，但 Kafka 相比之下拥有更高的“吞吐量”。</p><p>此外，官方文档中没有对两者的性能做出详细的说明，而阿里巴巴官方在外网发布了这篇文章作为补充：<a href="https://alibaba-cloud.medium.com/kafka-vs-rocketmq-multiple-topic-stress-test-results-d27b8cbb360f">基于 Topic 数量的性能压测</a>。</p><p>但是，就笔者的经验来说，在大部分实际的技术选型中，有以下三个“反直觉”的真相：</p><ol><li>许多细节上的差异并不会给项目带来明显的优势。举一个实际的例子来说：在绝大部分情况下，将接口响应时间从 10s 优化至 100ms，对比将响应时间从 100ms 优化至 1ms ，给用户带来的体感是完全不同的（后者远小于前者），同时付出的成本也是完全不同的（后者远大于前者）。</li><li>社区活跃度的重要程度往往被我们轻视——当你遇见问题的时候，更活跃的社区往往能给你带来更短的定位 / 解决时间。这里是一个自带活跃度对比的外网社区的统计结果：<a href="https://stackshare.io/stackups/kafka-vs-rocketmq">社区活跃度的对比</a>。从中可以看到，RocketMQ 在全球范围内的社区影响力远低于 Kafka。</li><li>不同的公司的技术选型思路有巨大的差异。举例来说，我在字节跳动工作期间，公司内部所使用的云平台是自研的“字节云”。在字节云中，从 Golang 的镜像，到云服务器的 Linux 内核，都是公司自研的——根据公司的实际情况做出了相应的优化。当时在云平台的官方文档中，基础架构的同学写下了一段大致如下的描述：“强烈推荐各业务方从 Kafka / BMQ 切换到 RocketMQ，当前字节云中的 RocketMQ 中间件从各方位对比前者都有显著的优势” —— 有时候，只需要这样一句话，就能打消业务方几乎所有的疑问和顾虑（同时也解决了 2 中所描述的社区问题）。</li></ol><p>总的来说，所有技术选型都应该基于实际情况进行决策。就像 CAP 定理和“软件工程没有银弹”一样，世界上没有完美的解决方案，到底是否应该“以牺牲部分吞吐量为代价，来获得 RocketMQ 同步刷盘的能力”，还是“它们都太差了，我要自研一款属于我的 MQ”，是需要根据实际业务场景来决定的。</p><p>而我现在所处的公司，在决策时面临的困难显然不那么强烈——我们使用亚马逊的 AWS 来部署服务，而 AWS 官方并没有提供基于 RocketMQ 的 Paas 服务，但 AWS MSK （Managed Streaming for Apache Kafka）已经相当成熟了，我们也就自然而然的选择了 Kafka 作为我们的消息队列，事实也证明，即便是和阿里一样同样置身在金融行业中，我们使用了所谓相比之下没有那么“高可靠、低延时”的 Kafka，也并没有给我们带来任何的困扰。</p><h2 id="正文">正文</h2><h3 id="基于-Golang-的-Kafka-SDK">基于 Golang 的 Kafka SDK</h3><p>相同的中间件在不同编程语言中的实现的 SDK 必然是有差异的，它们往往会根据语言自身的特点做出相应的适配和优化。我所采用的 sdk 是 segmentio 公司研发的 <a href="https://github.com/segmentio/kafka-go">kafka-go</a>，是 golang 中非常流行的一个库，也是适配得较好的一个库。</p><p>这个库的实现原理大致如下：</p><p><img src="/img/kafka-go/kafka-go-sdk.png" alt="kafka-go sdk"></p><ol><li>kafka-go 会向 Kafka Broker 拉取一定数量的消息放入内存中的 msg chan（该 chan 的缓存大小是可配置的）</li><li>然后应用程序通过调用 <code>FetchMessage</code> 方法来从这个 chan 中获取到一个消息并进行消费</li><li>当消费成功后，应用程序通过调用 <code>CommitMessages</code> 方法来提交 commit request</li><li>根据配置，kafka-go 会将 commit chan 中的请求立即提交，或将其 merge 合并为一个请求异步提交</li></ol><h3 id="简单的阻塞消费模型">简单的阻塞消费模型</h3><p>最简单的消费模型其实和上面描述的过程是一致的，如下：</p><p><img src="/img/kafka-go/simple.png" alt="一次消费一条消息"></p><p>当消费成功时直接提交；当消费失败时，根据需要进行无限重试，或是直接丢弃（提交 commit 请求视为成功）。</p><hr><p>常用 RocketMQ 的用户可以思考一下为什么我们一定要阻塞在某一条消息的处理上，为什么不能使用一个 <code>sync.WaitGroup</code> 来进行一定程度的并发呢？</p><p>曾经我在字节工作期间使用 RocketMQ 时，确实是这么做的，就像在接到 HTTP 请求后开启协程来处理一样，在接到消息后也开启协程进行处理。但这是建立在 RocketMQ 本身是支持消息重试的基础上的，当 RocketMQ 消息消费失败后，我们可以显示地向 RocketMQ 提交一个 <code>NACK</code> 请求来表明消息处理失败了，此时消息会被 RocketMQ 丢入重试队列中等待二次消费，当失败次数达到阈值后，会被其放进死信队列中，消息永远是不会丢失的。</p><p>但对于 Kafka 而言，它的提交行为是不区分 <code>ACK </code> / <code> NACK</code> 的，它的 commit 请求中只包含一个 <code>offset</code> 参数来标识当前消费者的消费进度。与此同时，kafka-go sdk 又在内存中将消息缓存到 chan 中，当我开启若干个协程调用 FetchMessage 方法时，获取到的消息是完全不同的。也就是说，当我开启三个协程处理三条消息时，可能分别在处理 offset = <code>1</code> / <code>2</code> / <code>3</code> 的 3 条消息，当 1 和 2 处理失败但 3 处理成功时，一旦将 3 commit 到 Kafka 中，1 和 2 就永久的丢失了（再也不会被消费了）。</p><hr><p>这种模型虽然很简单，但也十分低效，适合的场景也非常有限，举几个实际的例子：</p><ol><li>新增 / 注销账号产生的消息。类似的场景下消息产生的 QPS 很可能 &lt; 1，因此使用该模型并不会造成性能瓶颈，反而在一定程度上可以提升开发效率。</li><li>需要使用顺序消费的场景。也就是说，在消费某条消息之前，必须消费完这条消息之前的所有消息，例如涉及到某些状态流转的场景，阶段 A 不能直接转换为阶段 C，而是必须经过阶段 B，此时我们需要顺序消费 A-&gt;B、B-&gt;C 这两条消息。</li></ol><h3 id="高性能的批量消费模型">高性能的批量消费模型</h3><p>在 Kafka 不支持 <code>ACK</code> / <code>NACK</code> 的情况之下，是不是就无法使用并发消费了呢？当然不是。接下来将介绍一种可配置、高并发的高性能消费模型：</p><h4 id="以-Partition-为维度的并发">以 Partition 为维度的并发</h4><p>熟悉 Kafka 架构的同学可能知道，Kafka 同一个 Topic 下的消息是分为多个 Partition 进行存储的，每个 Partition 中的消息都是按照投递的顺序进行排序的，也就是说，我们在消费同一个 Topic 的情况下，至少可以进行 Partition 维度的并发。</p><p>// TODO</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>tech</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Golang</tag>
+      
+      <tag>Kafka</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>交易核心系列：（一）资金账户</title>
+    <link href="/tech/%E4%BA%A4%E6%98%93%E6%A0%B8%E5%BF%83%E2%80%94%E8%B5%84%E9%87%91%E8%B4%A6%E6%88%B7%E7%B3%BB%E7%BB%9F/"/>
+    <url>/tech/%E4%BA%A4%E6%98%93%E6%A0%B8%E5%BF%83%E2%80%94%E8%B5%84%E9%87%91%E8%B4%A6%E6%88%B7%E7%B3%BB%E7%BB%9F/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>新的旅程——从字节跳动离开后</p></blockquote><h2 id="序">序</h2><p>从字节跳动离开后，我选择加入了一家加密货币交易所（Cryptocurrency Exchange / Digital Currency Exchange），目前在这家公司的「交易底层团队」担任高级研发工程师一职，参与迭代和开发交易所的底层系统。</p><p>团队负责的项目相比以往更偏基础，其中包含例如撮合、K 线和现货 / 合约交易这类通用的框架，也有返佣、活期理财和资管平台等业务驱动的系统。</p><p>作为一名没有金融专业知识和 C 端系统研发经验的新人，这对我来说不仅是一次新奇的旅程，也是一场富有挑战的冒险。因此我想在这里记录一下我的所见所闻，并加以沉淀。如果有可能的话，也希望能给有兴趣或准备入行的同学一点启发。</p><p>《交易核心》系列我初步打算分为三大块进行说明——资金账户、撮合引擎以及做市商，它们将在未来的某个时间依次发布出来，其中的内容可能更偏向于架构设计，对于其中的金融原理和工程的实现细节也许会有一定的纰漏。同时本系列文章将跟随我的学习过程来逐步更新，而非站在一个行业专家的视角去进行总结回顾，因此部分内容也许会偏向主观甚至有失偏颇，并且完稿的时间也充满不确定性。</p><p>最后，在《交易核心》系列的详细内容中，会以理论分析为主，在不侵犯公司保密原则的前提下，我会尽量地展示出一些重要的实现细节和技术选型。</p><p>以上。</p><h2 id="一、鸟瞰账户系统">一、鸟瞰账户系统</h2><h3 id="账户的“正确定义”">账户的“正确定义”</h3><p><strong><u>账户</u></strong>，不能与“<strong><u>账号</u></strong>”混为一谈，市面上大部分 APP 都有自己的“账号”体系，例如你的 QQ 号、微信号、抖音号和 Github 账号等，代表了你在一个系统当中的身份，在一定程度上（或是大部分实际应用中），“<strong><u>账号</u></strong>”是与“<strong><u>用户</u></strong>”挂钩的，比如很多系统中用户与账号都是 1 对 1 的关系。</p><p><u>账户在交易系统中是和资产/资金挂钩的</u>，简单的类比就是一个银行的存折账本，用户的每一笔资金流水全部在账本上反映出来。比如：银行开设的银行帐户、支付软件中的支付账户等，其中也包含电商平台中的电商虚拟账户——之所以称之为虚拟，是因为电商账户不会记录真实的资金变动情况，而是做一些简单的记账，因此不是一个实体账户。</p><p><img src="/img/%E8%B5%84%E9%87%91%E8%B4%A6%E6%88%B7/1.png" alt="账号和账户的区别"></p><p>因此，账户往往可以被理解成你的钱包。</p><h3 id="账户的二元组">账户的二元组</h3><p>账户一般由两个元素组成，一个是“账户体系”，另一个则是“账务体系”。</p><p>其中账户体系一般是用来表示上述提到的“钱包”元数据，举个通俗的例子来说：账户记载了钱包的材质、品牌、购入时间等。</p><p>而账务体系则用来记载钱包中资金的变动情况，比如：你用本地的记账软件或是纸和笔来记录今天你的开销的具体情况。</p><p>于是在实际的后端开发中，一般会得到如下两个模型：</p><ul><li>账户模型</li></ul><table><thead><tr><th>id</th><th>开户时间</th><th>币种</th><th>状态（正常/异常）</th><th>总资产</th><th>可用资产</th><th>冻结资产</th><th>…</th></tr></thead><tbody><tr><td>1</td><td>2023-09-16</td><td>CNY</td><td>正常</td><td>100</td><td>90.01</td><td>9.99</td><td>…</td></tr><tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table><ul><li>账务模型</li></ul><table><thead><tr><th>id</th><th>账户id</th><th>交易单类型</th><th>交易类型</th><th>交易金额</th><th>手续费</th><th>流水号</th><th>交易时间</th><th>…</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>购买商品</td><td>支出</td><td>20</td><td>0.53</td><td>192013</td><td>2023-09-16 18:00</td><td>…</td></tr><tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table><p>// TODO</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>tech</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>交易架构</tag>
+      
+      <tag>Tech</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Career 2023</title>
     <link href="/career/career-2023/"/>
     <url>/career/career-2023/</url>
