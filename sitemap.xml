@@ -79,20 +79,6 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Golang/</loc>
-    <lastmod>2023-10-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sshelll.github.io/tags/Kafka/</loc>
-    <lastmod>2023-10-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://sshelll.github.io/tags/%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
@@ -101,6 +87,20 @@
   
   <url>
     <loc>https://sshelll.github.io/tags/ByteDance/</loc>
+    <lastmod>2023-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sshelll.github.io/tags/Golang/</loc>
+    <lastmod>2023-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sshelll.github.io/tags/Kafka/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -130,14 +130,14 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/tech/</loc>
+    <loc>https://sshelll.github.io/categories/career/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/career/</loc>
+    <loc>https://sshelll.github.io/categories/tech/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
