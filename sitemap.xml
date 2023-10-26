@@ -4,7 +4,7 @@
   <url>
     <loc>https://sshelll.github.io/economics/analyze-stocks/</loc>
     
-    <lastmod>2023-10-25</lastmod>
+    <lastmod>2023-10-26</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -86,6 +86,13 @@
   </url>
   
   <url>
+    <loc>https://sshelll.github.io/tags/Kafka/</loc>
+    <lastmod>2023-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://sshelll.github.io/tags/%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
@@ -108,13 +115,6 @@
   
   <url>
     <loc>https://sshelll.github.io/tags/%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2023-10-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sshelll.github.io/tags/Kafka/</loc>
     <lastmod>2023-10-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
