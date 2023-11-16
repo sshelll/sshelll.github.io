@@ -297,7 +297,7 @@
 <p>简单来说，分布式锁一般会额外引入一个“中心化的节点”，让所有服务实例都向它请求锁，这样一来实例与实例之间就能通过这个中心化的节点来进行通信了。</p>
 <p>上面提到的“中心化节点”的选型有很多种选择，在业内比较常见的有 Redis / ZooKeeper / 数据库等，本文介绍一种基于数据库的分布式锁设计，数据库本身的选型没有标准的答案，理论上来说只要支持唯一索引（Unique Index）的数据库都符合选型标准，例如常见的 MySQL 和 MongoDB。</p>
 <p>为什么需要唯一索引？因为支持了唯一索引的数据库都具备以下的能力（不考虑硬件故障等意外情况）：</p>
-<p>**<u>多个并发请求同时向数据库插入唯一键相同的记录时，只有一个请求能够成功。</u>**并且失败的请求往往能够识别出失败的原因是来自竞争，例如 <code>Duplicate Key Error</code>。</p>
+<p><u><strong>多个并发请求同时向数据库插入唯一键相同的记录时，只有一个请求能够成功。</strong></u>并且失败的请求往往能够识别出失败的原因是来自竞争，例如 <code>Duplicate Key Error</code>。</p>
 <p>可以看到，唯一索引的表现和语言标准库中的锁非常一致。</p>
 <h2 id="数据库表结构设计">数据库表结构设计</h2>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> PLock <span class="hljs-keyword">struct</span> &#123;<br>	ID       <span class="hljs-type">string</span> <span class="hljs-comment">// 数据库主键</span><br>	Key      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁定的 key, 与 BizType 组成 uniq key</span><br>	Val      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的 value, 可以是业务相关的自定义数据</span><br>	BizType  <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的类型, 与 Key 组成 uniq key</span><br>	ExpireAt <span class="hljs-type">int64</span>  <span class="hljs-comment">// 过期时间</span><br>&#125;<br></code></pre></td></tr></table></figure>
