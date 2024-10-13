@@ -16,31 +16,31 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="sshelll">
+  <meta name="author" content="kayce">
   <meta name="keywords" content="">
   
     <meta name="description" content="本文介绍了一种基于 Golang 的高性能 Kafka 消费模型">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一种高性能的 Kafka 消费模型">
-<meta property="og:url" content="https://sshelll.github.io/tech/%E4%B8%80%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84%20Kafka%20%E6%B6%88%E8%B4%B9%E6%A8%A1%E5%9E%8B/index.html">
-<meta property="og:site_name" content="sshelll">
+<meta property="og:url" content="https://kayce.github.io/tech/%E4%B8%80%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84%20Kafka%20%E6%B6%88%E8%B4%B9%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="kayce">
 <meta property="og:description" content="本文介绍了一种基于 Golang 的高性能 Kafka 消费模型">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sshelll.github.io/img/kafka-go/kafka-go-sdk.png">
-<meta property="og:image" content="https://sshelll.github.io/img/kafka-go/simple.png">
-<meta property="og:image" content="https://sshelll.github.io/img/kafka-go/by_partition.png">
-<meta property="og:image" content="https://sshelll.github.io/img/kafka-go/kafka-consumergroup.png">
+<meta property="og:image" content="https://kayce.github.io/img/kafka-go/kafka-go-sdk.png">
+<meta property="og:image" content="https://kayce.github.io/img/kafka-go/simple.png">
+<meta property="og:image" content="https://kayce.github.io/img/kafka-go/by_partition.png">
+<meta property="og:image" content="https://kayce.github.io/img/kafka-go/kafka-consumergroup.png">
 <meta property="article:published_time" content="2023-09-16T12:44:44.000Z">
 <meta property="article:modified_time" content="2023-09-16T12:45:44.000Z">
-<meta property="article:author" content="sshelll">
+<meta property="article:author" content="kayce">
 <meta property="article:tag" content="Golang">
 <meta property="article:tag" content="Kafka">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://sshelll.github.io/img/kafka-go/kafka-go-sdk.png">
+<meta name="twitter:image" content="https://kayce.github.io/img/kafka-go/kafka-go-sdk.png">
   
   
   
-  <title>一种高性能的 Kafka 消费模型 - sshelll</title>
+  <title>一种高性能的 Kafka 消费模型 - kayce</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"sshelll.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -106,7 +106,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>sshelll&#39;s space</strong>
+      <strong>kayce&#39;s space</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
@@ -218,7 +218,7 @@
     
       <span class="post-meta mr-2">
         <i class="iconfont icon-author" aria-hidden="true"></i>
-        sshelll
+        kayce
       </span>
     
     
@@ -420,13 +420,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>一种高性能的 Kafka 消费模型</div>
-      <div>https://sshelll.github.io/tech/一种高性能的 Kafka 消费模型/</div>
+      <div>https://kayce.github.io/tech/一种高性能的 Kafka 消费模型/</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>sshelll</div>
+          <div>kayce</div>
         </div>
       
       
@@ -508,7 +508,7 @@
       Fluid.utils.createCssLink('/css/gitalk.css')
       Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
         var options = Object.assign(
-          {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"7193fb8c2e2e1def40e36c8e071a994558aaf166","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"7193fb8c2e2e1def40e36c8e071a994558aaf166","repo":"kayce.github.io","owner":"sshelll","admin":["sshelll"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
             id: '04329690152a4bbc85395100e58a93e0'
           }
@@ -622,7 +622,7 @@
     <div class="footer-inner">
   
     <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-bug"></i> <a>sshelll</a> <i class="iconfont icon-bug"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a>
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-bug"></i> <a>kayce</a> <i class="iconfont icon-bug"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a>
     </div>
   
   
