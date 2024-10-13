@@ -19,25 +19,24 @@
   <meta name="author" content="sshelll">
   <meta name="keywords" content="">
   
-    <meta name="description" content="用有趣的漫画图解了二者的集成">
+    <meta name="description" content="如果神造出了一种 crypto currency, 它会成为货币吗？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="漫画图解 AWS KMS 与 AWS Secret Manager 的集成">
-<meta property="og:url" content="https://sshelll.github.io/tech/%E6%BC%AB%E7%94%BB%20AWS%20KMS%20%E4%B8%8E%20AWS%20Secret%20Manager%20%E7%9A%84%E9%9B%86%E6%88%90/index.html">
+<meta property="og:title" content="「胡思乱想」：马克思的货币与神造的 BTC">
+<meta property="og:url" content="https://sshelll.github.io/imagination/currency/index.html">
 <meta property="og:site_name" content="sshelll">
-<meta property="og:description" content="用有趣的漫画图解了二者的集成">
+<meta property="og:description" content="如果神造出了一种 crypto currency, 它会成为货币吗？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sshelll.github.io/img/comic_kms/comic.png">
-<meta property="article:published_time" content="2023-09-18T16:00:44.000Z">
-<meta property="article:modified_time" content="2023-09-18T16:24:30.000Z">
+<meta property="article:published_time" content="2024-10-13T17:25:53.000Z">
+<meta property="article:modified_time" content="2024-10-13T17:25:53.000Z">
 <meta property="article:author" content="sshelll">
-<meta property="article:tag" content="AWS">
-<meta property="article:tag" content="安全">
+<meta property="article:tag" content="currency">
+<meta property="article:tag" content="货币">
+<meta property="article:tag" content="Marx">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://sshelll.github.io/img/comic_kms/comic.png">
   
   
   
-  <title>漫画图解 AWS KMS 与 AWS Secret Manager 的集成 - sshelll</title>
+  <title>「胡思乱想」：马克思的货币与神造的 BTC - sshelll</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -48,8 +47,6 @@
   <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
 
 
 
@@ -205,7 +202,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="漫画图解 AWS KMS 与 AWS Secret Manager 的集成"></span>
+            <span id="subtitle" data-typed-text="「胡思乱想」：马克思的货币与神造的 BTC"></span>
           
         </div>
 
@@ -221,8 +218,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-09-19 00:00" pubdate>
-          2023年9月19日 凌晨
+        <time datetime="2024-10-14 01:25" pubdate>
+          2024年10月14日 凌晨
         </time>
       </span>
     
@@ -233,7 +230,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          674 字
+          850 字
         
       </span>
     
@@ -244,7 +241,7 @@
         
         
         
-          3 分钟
+          4 分钟
         
       </span>
     
@@ -281,37 +278,46 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">漫画图解 AWS KMS 与 AWS Secret Manager 的集成</h1>
-            
-              <p id="updated-time" class="note note-info" style="">
-                
-                  
-                    本文最后更新于 2023年9月19日 凌晨
-                  
-                
-              </p>
+            <h1 id="seo-header">「胡思乱想」：马克思的货币与神造的 BTC</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="前言">前言</h2>
-<p>在 AWS 中，用户时常容易混淆「AWS KMS」与「AWS Secrets Manager」—— 不仅是从名字上容易混淆，而且在实际使用的过程中，二者在<u>某些场景中</u>也存在一定的可互换性。</p>
-<p>从顶层的设计出发点来说，KMS 是一种允许用户管理加密密钥的服务，用于加密、解密、签名和其他操作。</p>
-<p>而「Secrets Manager」则更像是一种用来存储密码和 API 密钥等高等级数据的数据库。有了它，我们就可以避免应用程序中进行硬编码 API Key，也可以无需自行存储用户密码（除非你的团队有极强的专业水准和工程能力，否则自己维护一个包含了用户账号密码的数据库是极其困难且不安全的，而 AWS 提供的加密服务甚至武装到了硬件）。</p>
-<p>与此同时，为了更好地保护机密数据，AWS Secrets Manager 也可以配合使用 KMS 对其内容进行加密来获取更高的安全性。</p>
-<p>下面用一则漫画来演示二者集成的大致工作流程：</p>
-<p><img src="/img/comic_kms/comic.png" srcset="/img/loading.gif" lazyload alt="漫画图解"></p>
-<h2 id="后话">后话</h2>
-<p>在上面的漫画中，忽略了一个重要问题——谁有权限从 Secrets Manager 中获取解密的明文数据？</p>
-<p>AWS 根据使用的密钥管理方式都实现了类似的授权机制：</p>
-<ol>
-<li>用户基于 KMS 自动托管的加密密钥可以使用 KMS 来管理授权范围，需要配合 IAM 系统在 AWS 平台上进行配置，客户端通过 AWS Credential 来表明自己的身份。</li>
-<li>用户基于自行管理的 KMS 密钥来加密的数据也可以使用类似的方式在平台上配置 Policy 和 IAM 等来实现鉴权，区别在于自行管理的 KMS 密钥的 id 是自定义的，需要自己找到对应密钥的配置进行更改。</li>
-</ol>
-<p>综上所述，通过对二者的观察，可以看到一个比较明显的区别在于——Secrets Manager可以获取到存进去的数据的明文，而 KMS 只是提供了加解密等比较原子的功能，KMS 是无论如何都不会将设置进去的密钥返回出来的，它所做的只是在安全的黑盒中使用你最初配置的密钥对你的输入进行加解密操作（当然还有一些额外的功能，例如签名和验签等，这里不再赘述）。</p>
-<p>本文只是大致介绍了两者的集成流程，并比较了二者的区别，有兴趣的读者可以阅读下面的参考资料和 AWS 的官方文档进行查阅。</p>
-<h2 id="参考资料">参考资料</h2>
-<p><a target="_blank" rel="noopener" href="https://blog.lightspin.io/understanding-the-integration-between-kms-and-secrets-manager-on-aws">Understanding the Integration Between KMS and Secrets Manager on AWS</a></p>
+                <blockquote>
+<p>如果神造出了一种像 BTC 一样的东西, 它会成为货币吗？</p>
+</blockquote>
+<h2 id="神造的货币">神造的货币</h2>
+<p>神造的货币是什么样子？我们以 BTC 的形态给它再赋予上神的特性，并给它起名为 <u><strong>goin</strong></u>：</p>
+<ul>
+<li>总量固定</li>
+<li>可以无限微分</li>
+<li>社会共识同一使用</li>
+<li>余额无法篡改</li>
+<li>神替每一个人保管账户</li>
+</ul>
+<p>比如，我用 1 <u><strong>goin</strong></u> 买了一杯咖啡，神会在我的账户上扣除 1 <u><strong>goin</strong></u>，然后在咖啡店的账户上增加 1 <u><strong>goin</strong></u>。<br>
+这个过程是不可逆的，因为神的账本是不可篡改的。</p>
+<h2 id="能成为货币吗？">能成为货币吗？</h2>
+<p>想象这样一种情况：</p>
+<p>世界上只有 2 个人，这两个人加起来一天可以造 2 个人量的水以及 2 个人量的饭，除此之外他们没有别的产出和需求。<br>
+此时神设定这个世界上一共有 4 个 <u><strong>goin</strong></u>，每个 <u><strong>goin</strong></u> 可以换取一份水或饭。</p>
+<p>假如 A 包揽了 4 个活，B 什么都不干，但是初始情况下，B 毫不费力地占有了全部的 4 个 <u><strong>goin</strong></u>。</p>
+<p>此时 A 是不会接受 B 用 <u><strong>goin</strong></u> 来与他交换水或者饭的，因为他知道 B 没有劳动，所以 B 的 <u><strong>goin</strong></u> 是不值钱的。</p>
+<p>同理 B 会发现，他的 <u><strong>goin</strong></u> 一文不值，因为他的 goin 无法换到任何东西。</p>
+<p><u>所以问题的关键在于 <strong>goin</strong> 的分配。</u></p>
+<p>这种分配其实是一个 <u><strong>goin</strong></u> 对于资源总量（或者说商品 / 劳动）的缩放，之所以称之为缩放，是因为 <u><strong>goin</strong></u> 的总量是固定的，而资源总量在某一固定时刻也是固定的。</p>
+<p>而这个缩放的过程必须由神来替人们精准的初始化，否则就会出现上面的情况。那么缩放完了之后，你会发现，这个 <u><strong>goin</strong></u> 其实与马克思的货币几乎一致了，也就是&quot;货币是商品，商品的价值是劳动量&quot;。</p>
+<p>不同的地方在于，马克思的货币是由人类社会共同决定的，是人的运动最终将一种商品推举出来形成了货币，于是具有其一定的特点和性质。</p>
+<p>而 <u><strong>goin</strong></u> 是由神来决定的，神是那么的公平和万能，可以为你实现精准的缩放和无法篡改的余额，于是省略了商品货币的一些特性也在情理之中。</p>
+<h2 id="最后的胡思乱想">最后的胡思乱想</h2>
+<p>现代的货币体系，已经不再是马克思的商品货币了，而是一种信用体系下的货币。</p>
+<p>于是乎，信用好或者强大的国家可以&quot;肆无忌惮&quot;的发行货币，也就是印钱，并且全球市场仍会为其买单，而信用差的国家一旦效仿则会被市场惩罚 —— 比如津巴布韦。</p>
+<p>如何理解这种货币体系呢？</p>
+<p>个人认为，结合马克思的商品货币来看，可以理解为：</p>
+<ul>
+<li>马克思的商品货币：我有一些商品，我用它来和你交换你的商品。</li>
+<li>现代的信用货币：我有一些商品兑换券，我用它来和你交换你的商品，你乐意接受，是因为你相信我真的有商品供你兑换，（即便事实上，我此时并没有那些商品，但未来我可能会造出来的）。</li>
+</ul>
 
                 
               </div>
@@ -330,7 +336,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/tech/" class="category-chain-item">tech</a>
+  <a href="/categories/imagination/" class="category-chain-item">imagination</a>
   
   
 
@@ -345,9 +351,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/AWS/" class="print-no-link">#AWS</a>
+        <a href="/tags/currency/" class="print-no-link">#currency</a>
       
-        <a href="/tags/%E5%AE%89%E5%85%A8/" class="print-no-link">#安全</a>
+        <a href="/tags/%E8%B4%A7%E5%B8%81/" class="print-no-link">#货币</a>
+      
+        <a href="/tags/Marx/" class="print-no-link">#Marx</a>
       
     </div>
   
@@ -359,8 +367,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>漫画图解 AWS KMS 与 AWS Secret Manager 的集成</div>
-      <div>https://sshelll.github.io/tech/漫画 AWS KMS 与 AWS Secret Manager 的集成/</div>
+      <div>「胡思乱想」：马克思的货币与神造的 BTC</div>
+      <div>https://sshelll.github.io/imagination/currency/</div>
     </div>
     <div class="license-meta">
       
@@ -372,7 +380,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年9月19日</div>
+          <div>2024年10月14日</div>
         </div>
       
       
@@ -416,18 +424,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/tech/golang-ctx/" title="理解 Golang context.Context">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">理解 Golang context.Context</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/tech/%E4%B8%80%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E7%9A%84%20Kafka%20%E6%B6%88%E8%B4%B9%E6%A8%A1%E5%9E%8B/" title="一种高性能的 Kafka 消费模型">
-                        <span class="hidden-mobile">一种高性能的 Kafka 消费模型</span>
+                      <a href="/tech/simple-db-lock/" title="一种基于数据库的分布式锁设计">
+                        <span class="hidden-mobile">一种基于数据库的分布式锁设计</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -450,7 +452,7 @@
         var options = Object.assign(
           {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"7193fb8c2e2e1def40e36c8e071a994558aaf166","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
-            id: 'cd295a2a47afbde472de16e4315523bd'
+            id: '730b11a53e271654b42876228a060f6b'
           }
         )
         var gitalk = new Gitalk(options);
@@ -511,11 +513,6 @@
 
 
   
-
-
-  
-  
-
 
 
 
