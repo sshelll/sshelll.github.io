@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>Chores</title>
+    <link href="/chores/chores/"/>
+    <url>/chores/chores/</url>
+    
+    <content type="html"><![CDATA[<h2 id="Stories">Stories</h2><h3 id="Donate-a-laptop-for-a-child-in-Bangladesh-2024-12-13">Donate a laptop for a child in Bangladesh - 2024.12.13</h3><p>I’ve been using <code>NeoVim</code> as my primary code editor for 3 years, and I found a plug called <code>markview.nvim</code> in the first half of 2024.</p><p>This plug is a markdown previewer, and it’s very convenient for me to preview the markdown file I’m editing in real-time.</p><blockquote><p>Actually, this article is written in markdown, and I’m exactly using <code>markview.nvim</code> to edit it.</p></blockquote><p>Recently, I found the author of this plugin is a child from Bangladesh, and he completed all the development with his phone…</p><p>In hence, someone suggested that we can donate a laptop to him.</p><p><strong>See:</strong></p><ul><li><a href="https://www.reddit.com/r/neovim/comments/1h7vhmg/bro_been_developing_his_2k_star_plugin_on_a/">Bro been developing his 2k star plugin on a freaking touch phone 🤯🤯🤯</a></li><li><a href="https://github.com/OXY2DEV/markview.nvim/issues/218">Thinkpad GoFundMe</a></li><li><a href="https://www.reddit.com/r/neovim/comments/1hb5szp/please_help_me_raise_funds_for_a_laptop/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button">Please help me raise funds for a laptop</a></li><li><a href="https://hcb.hackclub.com/oxy2dev-laptop/transactions">Transparent ledger of donations</a></li></ul><p><strong>Community’s response:</strong><br><img src="/img/chores/donations_for_the_markview_author.jpg" alt="Donations in 3 days"></p><p><img src="/img/chores/my_comment_for_markview_author.jpg" alt="My Comment"></p><p><strong>markview.nvim</strong></p><p><img src="/img/chores/without_markview.jpg" alt="Without markview.nvim"></p><p><img src="/img/chores/with_markview.jpg" alt="With markview.nvim"></p><p>What a touching and inspiring story!</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>chores</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>chores</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>「胡思乱想」：马克思的货币与神造的 BTC</title>
     <link href="/imagination/gods_currency/"/>
     <url>/imagination/gods_currency/</url>
