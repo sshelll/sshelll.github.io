@@ -143,6 +143,13 @@
   </url>
   
   <url>
+    <loc>https://sshelll.github.io/tags/Chores/</loc>
+    <lastmod>2024-12-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://sshelll.github.io/tags/Finance/</loc>
     <lastmod>2024-12-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -150,7 +157,14 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Chores/</loc>
+    <loc>https://sshelll.github.io/tags/%E8%B4%A7%E5%B8%81/</loc>
+    <lastmod>2024-12-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sshelll.github.io/tags/Marx/</loc>
     <lastmod>2024-12-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -172,20 +186,6 @@
   
   <url>
     <loc>https://sshelll.github.io/tags/Database/</loc>
-    <lastmod>2024-12-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sshelll.github.io/tags/%E8%B4%A7%E5%B8%81/</loc>
-    <lastmod>2024-12-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sshelll.github.io/tags/Marx/</loc>
     <lastmod>2024-12-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -215,14 +215,14 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/dessert/</loc>
+    <loc>https://sshelll.github.io/categories/chores/</loc>
     <lastmod>2024-12-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/chores/</loc>
+    <loc>https://sshelll.github.io/categories/dessert/</loc>
     <lastmod>2024-12-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
