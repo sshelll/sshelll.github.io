@@ -2,7 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://sshelll.github.io/dessert/double_entry_bookkeeping/</loc>
+    <loc>https://kayce.world/resume/index.html</loc>
+    
+    <lastmod>2024-12-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/about/index.html</loc>
+    
+    <lastmod>2024-12-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tech/rust_atomics_and_locks/</loc>
+    
+    <lastmod>2024-12-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/dessert/double_entry_bookkeeping/</loc>
     
     <lastmod>2024-12-16</lastmod>
     
@@ -11,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tech/high_perf_kafka_consumer/</loc>
+    <loc>https://kayce.world/tech/high_perf_kafka_consumer/</loc>
     
     <lastmod>2024-12-15</lastmod>
     
@@ -20,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/about/index.html</loc>
+    <loc>https://kayce.world/chores/chores/</loc>
     
     <lastmod>2024-12-13</lastmod>
     
@@ -29,16 +56,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/chores/chores/</loc>
-    
-    <lastmod>2024-12-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://sshelll.github.io/imagination/gods_currency/</loc>
+    <loc>https://kayce.world/imagination/gods_currency/</loc>
     
     <lastmod>2024-10-13</lastmod>
     
@@ -47,7 +65,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tech/simple_db_lock/</loc>
+    <loc>https://kayce.world/tech/simple_db_lock/</loc>
     
     <lastmod>2023-11-16</lastmod>
     
@@ -56,7 +74,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/economics/analyze_stocks/</loc>
+    <loc>https://kayce.world/economics/analyze_stocks/</loc>
     
     <lastmod>2023-10-26</lastmod>
     
@@ -65,7 +83,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tech/golang_ctx/</loc>
+    <loc>https://kayce.world/tech/golang_ctx/</loc>
     
     <lastmod>2023-09-23</lastmod>
     
@@ -74,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tech/aws_kms_and_secret_mgr/</loc>
+    <loc>https://kayce.world/tech/aws_kms_and_secret_mgr/</loc>
     
     <lastmod>2023-09-18</lastmod>
     
@@ -83,7 +101,7 @@
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/career/career_2023/</loc>
+    <loc>https://kayce.world/career/career_2023/</loc>
     
     <lastmod>2023-05-06</lastmod>
     
@@ -93,100 +111,107 @@
   
 
   <url>
-    <loc>https://sshelll.github.io/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
-    <loc>https://sshelll.github.io/tags/%E8%82%A1%E7%A5%A8/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/%E8%82%A1%E7%A5%A8/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/%E9%87%91%E8%9E%8D/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/%E9%87%91%E8%9E%8D/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/AWS/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/AWS/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/%E5%AE%89%E5%85%A8/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Chores/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/ByteDance/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Finance/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Chores/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Finance/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/ByteDance/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/%E8%B4%A7%E5%B8%81/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/%E8%B4%A7%E5%B8%81/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Marx/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Marx/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Golang/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Golang/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Kafka/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Kafka/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/tags/Database/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/tags/Database/</loc>
+    <lastmod>2024-12-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Rust/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -194,43 +219,43 @@
 
   
   <url>
-    <loc>https://sshelll.github.io/categories/economics/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/economics/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/tech/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/tech/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/career/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/chores/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/chores/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/dessert/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/dessert/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/career/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://sshelll.github.io/categories/imagination/</loc>
-    <lastmod>2024-12-16</lastmod>
+    <loc>https://kayce.world/categories/imagination/</loc>
+    <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
