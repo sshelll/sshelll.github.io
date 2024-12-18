@@ -156,13 +156,6 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/tags/Chores/</loc>
-    <lastmod>2024-12-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://kayce.world/tags/Finance/</loc>
     <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
@@ -178,6 +171,13 @@
   
   <url>
     <loc>https://kayce.world/tags/ByteDance/</loc>
+    <lastmod>2024-12-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Chores/</loc>
     <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -242,13 +242,6 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/categories/chores/</loc>
-    <lastmod>2024-12-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://kayce.world/categories/dessert/</loc>
     <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
@@ -257,6 +250,13 @@
   
   <url>
     <loc>https://kayce.world/categories/career/</loc>
+    <lastmod>2024-12-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/categories/chores/</loc>
     <lastmod>2024-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
