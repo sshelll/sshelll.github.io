@@ -1,3 +1,4 @@
+https://kayce.world/tech/rust_cross_compile_on_osx/
 https://kayce.world/music/index.html
 https://kayce.world/resume/index.html
 https://kayce.world/about/index.html
@@ -16,10 +17,10 @@ https://kayce.world/tags/%E8%82%A1%E7%A5%A8/
 https://kayce.world/tags/%E9%87%91%E8%9E%8D/
 https://kayce.world/tags/AWS/
 https://kayce.world/tags/%E5%AE%89%E5%85%A8/
-https://kayce.world/tags/Finance/
 https://kayce.world/tags/%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6/
 https://kayce.world/tags/ByteDance/
 https://kayce.world/tags/Chores/
+https://kayce.world/tags/Finance/
 https://kayce.world/tags/%E8%B4%A7%E5%B8%81/
 https://kayce.world/tags/Marx/
 https://kayce.world/tags/Golang/
@@ -28,7 +29,7 @@ https://kayce.world/tags/Rust/
 https://kayce.world/tags/Database/
 https://kayce.world/categories/economics/
 https://kayce.world/categories/tech/
-https://kayce.world/categories/dessert/
 https://kayce.world/categories/career/
 https://kayce.world/categories/chores/
+https://kayce.world/categories/dessert/
 https://kayce.world/categories/imagination/
