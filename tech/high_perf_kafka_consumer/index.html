@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -90,6 +90,17 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -354,7 +365,95 @@
 <li>实现一个通用的 Worker，用于处理 Partition Chan 中的消息</li>
 </ol>
 <p>以下是我写的一段核心代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> KafkaConsumer[T msgtype.KafkaMessage] <span class="hljs-keyword">struct</span> &#123;<br>	callback           <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(msgs ...T)</span></span><br>	partitionMsgs      <span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]<span class="hljs-keyword">chan</span> T<br>	partitionQueueSize <span class="hljs-type">int</span><br><br>	minBatchSize   <span class="hljs-type">int</span><br>	maxBatchSize   <span class="hljs-type">int</span><br>	forceFlushTime time.Duration<br><br>	closeCh <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> Run() &#123;<br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		log.Info(<span class="hljs-string">&quot;kafka consumer started&quot;</span>)<br>		<span class="hljs-keyword">for</span> &#123;<br>			msg := c.fetchMsg()<br>			<span class="hljs-comment">// 优雅退出</span><br>			<span class="hljs-keyword">select</span> &#123;<br>			<span class="hljs-keyword">case</span> &lt;-c.closeCh:<br>				log.Info(<span class="hljs-string">&quot;kafka consumer stopped&quot;</span>)<br>				<span class="hljs-keyword">return</span><br>			<span class="hljs-keyword">default</span>:<br>			&#125;<br>			c.parallelHandle(msg)<br>		&#125;<br>	&#125;()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> Stop() &#123;<br>	<span class="hljs-built_in">close</span>(c.closeCh)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> parallelHandle(msg T) &#123;<br>	partition := msg.RawMessage().Partition<br><br>	<span class="hljs-keyword">if</span> _, ok := c.partitionMsgs[partition]; !ok &#123;<br>		c.startPartitionHandler(partition)<br>	&#125;<br><br>	c.partitionMsgs[partition] &lt;- msg<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> startPartitionHandler(partition <span class="hljs-type">int</span>) &#123;<br>	<span class="hljs-comment">// 初始化分区消息队列</span><br>	c.partitionMsgs[partition] = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> T, c.partitionQueueSize)<br><br>	<span class="hljs-comment">// 启动分区消费者</span><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		flushTimer := time.NewTimer(c.forceFlushTime)<br><br>		<span class="hljs-keyword">for</span> &#123;<br>			msgBatch := <span class="hljs-built_in">make</span>([]T, <span class="hljs-number">0</span>, c.maxBatchSize)<br><br>			<span class="hljs-comment">// 先取一条消息, 避免直接进入计时</span><br>			msgBatch = <span class="hljs-built_in">append</span>(msgBatch, &lt;-c.partitionMsgs[partition])<br>			flushTimer.Reset(c.forceFlushTime)<br><br>			<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>				<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(msgBatch) &lt; c.maxBatchSize &#123;<br>					<span class="hljs-keyword">select</span> &#123;<br>					<span class="hljs-comment">// 超时退出</span><br>					<span class="hljs-keyword">case</span> &lt;-flushTimer.C:<br>						<span class="hljs-keyword">return</span><br>					<span class="hljs-comment">// 接收到新的 msg</span><br>					<span class="hljs-keyword">case</span> msg := &lt;-c.partitionMsgs[partition]:<br>						msgBatch = <span class="hljs-built_in">append</span>(msgBatch, msg)<br>					<span class="hljs-comment">// 暂时没有新的消息到来，但也尚未超时，此时缓存的消息若满足最小接收量则退出</span><br>					<span class="hljs-keyword">default</span>:<br>						<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(msgBatch) &gt; c.minBatchSize &#123;<br>							<span class="hljs-keyword">return</span><br>						&#125;<br>						<span class="hljs-comment">// 再次 select, 避免空转</span><br>						<span class="hljs-keyword">select</span> &#123;<br>						<span class="hljs-keyword">case</span> &lt;- flushTimer.C:<br>							<span class="hljs-keyword">return</span><br>						<span class="hljs-keyword">case</span> msg := &lt;-c.partitionMsgs[partition]:<br>							msgBatch = <span class="hljs-built_in">append</span>(msgBatch, msg)<br>						&#125;<br>					&#125;<br>				&#125;<br>			&#125;()<br><br>			<span class="hljs-comment">// callback 中根据业务自行实现重试保证成功或是 drop</span><br>			c.callback(msgBatch...)<br>			c.CommitMessages(msgBatch...)<br>		&#125;<br>	&#125;()<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> KafkaConsumer[T msgtype.KafkaMessage] <span class="hljs-keyword">struct</span> &#123;
+	callback           <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(msgs ...T)</span></span>
+	partitionMsgs      <span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]<span class="hljs-keyword">chan</span> T
+	partitionQueueSize <span class="hljs-type">int</span>
+
+	minBatchSize   <span class="hljs-type">int</span>
+	maxBatchSize   <span class="hljs-type">int</span>
+	forceFlushTime time.Duration
+
+	closeCh <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> Run() &#123;
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		log.Info(<span class="hljs-string">&quot;kafka consumer started&quot;</span>)
+		<span class="hljs-keyword">for</span> &#123;
+			msg := c.fetchMsg()
+			<span class="hljs-comment">// 优雅退出</span>
+			<span class="hljs-keyword">select</span> &#123;
+			<span class="hljs-keyword">case</span> &lt;-c.closeCh:
+				log.Info(<span class="hljs-string">&quot;kafka consumer stopped&quot;</span>)
+				<span class="hljs-keyword">return</span>
+			<span class="hljs-keyword">default</span>:
+			&#125;
+			c.parallelHandle(msg)
+		&#125;
+	&#125;()
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> Stop() &#123;
+	<span class="hljs-built_in">close</span>(c.closeCh)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> parallelHandle(msg T) &#123;
+	partition := msg.RawMessage().Partition
+
+	<span class="hljs-keyword">if</span> _, ok := c.partitionMsgs[partition]; !ok &#123;
+		c.startPartitionHandler(partition)
+	&#125;
+
+	c.partitionMsgs[partition] &lt;- msg
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *KafkaConsumer[T])</span></span> startPartitionHandler(partition <span class="hljs-type">int</span>) &#123;
+	<span class="hljs-comment">// 初始化分区消息队列</span>
+	c.partitionMsgs[partition] = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> T, c.partitionQueueSize)
+
+	<span class="hljs-comment">// 启动分区消费者</span>
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		flushTimer := time.NewTimer(c.forceFlushTime)
+
+		<span class="hljs-keyword">for</span> &#123;
+			msgBatch := <span class="hljs-built_in">make</span>([]T, <span class="hljs-number">0</span>, c.maxBatchSize)
+
+			<span class="hljs-comment">// 先取一条消息, 避免直接进入计时</span>
+			msgBatch = <span class="hljs-built_in">append</span>(msgBatch, &lt;-c.partitionMsgs[partition])
+			flushTimer.Reset(c.forceFlushTime)
+
+			<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+				<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(msgBatch) &lt; c.maxBatchSize &#123;
+					<span class="hljs-keyword">select</span> &#123;
+					<span class="hljs-comment">// 超时退出</span>
+					<span class="hljs-keyword">case</span> &lt;-flushTimer.C:
+						<span class="hljs-keyword">return</span>
+					<span class="hljs-comment">// 接收到新的 msg</span>
+					<span class="hljs-keyword">case</span> msg := &lt;-c.partitionMsgs[partition]:
+						msgBatch = <span class="hljs-built_in">append</span>(msgBatch, msg)
+					<span class="hljs-comment">// 暂时没有新的消息到来，但也尚未超时，此时缓存的消息若满足最小接收量则退出</span>
+					<span class="hljs-keyword">default</span>:
+						<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(msgBatch) &gt; c.minBatchSize &#123;
+							<span class="hljs-keyword">return</span>
+						&#125;
+						<span class="hljs-comment">// 再次 select, 避免空转</span>
+						<span class="hljs-keyword">select</span> &#123;
+						<span class="hljs-keyword">case</span> &lt;- flushTimer.C:
+							<span class="hljs-keyword">return</span>
+						<span class="hljs-keyword">case</span> msg := &lt;-c.partitionMsgs[partition]:
+							msgBatch = <span class="hljs-built_in">append</span>(msgBatch, msg)
+						&#125;
+					&#125;
+				&#125;
+			&#125;()
+
+			<span class="hljs-comment">// callback 中根据业务自行实现重试保证成功或是 drop</span>
+			c.callback(msgBatch...)
+			c.CommitMessages(msgBatch...)
+		&#125;
+	&#125;()
+&#125;</code></pre></div>
 <p>可以看到，在实际的代码实现中，会加入许多额外的细节来提供健壮性，其中使用了 <code>map[int]chan T</code> 结构来维护消息的分组过程，也就是实现了上述的 <code>Dispatcher</code>。除此之外，在 <code>startPartitionHandler(int)</code> 方法中，以异步的形式实现了前文中的<code>Worker</code>。</p>
 <p>在 Worker 的具体实现中，我使用了 3 个可配置的选项来根据实际情况动态的调控消费行为，分别是：</p>
 <ol>
@@ -371,7 +470,118 @@
 <li>对 kafka 的连接进行合理的检测</li>
 </ol>
 <p>伪代码如下：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> KafkaPartitionProducer[T msgtype.KafkaMessage] <span class="hljs-keyword">struct</span> &#123;<br>	brokers   []<span class="hljs-type">string</span><br>	topic     <span class="hljs-type">string</span><br>	partition <span class="hljs-type">int</span><br>	conn      *kafka.Conn<br>	codec     *kafka.CompressionCodec<br><br>	logger *logrus.Entry<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(pp *KafkaPartitionProducer[T])</span></span> ProduceMust(msgs ...T) &#123;<br>	<span class="hljs-keyword">if</span> pp.codec == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;codec is nil&quot;</span>)<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> pp.conn == <span class="hljs-literal">nil</span> &#123;<br>		pp.connectMust()<br>	&#125;<br><br>	<span class="hljs-comment">// 构造 kafka 消息</span><br>	kmsgs := <span class="hljs-built_in">make</span>([]kafka.Message, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(msgs))<br>	<span class="hljs-keyword">for</span> _, msg := <span class="hljs-keyword">range</span> msgs &#123;<br>		kmsg := pp.buildKafkaMessage(msg)<br>		<span class="hljs-keyword">if</span> kmsg == <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		kmsgs = <span class="hljs-built_in">append</span>(kmsgs, *kmsg)<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(kmsgs) == <span class="hljs-number">0</span> &#123;<br>		pp.logger.Warn(<span class="hljs-string">&quot;no messages to produce&quot;</span>)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 无限重试直到发送成功</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; ; i++ &#123;<br>		nbytes, _, offset, _, err := pp.conn.WriteCompressedMessagesAt(*pp.codec, kmsgs...)<br><br>		<span class="hljs-keyword">if</span> err == <span class="hljs-literal">nil</span> &#123;<br>			log.Infof(<span class="hljs-string">&quot;write compressed messages success&quot;</span>)<br>			<span class="hljs-keyword">break</span><br>		&#125;<br><br>		<span class="hljs-keyword">switch</span> err &#123;<br>		<span class="hljs-keyword">case</span> kafka.MessageSizeTooLarge:<br>			log.WithError(err).Errorf(<span class="hljs-string">&quot;kafka message size too large&quot;</span>)<br>			<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(kmsgs) &lt;= <span class="hljs-number">1</span> &#123;<br>				<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;kafka message size too large&quot;</span>)<br>			&#125;<br>			<span class="hljs-comment">// 消息过多对半递归重发</span><br>			mid := <span class="hljs-built_in">len</span>(kmsgs) / <span class="hljs-number">2</span><br>			pp.ProduceMust(msgs[:mid]...)<br>			pp.ProduceMust(msgs[mid:]...)<br>		<span class="hljs-keyword">default</span>:<br>			<span class="hljs-comment">// 其它错误直接重连</span><br>			log.WithError(err).Errorf(<span class="hljs-string">&quot;failed to write compressed messages&quot;</span>)<br>			pp.connectMust()<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(pp *KafkaPartitionProducer[T])</span></span> connect() <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-keyword">if</span> pp.conn != <span class="hljs-literal">nil</span> &#123;<br>		pp.conn.Close()<br>		pp.conn = <span class="hljs-literal">nil</span><br>	&#125;<br><br>	<span class="hljs-keyword">for</span> _, addr := <span class="hljs-keyword">range</span> pp.brokers &#123;<br>		log := pp.logger.WithField(<span class="hljs-string">&quot;addr&quot;</span>, addr)<br><br>		ctx, canceler := context.WithTimeout(context.Background(), <span class="hljs-number">5</span>*time.Second)<br>		<span class="hljs-keyword">defer</span> canceler()<br><br>		<span class="hljs-comment">// 连接到指定 broker 的 topic / partition</span><br>		conn, err := kafka.DialLeader(ctx, <span class="hljs-string">&quot;tcp&quot;</span>, addr, pp.topic, pp.partition)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			log.WithError(err).Errorf(<span class="hljs-string">&quot;failed to dial leader for partition&quot;</span>)<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		<span class="hljs-comment">// 测试 kafka 连接是否正常</span><br>		first, err := conn.ReadFirstOffset()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			log.WithError(err).Error(<span class="hljs-string">&quot;failed to read first offset&quot;</span>)<br>			conn.Close()<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		last, err := conn.ReadLastOffset()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			log.WithError(err).Error(<span class="hljs-string">&quot;failed to read last offset&quot;</span>)<br>			conn.Close()<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		log.WithFields(logrus.Fields&#123;<br>			<span class="hljs-string">&quot;first&quot;</span>: first,<br>			<span class="hljs-string">&quot;last&quot;</span>:  last,<br>		&#125;).Info(<span class="hljs-string">&quot;dial conn success&quot;</span>)<br><br>		pp.conn = conn<br>		<span class="hljs-keyword">break</span><br>	&#125;<br><br>	<span class="hljs-comment">// 没有可用的 broker 连接</span><br>	<span class="hljs-keyword">if</span> pp.conn == <span class="hljs-literal">nil</span> &#123;<br>		pp.logger.WithField(<span class="hljs-string">&quot;brokers&quot;</span>, pp.brokers).Error(<span class="hljs-string">&quot;failed to dial leader from all brokers&quot;</span>)<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;failed to dial leader for partition %d&quot;</span>, pp.partition)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> KafkaPartitionProducer[T msgtype.KafkaMessage] <span class="hljs-keyword">struct</span> &#123;
+	brokers   []<span class="hljs-type">string</span>
+	topic     <span class="hljs-type">string</span>
+	partition <span class="hljs-type">int</span>
+	conn      *kafka.Conn
+	codec     *kafka.CompressionCodec
+
+	logger *logrus.Entry
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(pp *KafkaPartitionProducer[T])</span></span> ProduceMust(msgs ...T) &#123;
+	<span class="hljs-keyword">if</span> pp.codec == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;codec is nil&quot;</span>)
+	&#125;
+
+	<span class="hljs-keyword">if</span> pp.conn == <span class="hljs-literal">nil</span> &#123;
+		pp.connectMust()
+	&#125;
+
+	<span class="hljs-comment">// 构造 kafka 消息</span>
+	kmsgs := <span class="hljs-built_in">make</span>([]kafka.Message, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(msgs))
+	<span class="hljs-keyword">for</span> _, msg := <span class="hljs-keyword">range</span> msgs &#123;
+		kmsg := pp.buildKafkaMessage(msg)
+		<span class="hljs-keyword">if</span> kmsg == <span class="hljs-literal">nil</span> &#123;
+			<span class="hljs-keyword">continue</span>
+		&#125;
+		kmsgs = <span class="hljs-built_in">append</span>(kmsgs, *kmsg)
+	&#125;
+
+	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(kmsgs) == <span class="hljs-number">0</span> &#123;
+		pp.logger.Warn(<span class="hljs-string">&quot;no messages to produce&quot;</span>)
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	<span class="hljs-comment">// 无限重试直到发送成功</span>
+	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; ; i++ &#123;
+		nbytes, _, offset, _, err := pp.conn.WriteCompressedMessagesAt(*pp.codec, kmsgs...)
+
+		<span class="hljs-keyword">if</span> err == <span class="hljs-literal">nil</span> &#123;
+			log.Infof(<span class="hljs-string">&quot;write compressed messages success&quot;</span>)
+			<span class="hljs-keyword">break</span>
+		&#125;
+
+		<span class="hljs-keyword">switch</span> err &#123;
+		<span class="hljs-keyword">case</span> kafka.MessageSizeTooLarge:
+			log.WithError(err).Errorf(<span class="hljs-string">&quot;kafka message size too large&quot;</span>)
+			<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(kmsgs) &lt;= <span class="hljs-number">1</span> &#123;
+				<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;kafka message size too large&quot;</span>)
+			&#125;
+			<span class="hljs-comment">// 消息过多对半递归重发</span>
+			mid := <span class="hljs-built_in">len</span>(kmsgs) / <span class="hljs-number">2</span>
+			pp.ProduceMust(msgs[:mid]...)
+			pp.ProduceMust(msgs[mid:]...)
+		<span class="hljs-keyword">default</span>:
+			<span class="hljs-comment">// 其它错误直接重连</span>
+			log.WithError(err).Errorf(<span class="hljs-string">&quot;failed to write compressed messages&quot;</span>)
+			pp.connectMust()
+		&#125;
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(pp *KafkaPartitionProducer[T])</span></span> connect() <span class="hljs-type">error</span> &#123;
+	<span class="hljs-keyword">if</span> pp.conn != <span class="hljs-literal">nil</span> &#123;
+		pp.conn.Close()
+		pp.conn = <span class="hljs-literal">nil</span>
+	&#125;
+
+	<span class="hljs-keyword">for</span> _, addr := <span class="hljs-keyword">range</span> pp.brokers &#123;
+		log := pp.logger.WithField(<span class="hljs-string">&quot;addr&quot;</span>, addr)
+
+		ctx, canceler := context.WithTimeout(context.Background(), <span class="hljs-number">5</span>*time.Second)
+		<span class="hljs-keyword">defer</span> canceler()
+
+		<span class="hljs-comment">// 连接到指定 broker 的 topic / partition</span>
+		conn, err := kafka.DialLeader(ctx, <span class="hljs-string">&quot;tcp&quot;</span>, addr, pp.topic, pp.partition)
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			log.WithError(err).Errorf(<span class="hljs-string">&quot;failed to dial leader for partition&quot;</span>)
+			<span class="hljs-keyword">continue</span>
+		&#125;
+
+		<span class="hljs-comment">// 测试 kafka 连接是否正常</span>
+		first, err := conn.ReadFirstOffset()
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			log.WithError(err).Error(<span class="hljs-string">&quot;failed to read first offset&quot;</span>)
+			conn.Close()
+			<span class="hljs-keyword">continue</span>
+		&#125;
+
+		last, err := conn.ReadLastOffset()
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			log.WithError(err).Error(<span class="hljs-string">&quot;failed to read last offset&quot;</span>)
+			conn.Close()
+			<span class="hljs-keyword">continue</span>
+		&#125;
+
+		log.WithFields(logrus.Fields&#123;
+			<span class="hljs-string">&quot;first&quot;</span>: first,
+			<span class="hljs-string">&quot;last&quot;</span>:  last,
+		&#125;).Info(<span class="hljs-string">&quot;dial conn success&quot;</span>)
+
+		pp.conn = conn
+		<span class="hljs-keyword">break</span>
+	&#125;
+
+	<span class="hljs-comment">// 没有可用的 broker 连接</span>
+	<span class="hljs-keyword">if</span> pp.conn == <span class="hljs-literal">nil</span> &#123;
+		pp.logger.WithField(<span class="hljs-string">&quot;brokers&quot;</span>, pp.brokers).Error(<span class="hljs-string">&quot;failed to dial leader from all brokers&quot;</span>)
+		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;failed to dial leader for partition %d&quot;</span>, pp.partition)
+	&#125;
+
+	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+&#125;</code></pre></div>
 <hr>
 <h4 id="消费过程的流水线">消费过程的流水线</h4>
 <p>考虑到 Kafka 的消费过程本质上也是一个不同流程的串联，于是我们可以在消费过程上进一步的进行优化。</p>

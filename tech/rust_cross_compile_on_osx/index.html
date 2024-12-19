@@ -74,7 +74,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -84,6 +84,17 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -300,15 +311,63 @@
 <p>Talk is cheap, show me the Makefile.</p>
 </blockquote>
 <h2 id="Setup">Setup</h2>
-<figure class="highlight make"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-musl</span><br><span class="hljs-section">setup-osx-musl:</span><br>	@brew install filosottile/musl-cross/musl-cross<br>	<span class="hljs-comment"># @sudo ln -s &quot;$(brew --prefix musl-cross)/bin/x86_64-linux-musl-gcc&quot; /usr/local/bin/musl-gcc</span><br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-gnu</span><br><span class="hljs-section">setup-osx-gnu:</span><br>	@brew tap SergioBenitez/osxct<br>	@brew install x86_64-unknown-linux-gnu<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-musl</span>
+<span class="hljs-section">setup-osx-musl:</span>
+	@brew install filosottile/musl-cross/musl-cross
+	<span class="hljs-comment"># @sudo ln -s &quot;$(brew --prefix musl-cross)/bin/x86_64-linux-musl-gcc&quot; /usr/local/bin/musl-gcc</span>
+
+<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-gnu</span>
+<span class="hljs-section">setup-osx-gnu:</span>
+	@brew tap SergioBenitez/osxct
+	@brew install x86_64-unknown-linux-gnu</code></pre></div>
 <h2 id="Build">Build</h2>
-<figure class="highlight make"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-gnu</span><br><span class="hljs-section">osx-cross-build-gnu:</span><br>	@echo <span class="hljs-string">&quot;Building presence-tool with gnu&quot;</span><br>	@rustup target add x86_64-unknown-linux-gnu<br>	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --release --target=x86_64-unknown-linux-gnu<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-musl</span><br><span class="hljs-section">osx-cross-build-musl:</span><br>	@echo <span class="hljs-string">&quot;Building presence-tool with musl&quot;</span><br>	@rustup target add x86_64-unknown-linux-musl<br>	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-musl-gcc cargo build --release --target x86_64-unknown-linux-musl<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-gnu</span>
+<span class="hljs-section">osx-cross-build-gnu:</span>
+	@echo <span class="hljs-string">&quot;Building presence-tool with gnu&quot;</span>
+	@rustup target add x86_64-unknown-linux-gnu
+	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --release --target=x86_64-unknown-linux-gnu
+
+<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-musl</span>
+<span class="hljs-section">osx-cross-build-musl:</span>
+	@echo <span class="hljs-string">&quot;Building presence-tool with musl&quot;</span>
+	@rustup target add x86_64-unknown-linux-musl
+	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-musl-gcc cargo build --release --target x86_64-unknown-linux-musl</code></pre></div>
 <h2 id="Chore">Chore</h2>
-<figure class="highlight make"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-cargo-hint</span><br><span class="hljs-section">setup-osx-cargo-hint:</span><br>	@echo <span class="hljs-string">&quot;Put these lines into your ~/.cargo/config.toml:&quot;</span><br>	@echo &#x27;```toml&#x27;<br>	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-musl]&quot;</span><br>	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-linux-musl-gcc\&quot;&quot;</span><br>	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-gnu]&quot;</span><br>	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-unknown-linux-gnu-gcc\&quot;&quot;</span><br>	@echo &#x27;```&#x27;<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: install-bin</span><br><span class="hljs-section">install-bin:</span><br>	@echo <span class="hljs-string">&quot;Installing current bin crate to ~/.cargo/bin&quot;</span><br>	@cargo install --path .<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-osx</span><br><span class="hljs-section">check-dynamic-link-osx: build</span><br>	@echo <span class="hljs-string">&quot;Checking for dynamic linking on OSX&quot;</span><br>	@otool -L target/release/presence-tool<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-linux</span><br><span class="hljs-section">check-dynamic-link-linux: build-musl</span><br>	@echo <span class="hljs-string">&quot;Checking for dynamic linking on Linux&quot;</span><br>	@ldd target/release/presence-tool<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-cargo-hint</span>
+<span class="hljs-section">setup-osx-cargo-hint:</span>
+	@echo <span class="hljs-string">&quot;Put these lines into your ~/.cargo/config.toml:&quot;</span>
+	@echo &#x27;```toml&#x27;
+	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-musl]&quot;</span>
+	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-linux-musl-gcc\&quot;&quot;</span>
+	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-gnu]&quot;</span>
+	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-unknown-linux-gnu-gcc\&quot;&quot;</span>
+	@echo &#x27;```&#x27;
+
+<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: install-bin</span>
+<span class="hljs-section">install-bin:</span>
+	@echo <span class="hljs-string">&quot;Installing current bin crate to ~/.cargo/bin&quot;</span>
+	@cargo install --path .
+
+<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-osx</span>
+<span class="hljs-section">check-dynamic-link-osx: build</span>
+	@echo <span class="hljs-string">&quot;Checking for dynamic linking on OSX&quot;</span>
+	@otool -L target/release/presence-tool
+
+<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-linux</span>
+<span class="hljs-section">check-dynamic-link-linux: build-musl</span>
+	@echo <span class="hljs-string">&quot;Checking for dynamic linking on Linux&quot;</span>
+	@ldd target/release/presence-tool</code></pre></div>
 <h2 id="Cargo-Config">Cargo Config</h2>
-<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs toml"><span class="hljs-section">[target.x86_64-unknown-linux-musl]</span><br><span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-linux-musl-gcc&quot;</span><br><br><span class="hljs-section">[target.x86_64-unknown-linux-gnu]</span><br><span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-unknown-linux-gnu-gcc&quot;</span><br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs toml"><span class="hljs-section">[target.x86_64-unknown-linux-musl]</span>
+<span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-linux-musl-gcc&quot;</span>
+
+<span class="hljs-section">[target.x86_64-unknown-linux-gnu]</span>
+<span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-unknown-linux-gnu-gcc&quot;</span></code></pre></div>
 <p>Once you’ve configured your <code>Cargo.toml</code> and <code>~/.cargo/config.toml</code>, you can simply try this:</p>
-<figure class="highlight make"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: build-musl</span><br><span class="hljs-section">build-musl:</span><br>	@rustup target add x86_64-unknown-linux-musl <span class="hljs-comment"># this line is optional</span><br>	@cargo build --release --target x86_64-unknown-linux-musl<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: build-musl</span>
+<span class="hljs-section">build-musl:</span>
+	@rustup target add x86_64-unknown-linux-musl <span class="hljs-comment"># this line is optional</span>
+	@cargo build --release --target x86_64-unknown-linux-musl</code></pre></div>
 
                 
               </div>

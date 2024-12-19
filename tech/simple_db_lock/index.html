@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -87,6 +87,17 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -309,7 +320,13 @@
 <p><u><strong>多个并发请求同时向数据库插入唯一键相同的记录时，只有一个请求能够成功。</strong></u>并且失败的请求往往能够识别出失败的原因是来自竞争，例如 <code>Duplicate Key Error</code>。</p>
 <p>可以看到，唯一索引的表现和语言标准库中的锁非常一致。</p>
 <h2 id="数据库表结构设计">数据库表结构设计</h2>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> PLock <span class="hljs-keyword">struct</span> &#123;<br>	ID       <span class="hljs-type">string</span> <span class="hljs-comment">// 数据库主键</span><br>	Key      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁定的 key, 与 BizType 组成 uniq key</span><br>	Val      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的 value, 可以是业务相关的自定义数据</span><br>	BizType  <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的类型, 与 Key 组成 uniq key</span><br>	ExpireAt <span class="hljs-type">int64</span>  <span class="hljs-comment">// 过期时间</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> PLock <span class="hljs-keyword">struct</span> &#123;
+	ID       <span class="hljs-type">string</span> <span class="hljs-comment">// 数据库主键</span>
+	Key      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁定的 key, 与 BizType 组成 uniq key</span>
+	Val      <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的 value, 可以是业务相关的自定义数据</span>
+	BizType  <span class="hljs-type">string</span> <span class="hljs-comment">// 锁的类型, 与 Key 组成 uniq key</span>
+	ExpireAt <span class="hljs-type">int64</span>  <span class="hljs-comment">// 过期时间</span>
+&#125;</code></pre></div>
 <p>这里为了阅读体验，我们将数据库表结构设计的尽量精简，实际情况中可以根据业务需要自行修改表结构。</p>
 <p>上面可以看出，我们使用 <code>BizType</code> 和 <code>Key</code> 组成了一个唯一索引 <code>(BizType, Key)</code>，然后添加了两个额外的字段 <code>Val</code> / <code>ExpireAt</code> 来存储锁的额外信息。</p>
 <h2 id="加解锁流程设计">加解锁流程设计</h2>
@@ -330,17 +347,269 @@ do3 --&gt; ok(job success)
 do3 --&gt; err(job failed)
 ok --&gt; e(end)
 err --&gt; e
-e --Unlock--&gt; db
-</code></pre>
+e --Unlock--&gt; db</code></pre>
 <p>可以看到，我们至少需要两个接口：<code>Lock</code> / <code>Unlock</code>，同时，为了实现一个比较完备的组件，我们在运行过程中可能还需要获取一些别的信息，最终我们将一个“选举器”整理为如下的接口：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Elect, 选举器接口, 确保多实例部署情况下在同一时刻, 同一 key 只有一个实例在运行对应任务</span><br><span class="hljs-keyword">type</span> Elect <span class="hljs-keyword">interface</span> &#123;<br>	<span class="hljs-comment">// Lock, 锁定 key 并运行 cb, 通过 cb 传入的 context 可以用于监听任务的取消信号</span><br>	<span class="hljs-comment">// 因此 cb 内部实现应当处理 ctx.Done() 信号, 以便在任务取消时及时退出</span><br>	<span class="hljs-comment">// 仅当锁定成功时, 才会运行 cb 并返回 true</span><br>	<span class="hljs-comment">// 其余情况均返回 false, 如有错误, 则返回错误</span><br>	Lock(key <span class="hljs-type">string</span>, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(ctx context.Context)</span></span>) (ok <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>)<br><br>	<span class="hljs-comment">// Unlock, 解锁 key 并取消运行中的任务</span><br>	Unlock(key <span class="hljs-type">string</span>) (err <span class="hljs-type">error</span>)<br><br>	<span class="hljs-comment">// HoldingKeys, 返回当前持有的所有 key</span><br>	HoldingKeys() []<span class="hljs-type">string</span><br><br>	<span class="hljs-comment">// LockedKeys, 返回当前被锁定的所有 key</span><br>	<span class="hljs-comment">// 注意和 HoldingKeys 的区别, HoldingKeys 只返回当前实例持有的 key,</span><br>	<span class="hljs-comment">// 而 LockedKeys 返回所有实例持有的 key, 一般从数据库中查询得知</span><br>	LockedKeys() ([]<span class="hljs-type">string</span>, <span class="hljs-type">error</span>)<br><br>	<span class="hljs-comment">// Close 优雅退出</span><br>	Close()<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// Elect, 选举器接口, 确保多实例部署情况下在同一时刻, 同一 key 只有一个实例在运行对应任务</span>
+<span class="hljs-keyword">type</span> Elect <span class="hljs-keyword">interface</span> &#123;
+	<span class="hljs-comment">// Lock, 锁定 key 并运行 cb, 通过 cb 传入的 context 可以用于监听任务的取消信号</span>
+	<span class="hljs-comment">// 因此 cb 内部实现应当处理 ctx.Done() 信号, 以便在任务取消时及时退出</span>
+	<span class="hljs-comment">// 仅当锁定成功时, 才会运行 cb 并返回 true</span>
+	<span class="hljs-comment">// 其余情况均返回 false, 如有错误, 则返回错误</span>
+	Lock(key <span class="hljs-type">string</span>, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(ctx context.Context)</span></span>) (ok <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>)
+
+	<span class="hljs-comment">// Unlock, 解锁 key 并取消运行中的任务</span>
+	Unlock(key <span class="hljs-type">string</span>) (err <span class="hljs-type">error</span>)
+
+	<span class="hljs-comment">// HoldingKeys, 返回当前持有的所有 key</span>
+	HoldingKeys() []<span class="hljs-type">string</span>
+
+	<span class="hljs-comment">// LockedKeys, 返回当前被锁定的所有 key</span>
+	<span class="hljs-comment">// 注意和 HoldingKeys 的区别, HoldingKeys 只返回当前实例持有的 key,</span>
+	<span class="hljs-comment">// 而 LockedKeys 返回所有实例持有的 key, 一般从数据库中查询得知</span>
+	LockedKeys() ([]<span class="hljs-type">string</span>, <span class="hljs-type">error</span>)
+
+	<span class="hljs-comment">// Close 优雅退出</span>
+	Close()
+&#125;</code></pre></div>
 <p>接口定义的方法也比较简洁，需要实现的具体功能见代码的注释即可。</p>
 <p>但是我们不难发现，接口内定义的方法似乎没有覆盖到 <code>PLock</code> 表中全部的字段，尤其是唯一键中的 <code>BizType</code>—— 这里稍微解释一下，我个人的编码习惯会将其放入到实现类中去，这里给出一个基于 MongoDB 的实现：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// mongoElect, 基于 MongoDB 的 Elect 实现, 字段含义见 MongoElectConfig</span><br><span class="hljs-keyword">type</span> mongoElect <span class="hljs-keyword">struct</span> &#123;<br>	bizType                          mongodb.PLockBizType<br>	holder                           <span class="hljs-type">string</span><br>	holdDuration                     time.Duration<br>	refreshInterval, refreshDuration time.Duration<br><br>	mu           *sync.RWMutex<br>	runningTasks <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*lockedTask <span class="hljs-comment">// key: lock key, value: locked task</span><br><br>	logger *logrus.Entry<br>&#125;<br><br><span class="hljs-keyword">type</span> MongoElectConfig <span class="hljs-keyword">struct</span> &#123;<br>	<span class="hljs-comment">// BizType 业务类型</span><br>	BizType mongodb.PLockBizType<br><br>	<span class="hljs-comment">// Holder 锁的持有者名称, 例如: 服务实例 ID</span><br>	Holder <span class="hljs-type">string</span><br><br>	<span class="hljs-comment">// HoldDuration 初始锁的持有时间, 例如: 任务执行时间</span><br>	HoldDuration time.Duration<br><br>	<span class="hljs-comment">// RefreshInterval 锁的续期间隔, 例如: 任务执行时间的 1/3</span><br>	RefreshInterval time.Duration<br><br>	<span class="hljs-comment">// RefreshDuration 锁的续期时间(以 now 为标准), 至少为 RefreshInterval 的 2 倍</span><br>	RefreshDuration time.Duration<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewMongoElect</span><span class="hljs-params">(conf *MongoElectConfig)</span></span> Elect &#123;<br>	<span class="hljs-keyword">if</span> conf == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;conf must not be nil&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.BizType == <span class="hljs-string">&quot;&quot;</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;bizType must not be empty&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.Holder == <span class="hljs-string">&quot;&quot;</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;holder must not be empty&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.HoldDuration &lt;= <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;holdDuration must be positive&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.RefreshInterval &lt;= <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshInterval must be positive&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.RefreshDuration &lt;= <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshDuration must be positive&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> conf.RefreshDuration &lt; conf.RefreshInterval*<span class="hljs-number">2</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshDuration must be greater than 2 * refreshInterval&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">return</span> &amp;mongoElect&#123;<br>		bizType:         conf.BizType,<br>		holder:          conf.Holder,<br>		holdDuration:    conf.HoldDuration,<br>		refreshInterval: conf.RefreshInterval,<br>		refreshDuration: conf.RefreshDuration,<br>		mu:              <span class="hljs-built_in">new</span>(sync.RWMutex),<br>		runningTasks:    <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*lockedTask),<br>		logger: logrus.WithFields(logrus.Fields&#123;<br>			<span class="hljs-string">&quot;bizType&quot;</span>:      conf.BizType,<br>			<span class="hljs-string">&quot;holder&quot;</span>:       conf.Holder,<br>			<span class="hljs-string">&quot;holdDuration&quot;</span>: conf.HoldDuration,<br>			<span class="hljs-string">&quot;refresh&quot;</span>:      fmt.Sprintf(<span class="hljs-string">&quot;%v/%v&quot;</span>, conf.RefreshInterval, conf.RefreshDuration),<br>			<span class="hljs-string">&quot;module&quot;</span>:       <span class="hljs-string">&quot;mongo_elect&quot;</span>,<br>		&#125;),<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// mongoElect, 基于 MongoDB 的 Elect 实现, 字段含义见 MongoElectConfig</span>
+<span class="hljs-keyword">type</span> mongoElect <span class="hljs-keyword">struct</span> &#123;
+	bizType                          mongodb.PLockBizType
+	holder                           <span class="hljs-type">string</span>
+	holdDuration                     time.Duration
+	refreshInterval, refreshDuration time.Duration
+
+	mu           *sync.RWMutex
+	runningTasks <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*lockedTask <span class="hljs-comment">// key: lock key, value: locked task</span>
+
+	logger *logrus.Entry
+&#125;
+
+<span class="hljs-keyword">type</span> MongoElectConfig <span class="hljs-keyword">struct</span> &#123;
+	<span class="hljs-comment">// BizType 业务类型</span>
+	BizType mongodb.PLockBizType
+
+	<span class="hljs-comment">// Holder 锁的持有者名称, 例如: 服务实例 ID</span>
+	Holder <span class="hljs-type">string</span>
+
+	<span class="hljs-comment">// HoldDuration 初始锁的持有时间, 例如: 任务执行时间</span>
+	HoldDuration time.Duration
+
+	<span class="hljs-comment">// RefreshInterval 锁的续期间隔, 例如: 任务执行时间的 1/3</span>
+	RefreshInterval time.Duration
+
+	<span class="hljs-comment">// RefreshDuration 锁的续期时间(以 now 为标准), 至少为 RefreshInterval 的 2 倍</span>
+	RefreshDuration time.Duration
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewMongoElect</span><span class="hljs-params">(conf *MongoElectConfig)</span></span> Elect &#123;
+	<span class="hljs-keyword">if</span> conf == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;conf must not be nil&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.BizType == <span class="hljs-string">&quot;&quot;</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;bizType must not be empty&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.Holder == <span class="hljs-string">&quot;&quot;</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;holder must not be empty&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.HoldDuration &lt;= <span class="hljs-number">0</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;holdDuration must be positive&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.RefreshInterval &lt;= <span class="hljs-number">0</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshInterval must be positive&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.RefreshDuration &lt;= <span class="hljs-number">0</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshDuration must be positive&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> conf.RefreshDuration &lt; conf.RefreshInterval*<span class="hljs-number">2</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refreshDuration must be greater than 2 * refreshInterval&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">return</span> &amp;mongoElect&#123;
+		bizType:         conf.BizType,
+		holder:          conf.Holder,
+		holdDuration:    conf.HoldDuration,
+		refreshInterval: conf.RefreshInterval,
+		refreshDuration: conf.RefreshDuration,
+		mu:              <span class="hljs-built_in">new</span>(sync.RWMutex),
+		runningTasks:    <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*lockedTask),
+		logger: logrus.WithFields(logrus.Fields&#123;
+			<span class="hljs-string">&quot;bizType&quot;</span>:      conf.BizType,
+			<span class="hljs-string">&quot;holder&quot;</span>:       conf.Holder,
+			<span class="hljs-string">&quot;holdDuration&quot;</span>: conf.HoldDuration,
+			<span class="hljs-string">&quot;refresh&quot;</span>:      fmt.Sprintf(<span class="hljs-string">&quot;%v/%v&quot;</span>, conf.RefreshInterval, conf.RefreshDuration),
+			<span class="hljs-string">&quot;module&quot;</span>:       <span class="hljs-string">&quot;mongo_elect&quot;</span>,
+		&#125;),
+	&#125;
+&#125;</code></pre></div>
 <p>上面这个实现类实现的具体功能是：加锁时，初始设置好锁的过期时间为 <code>HoldDuration</code>，如果加锁成功，则开始运行任务，运行过程中每经过 <code>RefreshInterval</code> 的间隔，就把锁的过期时间延长为 <code>time.Now + RefreshDuration</code>，直到任务结束为止。</p>
 <p>通过这种设计，我们可以“大致”保证<u><strong>在任务完成之前锁不会过期</strong></u>，因为我们会不断的进行 refresh 操作来延长锁的持有时间。当然如果想要让程序健壮地达到这个目标，我们需要引入更多的复杂性，仅仅依赖一个结构体的字段定义是不足以实现的。</p>
 <p>接下来，我们开始实现加解锁的流程（接口中的其他方法比较简单，略过）：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> Lock(key <span class="hljs-type">string</span>, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>) (ok <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>) &#123;<br>	e.mu.Lock()<br>	<span class="hljs-keyword">defer</span> e.mu.Unlock()<br><br>	<span class="hljs-comment">// 锁定成功后, 运行任务</span><br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-keyword">if</span> ok &#123;<br>			e.logger.Infof(<span class="hljs-string">&quot;[Lock] elect success, key: %v&quot;</span>, key)<br>			task := e.runningTasks[key]<br>			<span class="hljs-keyword">if</span> task == <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;[Lock] task not found after lock&quot;</span>)<br>			&#125;<br>			e.runTask(task, cb)<br>		&#125;<br>	&#125;()<br><br>	<span class="hljs-comment">// 预查询目标锁</span><br>	lock, err := mongodb.PLockDAL.QueryByUniqKey(key, e.bizType)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		e.logger.WithError(err).Error(<span class="hljs-string">&quot;[Lock] elect failed with query error&quot;</span>)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 目标锁不存在, 尝试创建</span><br>	<span class="hljs-keyword">if</span> lock == <span class="hljs-literal">nil</span> &#123;<br>		isDup, err := e.createLock(key)<br>		<span class="hljs-keyword">return</span> err == <span class="hljs-literal">nil</span> &amp;&amp; !isDup, err<br>	&#125;<br><br>	<span class="hljs-comment">// 目标锁存在, 但已过期, 精确删除该锁后再尝试创建</span><br>	<span class="hljs-keyword">if</span> lock.ExpireAt &lt; common.Millisec(time.Now()) &#123;<br>		e.logger.Warnf(<span class="hljs-string">&quot;[Lock] elect for an expired lock, try delete it, key: %v, lock: %v&quot;</span>, key, lock)<br>		<span class="hljs-keyword">if</span> err = mongodb.PLockDAL.DeleteByID(lock.ID); err != <span class="hljs-literal">nil</span> &#123;<br>			e.logger.WithError(err).Error(<span class="hljs-string">&quot;[Lock] elect failed with delete error&quot;</span>)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>		isDup, err := e.createLock(key)<br>		<span class="hljs-keyword">return</span> err == <span class="hljs-literal">nil</span> &amp;&amp; !isDup, err<br>	&#125;<br><br>	<span class="hljs-comment">// 锁是自己创建的, 报错提示</span><br>	<span class="hljs-keyword">if</span> lock.Value == e.holder &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, fmt.Errorf(<span class="hljs-string">&quot;lock of %s already owned&quot;</span>, key)<br>	&#125;<br><br>	<span class="hljs-comment">// 锁不是自己创建的, 返回失败</span><br>	e.logger.WithFields(logrus.Fields&#123;<br>		<span class="hljs-string">&quot;key&quot;</span>:  key,<br>		<span class="hljs-string">&quot;lock&quot;</span>: lock,<br>	&#125;).Warn(<span class="hljs-string">&quot;[Lock] elect failed for already locked&quot;</span>)<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> createLock(key <span class="hljs-type">string</span>) (dup <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>) &#123;<br>	expireAt := common.Millisec(time.Now().Add(e.holdDuration))<br>	id, isDup, err := mongodb.PLockDAL.Create(key, e.holder, e.bizType, expireAt)<br>	e.logger.Infof(<span class="hljs-string">&quot;[createLock] elect result, key: %v, id: %v, err: %v&quot;</span>, key, id, err)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, err<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> isDup &#123;<br>		e.logger.Warnf(<span class="hljs-string">&quot;[createLock] elect failed for already locked, key: %v&quot;</span>, key)<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, <span class="hljs-literal">nil</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> id == <span class="hljs-literal">nil</span> &#123;<br>		err = fmt.Errorf(<span class="hljs-string">&quot;[createLock] elect failed for missing lock id, key: %v&quot;</span>, key)<br>		e.logger.WithError(err).Error(<span class="hljs-string">&quot;Unknown error&quot;</span>)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 成功创建锁, 记录任务</span><br>	task := defaultLockedTask(key)<br>	task.lockID = *id<br>	e.runningTasks[key] = task<br><br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> runTask(task *lockedTask, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>) &#123;<br>	refreshFn := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		ticker := time.NewTicker(e.refreshInterval)<br>		lockID := task.lockID.(primitive.ObjectID)<br>		logger := e.logger.WithField(<span class="hljs-string">&quot;lockID&quot;</span>, lockID.String())<br><br>		<span class="hljs-keyword">for</span> &#123;<br>			<span class="hljs-keyword">select</span> &#123;<br>			<span class="hljs-keyword">case</span> &lt;-task.canceled():<br>				e.logger.Info(<span class="hljs-string">&quot;[refreshFn] refresh lock canceled&quot;</span>)<br>				ticker.Stop()<br>				e.safeCancelTask(task)<br>				<span class="hljs-keyword">return</span><br><br>			<span class="hljs-keyword">case</span> &lt;-ticker.C:<br>				<span class="hljs-comment">// 查询锁</span><br>				<span class="hljs-keyword">var</span> lock *mongodb.PLock<br>				<span class="hljs-keyword">for</span> &#123;<br>					<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>					lock, err = mongodb.PLockDAL.QueryByID(lockID)<br>					<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>						logger.WithError(err).Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed with query error&quot;</span>)<br>						time.Sleep(time.Second)<br>						<span class="hljs-keyword">continue</span><br>					&#125;<br>					<span class="hljs-keyword">break</span><br>				&#125;<br><br>				nowTs := common.Millisec(time.Now())<br><br>				<span class="hljs-comment">// 锁不存在, 异常情况, 直接退出</span><br>				<span class="hljs-comment">// 或者续期不及时, 已被其他实例抢占</span><br>				<span class="hljs-keyword">if</span> lock == <span class="hljs-literal">nil</span> || lock.ExpireAt &lt; nowTs &#123;<br>					logger.Errorf(<span class="hljs-string">&quot;[refreshFn] refresh lock failed for lock not found, maybe released&quot;</span>)<br>					e.safeCancelTask(task)<br>					<span class="hljs-keyword">return</span><br>				&#125;<br><br>				<span class="hljs-comment">// 正常续期</span><br>				expireAt := common.Millisec(time.Now().Add(e.refreshDuration))<br>				e.logger.Infof(<span class="hljs-string">&quot;[refreshFn] refresh lock start, new expireAt: %v&quot;</span>, expireAt)<br>				<span class="hljs-keyword">if</span> err := mongodb.PLockDAL.UpdateExpireAtByID(lockID, expireAt); err != <span class="hljs-literal">nil</span> &#123;<br>					logger.WithError(err).Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed with update error&quot;</span>)<br>					<span class="hljs-comment">// 如果续期失败, 且距离过期时间不足 2 倍的 refresh interval, 则直接退出</span><br>					<span class="hljs-comment">// 否则可能导致锁过期时, 任务还在执行</span><br>					<span class="hljs-comment">// 其余情况暂时不管, 会在下次续期时重试</span><br>					<span class="hljs-keyword">if</span> lock.ExpireAt-nowTs &lt; e.refreshInterval.Milliseconds()*<span class="hljs-number">2</span> &#123;<br>						logger.Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed for too late&quot;</span>)<br>						e.safeCancelTask(task)<br>						<span class="hljs-keyword">return</span><br>					&#125;<br>				&#125;<br>				e.logger.Infof(<span class="hljs-string">&quot;[refreshFn] refresh lock success, new expireAt: %v&quot;</span>, expireAt)<br>			&#125;<br>		&#125;<br>	&#125;<br><br>	task.run(cb, refreshFn)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> safeCancelTask(task *lockedTask) &#123;<br>	e.mu.Lock()<br>	<span class="hljs-keyword">defer</span> e.mu.Unlock()<br>	e.cancelTask(task)<br>&#125;<br><br><span class="hljs-comment">// WARN: 该方法需要在持有锁的情况下调用</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> cancelTask(task *lockedTask) &#123;<br>	<span class="hljs-comment">// 先取消任务</span><br>	task.cancelAndWait()<br>	lockID := task.lockID.(primitive.ObjectID)<br><br>	<span class="hljs-comment">// 再删除 db 锁, 重试直到成功</span><br>	common.WithRetry(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">error</span> &#123;<br>		<span class="hljs-keyword">if</span> err := mongodb.PLockDAL.DeleteByID(lockID); err != <span class="hljs-literal">nil</span> &#123;<br>			e.logger.WithError(err).Error(<span class="hljs-string">&quot;[cancelTask] cancel task failed with delete error&quot;</span>)<br>			<span class="hljs-keyword">return</span> err<br>		&#125;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;, <span class="hljs-number">-1</span>, time.Second)<br><br>	<span class="hljs-comment">// 最后删除任务</span><br>	<span class="hljs-built_in">delete</span>(e.runningTasks, task.key())<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> Lock(key <span class="hljs-type">string</span>, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>) (ok <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>) &#123;
+	e.mu.Lock()
+	<span class="hljs-keyword">defer</span> e.mu.Unlock()
+
+	<span class="hljs-comment">// 锁定成功后, 运行任务</span>
+	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-keyword">if</span> ok &#123;
+			e.logger.Infof(<span class="hljs-string">&quot;[Lock] elect success, key: %v&quot;</span>, key)
+			task := e.runningTasks[key]
+			<span class="hljs-keyword">if</span> task == <span class="hljs-literal">nil</span> &#123;
+				<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;[Lock] task not found after lock&quot;</span>)
+			&#125;
+			e.runTask(task, cb)
+		&#125;
+	&#125;()
+
+	<span class="hljs-comment">// 预查询目标锁</span>
+	lock, err := mongodb.PLockDAL.QueryByUniqKey(key, e.bizType)
+	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+		e.logger.WithError(err).Error(<span class="hljs-string">&quot;[Lock] elect failed with query error&quot;</span>)
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	<span class="hljs-comment">// 目标锁不存在, 尝试创建</span>
+	<span class="hljs-keyword">if</span> lock == <span class="hljs-literal">nil</span> &#123;
+		isDup, err := e.createLock(key)
+		<span class="hljs-keyword">return</span> err == <span class="hljs-literal">nil</span> &amp;&amp; !isDup, err
+	&#125;
+
+	<span class="hljs-comment">// 目标锁存在, 但已过期, 精确删除该锁后再尝试创建</span>
+	<span class="hljs-keyword">if</span> lock.ExpireAt &lt; common.Millisec(time.Now()) &#123;
+		e.logger.Warnf(<span class="hljs-string">&quot;[Lock] elect for an expired lock, try delete it, key: %v, lock: %v&quot;</span>, key, lock)
+		<span class="hljs-keyword">if</span> err = mongodb.PLockDAL.DeleteByID(lock.ID); err != <span class="hljs-literal">nil</span> &#123;
+			e.logger.WithError(err).Error(<span class="hljs-string">&quot;[Lock] elect failed with delete error&quot;</span>)
+			<span class="hljs-keyword">return</span>
+		&#125;
+		isDup, err := e.createLock(key)
+		<span class="hljs-keyword">return</span> err == <span class="hljs-literal">nil</span> &amp;&amp; !isDup, err
+	&#125;
+
+	<span class="hljs-comment">// 锁是自己创建的, 报错提示</span>
+	<span class="hljs-keyword">if</span> lock.Value == e.holder &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, fmt.Errorf(<span class="hljs-string">&quot;lock of %s already owned&quot;</span>, key)
+	&#125;
+
+	<span class="hljs-comment">// 锁不是自己创建的, 返回失败</span>
+	e.logger.WithFields(logrus.Fields&#123;
+		<span class="hljs-string">&quot;key&quot;</span>:  key,
+		<span class="hljs-string">&quot;lock&quot;</span>: lock,
+	&#125;).Warn(<span class="hljs-string">&quot;[Lock] elect failed for already locked&quot;</span>)
+
+	<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, <span class="hljs-literal">nil</span>
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> createLock(key <span class="hljs-type">string</span>) (dup <span class="hljs-type">bool</span>, err <span class="hljs-type">error</span>) &#123;
+	expireAt := common.Millisec(time.Now().Add(e.holdDuration))
+	id, isDup, err := mongodb.PLockDAL.Create(key, e.holder, e.bizType, expireAt)
+	e.logger.Infof(<span class="hljs-string">&quot;[createLock] elect result, key: %v, id: %v, err: %v&quot;</span>, key, id, err)
+	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, err
+	&#125;
+
+	<span class="hljs-keyword">if</span> isDup &#123;
+		e.logger.Warnf(<span class="hljs-string">&quot;[createLock] elect failed for already locked, key: %v&quot;</span>, key)
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, <span class="hljs-literal">nil</span>
+	&#125;
+
+	<span class="hljs-keyword">if</span> id == <span class="hljs-literal">nil</span> &#123;
+		err = fmt.Errorf(<span class="hljs-string">&quot;[createLock] elect failed for missing lock id, key: %v&quot;</span>, key)
+		e.logger.WithError(err).Error(<span class="hljs-string">&quot;Unknown error&quot;</span>)
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	<span class="hljs-comment">// 成功创建锁, 记录任务</span>
+	task := defaultLockedTask(key)
+	task.lockID = *id
+	e.runningTasks[key] = task
+
+	<span class="hljs-keyword">return</span>
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> runTask(task *lockedTask, cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>) &#123;
+	refreshFn := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		ticker := time.NewTicker(e.refreshInterval)
+		lockID := task.lockID.(primitive.ObjectID)
+		logger := e.logger.WithField(<span class="hljs-string">&quot;lockID&quot;</span>, lockID.String())
+
+		<span class="hljs-keyword">for</span> &#123;
+			<span class="hljs-keyword">select</span> &#123;
+			<span class="hljs-keyword">case</span> &lt;-task.canceled():
+				e.logger.Info(<span class="hljs-string">&quot;[refreshFn] refresh lock canceled&quot;</span>)
+				ticker.Stop()
+				e.safeCancelTask(task)
+				<span class="hljs-keyword">return</span>
+
+			<span class="hljs-keyword">case</span> &lt;-ticker.C:
+				<span class="hljs-comment">// 查询锁</span>
+				<span class="hljs-keyword">var</span> lock *mongodb.PLock
+				<span class="hljs-keyword">for</span> &#123;
+					<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span>
+					lock, err = mongodb.PLockDAL.QueryByID(lockID)
+					<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+						logger.WithError(err).Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed with query error&quot;</span>)
+						time.Sleep(time.Second)
+						<span class="hljs-keyword">continue</span>
+					&#125;
+					<span class="hljs-keyword">break</span>
+				&#125;
+
+				nowTs := common.Millisec(time.Now())
+
+				<span class="hljs-comment">// 锁不存在, 异常情况, 直接退出</span>
+				<span class="hljs-comment">// 或者续期不及时, 已被其他实例抢占</span>
+				<span class="hljs-keyword">if</span> lock == <span class="hljs-literal">nil</span> || lock.ExpireAt &lt; nowTs &#123;
+					logger.Errorf(<span class="hljs-string">&quot;[refreshFn] refresh lock failed for lock not found, maybe released&quot;</span>)
+					e.safeCancelTask(task)
+					<span class="hljs-keyword">return</span>
+				&#125;
+
+				<span class="hljs-comment">// 正常续期</span>
+				expireAt := common.Millisec(time.Now().Add(e.refreshDuration))
+				e.logger.Infof(<span class="hljs-string">&quot;[refreshFn] refresh lock start, new expireAt: %v&quot;</span>, expireAt)
+				<span class="hljs-keyword">if</span> err := mongodb.PLockDAL.UpdateExpireAtByID(lockID, expireAt); err != <span class="hljs-literal">nil</span> &#123;
+					logger.WithError(err).Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed with update error&quot;</span>)
+					<span class="hljs-comment">// 如果续期失败, 且距离过期时间不足 2 倍的 refresh interval, 则直接退出</span>
+					<span class="hljs-comment">// 否则可能导致锁过期时, 任务还在执行</span>
+					<span class="hljs-comment">// 其余情况暂时不管, 会在下次续期时重试</span>
+					<span class="hljs-keyword">if</span> lock.ExpireAt-nowTs &lt; e.refreshInterval.Milliseconds()*<span class="hljs-number">2</span> &#123;
+						logger.Error(<span class="hljs-string">&quot;[refreshFn] refresh lock failed for too late&quot;</span>)
+						e.safeCancelTask(task)
+						<span class="hljs-keyword">return</span>
+					&#125;
+				&#125;
+				e.logger.Infof(<span class="hljs-string">&quot;[refreshFn] refresh lock success, new expireAt: %v&quot;</span>, expireAt)
+			&#125;
+		&#125;
+	&#125;
+
+	task.run(cb, refreshFn)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> safeCancelTask(task *lockedTask) &#123;
+	e.mu.Lock()
+	<span class="hljs-keyword">defer</span> e.mu.Unlock()
+	e.cancelTask(task)
+&#125;
+
+<span class="hljs-comment">// WARN: 该方法需要在持有锁的情况下调用</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> cancelTask(task *lockedTask) &#123;
+	<span class="hljs-comment">// 先取消任务</span>
+	task.cancelAndWait()
+	lockID := task.lockID.(primitive.ObjectID)
+
+	<span class="hljs-comment">// 再删除 db 锁, 重试直到成功</span>
+	common.WithRetry(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">error</span> &#123;
+		<span class="hljs-keyword">if</span> err := mongodb.PLockDAL.DeleteByID(lockID); err != <span class="hljs-literal">nil</span> &#123;
+			e.logger.WithError(err).Error(<span class="hljs-string">&quot;[cancelTask] cancel task failed with delete error&quot;</span>)
+			<span class="hljs-keyword">return</span> err
+		&#125;
+		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+	&#125;, <span class="hljs-number">-1</span>, time.Second)
+
+	<span class="hljs-comment">// 最后删除任务</span>
+	<span class="hljs-built_in">delete</span>(e.runningTasks, task.key())
+&#125;</code></pre></div>
 <p>上面的代码比较长，我们逐步进行解释（注，本文将省略数据库层面的代码）：</p>
 <ol>
 <li>加锁时，首先查询想要锁的唯一键是否存在
@@ -386,11 +655,73 @@ e --Unlock--&gt; db
 </ol>
 <hr>
 <p>接下来看一看解锁的实现：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> Unlock(key <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>	e.mu.Lock()<br>	<span class="hljs-keyword">defer</span> e.mu.Unlock()<br><br>	task, ok := e.runningTasks[key]<br>	<span class="hljs-keyword">if</span> !ok &#123;<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;lock of %s not owned&quot;</span>, key)<br>	&#125;<br><br>	e.cancelTask(task)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(e *mongoElect)</span></span> Unlock(key <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;
+	e.mu.Lock()
+	<span class="hljs-keyword">defer</span> e.mu.Unlock()
+
+	task, ok := e.runningTasks[key]
+	<span class="hljs-keyword">if</span> !ok &#123;
+		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;lock of %s not owned&quot;</span>, key)
+	&#125;
+
+	e.cancelTask(task)
+	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+&#125;</code></pre></div>
 <p>有了加锁的底子，解锁实现起来就比较简单了，只需要调用 <code>cancelTask</code> 方法即可。</p>
 <hr>
 <p>附：lockedTask 具体实现</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> lockedTask <span class="hljs-keyword">struct</span> &#123;<br>	ctx    context.Context<br>	cancel context.CancelFunc<br><br>	lockKey <span class="hljs-type">string</span><br>	lockID  any<br><br>	doneCh  <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;<br>	runOnce *sync.Once<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">defaultLockedTask</span><span class="hljs-params">(key <span class="hljs-type">string</span>)</span></span> *lockedTask &#123;<br>	ctx, cancel := context.WithCancel(context.Background())<br>	<span class="hljs-keyword">return</span> &amp;lockedTask&#123;<br>		ctx:     ctx,<br>		cancel:  cancel,<br>		lockKey: key,<br>		doneCh:  <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;),<br>		runOnce: <span class="hljs-built_in">new</span>(sync.Once),<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> run(cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>, refresh <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span>) &#123;<br>	lt.runOnce.Do(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-comment">// 后台运行任务</span><br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>			cb(lt.ctx)<br>			<span class="hljs-built_in">close</span>(lt.doneCh)<br>			lt.cancel()<br>			log.WithFields(logrus.Fields&#123;<br>				<span class="hljs-string">&quot;lockKey&quot;</span>: lt.lockKey,<br>				<span class="hljs-string">&quot;lockID&quot;</span>:  lt.lockID,<br>			&#125;).Info(<span class="hljs-string">&quot;locked task done&quot;</span>)<br>		&#125;()<br><br>		<span class="hljs-comment">// 后台刷新锁有效期</span><br>		<span class="hljs-keyword">go</span> refresh()<br>	&#125;)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> cancelAndWait() &#123;<br>	lt.cancel()<br>	&lt;-lt.doneCh<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> canceled() &lt;-<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125; &#123;<br>	<span class="hljs-keyword">return</span> lt.ctx.Done()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> key() <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-keyword">return</span> lt.lockKey<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> lockedTask <span class="hljs-keyword">struct</span> &#123;
+	ctx    context.Context
+	cancel context.CancelFunc
+
+	lockKey <span class="hljs-type">string</span>
+	lockID  any
+
+	doneCh  <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;
+	runOnce *sync.Once
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">defaultLockedTask</span><span class="hljs-params">(key <span class="hljs-type">string</span>)</span></span> *lockedTask &#123;
+	ctx, cancel := context.WithCancel(context.Background())
+	<span class="hljs-keyword">return</span> &amp;lockedTask&#123;
+		ctx:     ctx,
+		cancel:  cancel,
+		lockKey: key,
+		doneCh:  <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;),
+		runOnce: <span class="hljs-built_in">new</span>(sync.Once),
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> run(cb <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(context.Context)</span></span>, refresh <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span>) &#123;
+	lt.runOnce.Do(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-comment">// 后台运行任务</span>
+		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+			cb(lt.ctx)
+			<span class="hljs-built_in">close</span>(lt.doneCh)
+			lt.cancel()
+			log.WithFields(logrus.Fields&#123;
+				<span class="hljs-string">&quot;lockKey&quot;</span>: lt.lockKey,
+				<span class="hljs-string">&quot;lockID&quot;</span>:  lt.lockID,
+			&#125;).Info(<span class="hljs-string">&quot;locked task done&quot;</span>)
+		&#125;()
+
+		<span class="hljs-comment">// 后台刷新锁有效期</span>
+		<span class="hljs-keyword">go</span> refresh()
+	&#125;)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> cancelAndWait() &#123;
+	lt.cancel()
+	&lt;-lt.doneCh
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> canceled() &lt;-<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125; &#123;
+	<span class="hljs-keyword">return</span> lt.ctx.Done()
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(lt *lockedTask)</span></span> key() <span class="hljs-type">string</span> &#123;
+	<span class="hljs-keyword">return</span> lt.lockKey
+&#125;</code></pre></div>
 <p>不难看出，<code>lockedTask</code> 类型主要是封装了业务任务的执行流程，为其添加了基于 <code>context.Context</code> 的中断控制以及刷新锁的有效期的方法。</p>
 <hr>
 <p>最终我们得到的选举器的工作过程大致如下图所示：</p>

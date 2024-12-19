@@ -79,7 +79,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -89,6 +89,17 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -331,7 +342,26 @@
 <p>也就是说，<code>Context</code> 这个数据结构，<u>应该伴随一整个请求的完整链路</u>：</p>
 <p><img src="/img/go-ctx/pass-ctx.png" srcset="/img/loading.gif" lazyload alt="向下游传递的 ctx"></p>
 <p>除此之外，在服务的内部，<code>Context</code> 也<u>应该在函数调用链中不断的被传递</u>：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.Background()<br>	chainRoot(ctx, ...)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainRoot</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;<br>	...<br>	chainSecond(ctx, ...)<br>	...<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainSecond</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;<br>	...<br>	chainThird(ctx, ...)<br>	...<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainThird</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;<br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.Background()
+	chainRoot(ctx, ...)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainRoot</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;
+	...
+	chainSecond(ctx, ...)
+	...
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainSecond</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;
+	...
+	chainThird(ctx, ...)
+	...
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chainThird</span><span class="hljs-params">(ctx context.Context, ...)</span></span> &#123;
+	...
+&#125;</code></pre></div>
 <p>至此，我们对 <code>Context</code> 的基本使用方式有了一个基本的了解 —— 将其放在函数参数列表中的第一位，然后在编码时手动传递。在跨服务调用的场景下，我们应该将 ctx 序列化后伴随请求传递到下游服务中，下游服务再将其反序列化出来继续使用。</p>
 <p>此外，从上面的代码中，我们也不难理解为什么在 Golang 官方的注释中描述道：<code>Context</code> 可能被多个 <code>goroutine</code> 并发调用 —— 在整个调用链中，我们很有可能开启若干协程来处理业务，且每个协程都对 <code>Context</code> 都具备访问权限。</p>
 <hr>
@@ -341,7 +371,19 @@
 <p>接下来根据第一节中提到的前三种数据承载的能力，我们分别给出相应的 demo 进行演示。</p>
 <h4 id="1-传递自定义数据">1. 传递自定义数据</h4>
 <p>我们可以使用 <code>context.Background()</code> 来获得一个初始化的 <code>Context</code>，再使用 <code>context.WithValue()</code> 来给一个现有的 <code>Context</code> 注入自定义数据:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.Background()<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key1&quot;</span>, <span class="hljs-string">&quot;value1&quot;</span>)<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key2&quot;</span>, errors.New(<span class="hljs-string">&quot;value2&quot;</span>))<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key3&quot;</span>, <span class="hljs-number">3</span>)<br>	fn(ctx)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fn</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;<br>	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key1&quot;</span>).(<span class="hljs-type">string</span>))<br>	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key2&quot;</span>).(<span class="hljs-type">error</span>).Error())<br>	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key3&quot;</span>).(<span class="hljs-type">int</span>))<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key1&quot;</span>, <span class="hljs-string">&quot;value1&quot;</span>)
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key2&quot;</span>, errors.New(<span class="hljs-string">&quot;value2&quot;</span>))
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;key3&quot;</span>, <span class="hljs-number">3</span>)
+	fn(ctx)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fn</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;
+	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key1&quot;</span>).(<span class="hljs-type">string</span>))
+	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key2&quot;</span>).(<span class="hljs-type">error</span>).Error())
+	<span class="hljs-built_in">println</span>(ctx.Value(<span class="hljs-string">&quot;key3&quot;</span>).(<span class="hljs-type">int</span>))
+&#125;</code></pre></div>
 <p>从这段代码中可以看出，<code>Context</code> 的行为就像是一个 <code>map[string]any</code> ，我们在获取数据时可能会需要用到类型断言。</p>
 <p>传递自定义数据相关的使用比较简单，这里不再展开。</p>
 <hr>
@@ -356,15 +398,73 @@
 </ol>
 <p>其中，函数末尾带有 <code>Cause</code> 意味这你可以「自定义一个超时错误」传入函数中，当发生超时的时候 <code>Context</code> 会将这个自定义错误返回出来，否则它会返回一个默认的超时错误。</p>
 <p>并且，<code>WithTimout*</code> 本质上是 <code>WithDeadline*</code> 的一个封装，封装过程也极其简单，即：将 <code>time.Duration</code> 与 <code>time.Now</code> 求和从而计算得出 <code>Deadline</code>。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.Background()<br>	<span class="hljs-comment">// 给 ctx 设置 3s 后超时</span><br>	ctx, cancel := context.WithTimeout(ctx, time.Second*<span class="hljs-number">3</span>)<br><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-keyword">defer</span> cancel()<br>		longTimeWork(ctx)<br>	&#125;()<br><br>	<span class="hljs-comment">// ctx 超时结束后，从中获取导致其结束的 err 信息</span><br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> &lt;-ctx.Done():<br>		<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;main:&quot;</span>, ctx.Err().Error())<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; ;i++ &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-ctx.Done(): <span class="hljs-comment">// 监听超时信号</span><br>			<span class="hljs-keyword">return</span><br>		<span class="hljs-keyword">default</span>: <span class="hljs-comment">// 未超时则继续处理业务逻辑</span><br>			<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;doing sth inside&quot;</span>, i)<br>			time.Sleep(time.Second)<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">Output:<br>doing sth inside 1<br>doing sth inside 2<br>doing sth inside 3<br>main: context deadline exceeded<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.Background()
+	<span class="hljs-comment">// 给 ctx 设置 3s 后超时</span>
+	ctx, cancel := context.WithTimeout(ctx, time.Second*<span class="hljs-number">3</span>)
+
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-keyword">defer</span> cancel()
+		longTimeWork(ctx)
+	&#125;()
+
+	<span class="hljs-comment">// ctx 超时结束后，从中获取导致其结束的 err 信息</span>
+	<span class="hljs-keyword">select</span> &#123;
+	<span class="hljs-keyword">case</span> &lt;-ctx.Done():
+		<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;main:&quot;</span>, ctx.Err().Error())
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;
+	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; ;i++ &#123;
+		<span class="hljs-keyword">select</span> &#123;
+		<span class="hljs-keyword">case</span> &lt;-ctx.Done(): <span class="hljs-comment">// 监听超时信号</span>
+			<span class="hljs-keyword">return</span>
+		<span class="hljs-keyword">default</span>: <span class="hljs-comment">// 未超时则继续处理业务逻辑</span>
+			<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;doing sth inside&quot;</span>, i)
+			time.Sleep(time.Second)
+		&#125;
+	&#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs sh">Output:
+doing sth inside 1
+doing sth inside 2
+doing sth inside 3
+main: context deadline exceeded</code></pre></div>
 <p><strong>代码解析：</strong></p>
 <p>在上面的例子中，我们在外层设置了一个过期时间为 3 秒的 <code>Context</code> ，然后将这个 <code>Context</code> 作为参数传递给了一个耗时很长的函数，该函数内部不断监听着这个 <code>Context</code> 的超时信号，当超时发生时立即退出。</p>
 <p>最后在外层，我们监测到 <code>Context</code> 超时后，可以通过 <code>Context.Err()</code> 来获取错误信息，即输出中的 <code>context deadline exceeded</code>。</p>
 <p><strong>思考：</strong></p>
 <p>仔细观察上面对于超时过程的监控过程，我们不难发现，对于超时信号的监控侵入了 <code>longTimeWork</code> 的代码实现。</p>
 <p>这种方式看起来让我们的代码变得不够优雅，但它也给我们带来一个好处 —— 极细粒度的超时检测，例如我们可以将代码改写为下方这样：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;<br>	<span class="hljs-comment">// 封装一个判断是否超时的函数</span><br>	timeouted := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-ctx.Done():<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>		<span class="hljs-keyword">default</span>:<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>		&#125;<br>	&#125;<br><br>	subwork1(...)<br>	<span class="hljs-keyword">if</span> timeouted() &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	subwork2(...)<br>	<span class="hljs-keyword">if</span> timeouted() &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	subwork3(...)<br>	<span class="hljs-keyword">if</span> timeouted() &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;
+	<span class="hljs-comment">// 封装一个判断是否超时的函数</span>
+	timeouted := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;
+		<span class="hljs-keyword">select</span> &#123;
+		<span class="hljs-keyword">case</span> &lt;-ctx.Done():
+			<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+		<span class="hljs-keyword">default</span>:
+			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+		&#125;
+	&#125;
+
+	subwork1(...)
+	<span class="hljs-keyword">if</span> timeouted() &#123;
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	subwork2(...)
+	<span class="hljs-keyword">if</span> timeouted() &#123;
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	subwork3(...)
+	<span class="hljs-keyword">if</span> timeouted() &#123;
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
 <p>可以看到，我们甚至可以将检测超时的粒度细分为「行级」，每执行一行代码就检测一次。</p>
 <p>通过 <code>Context</code> 赋予我们的超时机制，我们可以用一行代码为基本单位来实现细粒度的超时检测（粒度可以从 1 行到 n 行），在 <code>Context</code> 的帮助下，我们可以容易地避免掉大量无意义的运算行为。</p>
 <hr>
@@ -372,8 +472,41 @@
 <p>在上一节中，我们看到了基于超时的行为控制，但有时我们的业务逻辑可能需要更精准的控制，例如：虽然现在还尚未超时，但是我当下就想立马取消后续的所有运算。</p>
 <p>比如 javascript 中 <code>Promise.Race()</code> 就是一个很好的例子。我们有时会开启多个异步任务让他们进行“比赛”，任何一个任务完成都意味着这场比赛已经结束，因为我们已经拿到了我们想要的计算结果，此时别的任务再进一步去做运算已经失去了意义，这时我要是能手动取消这些任务就能节省大量的运算资源。</p>
 <p>在 <code>Context</code> 中，我们可以使用<code>context.WithCancel</code> 来给 <code>Context</code> 设置一个手动取消的信号监听器：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.Background()<br>	ctx, cancel := context.WithCancel(ctx)<br><br>	<span class="hljs-keyword">go</span> longTimeWork(ctx)<br>	<br>	<span class="hljs-comment">// 3s 后手动取消</span><br>	timer := time.NewTimer(time.Second * <span class="hljs-number">3</span>)<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> &lt;-timer.C:<br>		cancel()<br>	&#125;<br><br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> &lt;-ctx.Done():<br>		<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;main:&quot;</span>, ctx.Err().Error())<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; ; i++ &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-ctx.Done():<br>			<span class="hljs-keyword">return</span><br>		<span class="hljs-keyword">default</span>:<br>			<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;doing sth inside&quot;</span>, i)<br>			time.Sleep(time.Second)<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">Output:<br>doing sth inside 0<br>doing sth inside 1<br>doing sth inside 2<br>main: context canceled<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+
+	<span class="hljs-keyword">go</span> longTimeWork(ctx)
+	
+	<span class="hljs-comment">// 3s 后手动取消</span>
+	timer := time.NewTimer(time.Second * <span class="hljs-number">3</span>)
+	<span class="hljs-keyword">select</span> &#123;
+	<span class="hljs-keyword">case</span> &lt;-timer.C:
+		cancel()
+	&#125;
+
+	<span class="hljs-keyword">select</span> &#123;
+	<span class="hljs-keyword">case</span> &lt;-ctx.Done():
+		<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;main:&quot;</span>, ctx.Err().Error())
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longTimeWork</span><span class="hljs-params">(ctx context.Context)</span></span> &#123;
+	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; ; i++ &#123;
+		<span class="hljs-keyword">select</span> &#123;
+		<span class="hljs-keyword">case</span> &lt;-ctx.Done():
+			<span class="hljs-keyword">return</span>
+		<span class="hljs-keyword">default</span>:
+			<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;doing sth inside&quot;</span>, i)
+			time.Sleep(time.Second)
+		&#125;
+	&#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs sh">Output:
+doing sth inside 0
+doing sth inside 1
+doing sth inside 2
+main: context canceled</code></pre></div>
 <p>可以看到，这次我们在外层等待 3s 后手动调用 <code>cancel()</code>取消了异步任务，而之前是在外部仅设置超时时间，ctx 内部自主取消，差别还是比较明显的。</p>
 <p>同样，内部响应取消信号的粒度与之前前文是一致的，可以进行自定义，甚至可以忽略这个信号 —— 只要你不去监听 <code>ctx.Done()</code> 即可。</p>
 <hr>
@@ -403,7 +536,86 @@
 <li>然后编写了一个中间件用于前置解析请求并生成 <code>ctx</code></li>
 <li>随后在接口的 handler 中我们可以直接获取到解析好的 <code>ctx</code> 并传递给业务函数进行使用了</li>
 </ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> BaseCtx <span class="hljs-keyword">struct</span> &#123;<br>	UserID    <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;userID&quot;`</span><br>	AccountID <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;accountID&quot;`</span><br>&#125;<br><br><span class="hljs-keyword">type</span> UserRequest <span class="hljs-keyword">struct</span> &#123;<br>	Username <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;username&quot;`</span><br>&#125;<br><br><span class="hljs-comment">// Middleware 解析请求中的 JSON 请求体并将参数存储到 Context 中</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ContextMiddleware</span><span class="hljs-params">()</span></span> gin.HandlerFunc &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>		<span class="hljs-comment">// 读取请求体</span><br>		body, err := io.ReadAll(c.Request.Body)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to read request body&quot;</span>&#125;)<br>			c.Abort()<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-comment">// 将请求体重新放回请求中</span><br>		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))<br><br>		<span class="hljs-comment">// 解析 JSON 请求体到 BaseCtx 结构</span><br>		<span class="hljs-keyword">var</span> baseCtx BaseCtx<br>		<span class="hljs-keyword">if</span> err := json.Unmarshal(body, &amp;baseCtx); err != <span class="hljs-literal">nil</span> &#123;<br>			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to parse JSON&quot;</span>&#125;)<br>			c.Abort()<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-comment">// 将参数存储到 Context 中</span><br>		ctx := context.WithValue(context.Background(), <span class="hljs-string">&quot;userID&quot;</span>, baseCtx.UserID)<br>		ctx = context.WithValue(ctx, <span class="hljs-string">&quot;accountID&quot;</span>, baseCtx.AccountID)<br><br>		<span class="hljs-comment">// 将新的 Context 替换原有的 Context</span><br>		c.Request = c.Request.WithContext(ctx)<br><br>		<span class="hljs-comment">// 继续处理请求</span><br>		c.Next()<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	r := gin.Default()<br>  <br>	<span class="hljs-comment">// 注册解析 ctx 的中间件 </span><br>	r.Use(ContextMiddleware())<br><br>	r.POST(<span class="hljs-string">&quot;/user&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>		<span class="hljs-comment">// 获取 Context</span><br>		ctx := c.Request.Context()<br><br>		<span class="hljs-comment">// 超时时间为 5 秒</span><br>		ctx, cancel := context.WithTimeout(ctx, <span class="hljs-number">5</span>*time.Second)<br>		<span class="hljs-keyword">defer</span> cancel()<br><br>		<span class="hljs-comment">// 读取请求体</span><br>		body, err := io.ReadAll(c.Request.Body)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to read request body again&quot;</span>&#125;)<br>			c.Abort()<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		userReq := &amp;UserRequest&#123;&#125;<br>		<span class="hljs-keyword">if</span> err := json.Unmarshal(body, userReq); err != <span class="hljs-literal">nil</span> &#123;<br>			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to parse JSON again&quot;</span>&#125;)<br>			c.Abort()<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-comment">// 在处理程序中使用 ctx 和请求体</span><br>		<span class="hljs-built_in">println</span>(ctx, userReq)<br><br>		c.String(http.StatusOK, <span class="hljs-string">&quot;ok&quot;</span>)<br>	&#125;)<br><br>	r.Run(<span class="hljs-string">&quot;:8080&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> BaseCtx <span class="hljs-keyword">struct</span> &#123;
+	UserID    <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;userID&quot;`</span>
+	AccountID <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;accountID&quot;`</span>
+&#125;
+
+<span class="hljs-keyword">type</span> UserRequest <span class="hljs-keyword">struct</span> &#123;
+	Username <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;username&quot;`</span>
+&#125;
+
+<span class="hljs-comment">// Middleware 解析请求中的 JSON 请求体并将参数存储到 Context 中</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ContextMiddleware</span><span class="hljs-params">()</span></span> gin.HandlerFunc &#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;
+		<span class="hljs-comment">// 读取请求体</span>
+		body, err := io.ReadAll(c.Request.Body)
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to read request body&quot;</span>&#125;)
+			c.Abort()
+			<span class="hljs-keyword">return</span>
+		&#125;
+
+		<span class="hljs-comment">// 将请求体重新放回请求中</span>
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+
+		<span class="hljs-comment">// 解析 JSON 请求体到 BaseCtx 结构</span>
+		<span class="hljs-keyword">var</span> baseCtx BaseCtx
+		<span class="hljs-keyword">if</span> err := json.Unmarshal(body, &amp;baseCtx); err != <span class="hljs-literal">nil</span> &#123;
+			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to parse JSON&quot;</span>&#125;)
+			c.Abort()
+			<span class="hljs-keyword">return</span>
+		&#125;
+
+		<span class="hljs-comment">// 将参数存储到 Context 中</span>
+		ctx := context.WithValue(context.Background(), <span class="hljs-string">&quot;userID&quot;</span>, baseCtx.UserID)
+		ctx = context.WithValue(ctx, <span class="hljs-string">&quot;accountID&quot;</span>, baseCtx.AccountID)
+
+		<span class="hljs-comment">// 将新的 Context 替换原有的 Context</span>
+		c.Request = c.Request.WithContext(ctx)
+
+		<span class="hljs-comment">// 继续处理请求</span>
+		c.Next()
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	r := gin.Default()
+  
+	<span class="hljs-comment">// 注册解析 ctx 的中间件 </span>
+	r.Use(ContextMiddleware())
+
+	r.POST(<span class="hljs-string">&quot;/user&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;
+		<span class="hljs-comment">// 获取 Context</span>
+		ctx := c.Request.Context()
+
+		<span class="hljs-comment">// 超时时间为 5 秒</span>
+		ctx, cancel := context.WithTimeout(ctx, <span class="hljs-number">5</span>*time.Second)
+		<span class="hljs-keyword">defer</span> cancel()
+
+		<span class="hljs-comment">// 读取请求体</span>
+		body, err := io.ReadAll(c.Request.Body)
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to read request body again&quot;</span>&#125;)
+			c.Abort()
+			<span class="hljs-keyword">return</span>
+		&#125;
+
+		userReq := &amp;UserRequest&#123;&#125;
+		<span class="hljs-keyword">if</span> err := json.Unmarshal(body, userReq); err != <span class="hljs-literal">nil</span> &#123;
+			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;Failed to parse JSON again&quot;</span>&#125;)
+			c.Abort()
+			<span class="hljs-keyword">return</span>
+		&#125;
+
+		<span class="hljs-comment">// 在处理程序中使用 ctx 和请求体</span>
+		<span class="hljs-built_in">println</span>(ctx, userReq)
+
+		c.String(http.StatusOK, <span class="hljs-string">&quot;ok&quot;</span>)
+	&#125;)
+
+	r.Run(<span class="hljs-string">&quot;:8080&quot;</span>)
+&#125;</code></pre></div>
 <p>上面大致演示了一下在实际生产中如何使用 ctx，一般来说，我们会在接到请求后利用一些中间件来提前做好解析，包括配置好当前请求的超时时间等，后续在业务逻辑相关的代码中就可以拿来即用了。</p>
 <p>当然，需要注意的是，我们在业务逻辑中可能会调用下游服务，此时我们还需要在调用下游服务前实现一个类似的中间件，将 ctx 中必要的参数序列化到请求中，从而可以传递到下游中去。</p>
 <p>但是，我们不难发现 ctx 中非常规的数据是无法进行序列化的，例如 <code>function</code> 、<code>chan</code> 等，甚至包括设置好的超时监听器。因此，我们可能需要将超时时间等信息，以时间戳或字符串的形式进行序列化，这些同样可以封装在中间件的逻辑中。</p>
@@ -429,25 +641,112 @@
 <hr>
 <h3 id="继承关系">继承关系</h3>
 <p>从上面的几个 <code>context.With*(parent Context)</code> 方法的参数定义中，我们发现 <code>Context</code> 与 <code>Context</code> 之间是存在继承关系的，比如：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.WithValue(context.Background(), <span class="hljs-string">&quot;k1&quot;</span>, <span class="hljs-string">&quot;v1&quot;</span>)<br>	ctx, _ = context.WithTimeout(ctx, <span class="hljs-number">5</span>*time.Second)<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.WithValue(context.Background(), <span class="hljs-string">&quot;k1&quot;</span>, <span class="hljs-string">&quot;v1&quot;</span>)
+	ctx, _ = context.WithTimeout(ctx, <span class="hljs-number">5</span>*time.Second)
+&#125;</code></pre></div>
 <p>这段代码能够生成一个既带有自定义数据 <code>&lt;k1, v1&gt;</code> 又带有超时时间 <code>5*time.Second</code> 的 <code>Context</code>。</p>
 <p>由此，我们从最简单的 <code>valueCtx</code> 开始，先探寻 <code>Context</code> 之间的继承关系是如何实现的。</p>
 <hr>
 <h3 id="valueCtx">valueCtx</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> valueCtx <span class="hljs-keyword">struct</span> &#123;<br>	Context<br>	key, val any<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithValue</span><span class="hljs-params">(parent Context, key, val any)</span></span> Context &#123;<br>	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> key == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;nil key&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> !reflectlite.TypeOf(key).Comparable() &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;key is not comparable&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">return</span> &amp;valueCtx&#123;parent, key, val&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> valueCtx <span class="hljs-keyword">struct</span> &#123;
+	Context
+	key, val any
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithValue</span><span class="hljs-params">(parent Context, key, val any)</span></span> Context &#123;
+	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> key == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;nil key&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">if</span> !reflectlite.TypeOf(key).Comparable() &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;key is not comparable&quot;</span>)
+	&#125;
+	<span class="hljs-keyword">return</span> &amp;valueCtx&#123;parent, key, val&#125;
+&#125;</code></pre></div>
 <p>可以看到，<code>valueCtx</code> 本身就是一个单链表结构，通过内部的 <code>Context</code> 字段指向父节点来完成一个反向的连接。</p>
 <p>当我们连续调用三次 <code>context.WithValue</code> 时，如下：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	ctx := context.Background()<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k1&quot;</span>, <span class="hljs-string">&quot;v1&quot;</span>)<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k2&quot;</span>, <span class="hljs-string">&quot;v2&quot;</span>)<br>	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k3&quot;</span>, <span class="hljs-string">&quot;v3&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k1&quot;</span>, <span class="hljs-string">&quot;v1&quot;</span>)
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k2&quot;</span>, <span class="hljs-string">&quot;v2&quot;</span>)
+	ctx = context.WithValue(ctx, <span class="hljs-string">&quot;k3&quot;</span>, <span class="hljs-string">&quot;v3&quot;</span>)
+&#125;</code></pre></div>
 <p>会得到一个如图所示的链表结构，很好理解：</p>
 <p><img src="/img/go-ctx/valueCtx.png" srcset="/img/loading.gif" lazyload alt="反向关联的 valueCtx"></p>
 <p>也就是说，当我们调用 <code>Context.Value(key string)</code> 的时候，我们会从当前的 <code>valueCtx</code> 一路往前寻找，直到链表的首节点为止：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *valueCtx)</span></span> Value(key any) any &#123;<br>	<span class="hljs-keyword">if</span> c.key == key &#123;<br>		<span class="hljs-keyword">return</span> c.val<br>	&#125;<br>	<span class="hljs-keyword">return</span> value(c.Context, key)<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *valueCtx)</span></span> Value(key any) any &#123;
+	<span class="hljs-keyword">if</span> c.key == key &#123;
+		<span class="hljs-keyword">return</span> c.val
+	&#125;
+	<span class="hljs-keyword">return</span> value(c.Context, key)
+&#125;</code></pre></div>
 <hr>
 <h3 id="cancelCtx">cancelCtx</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> cancelCtx <span class="hljs-keyword">struct</span> &#123;<br>	Context<br><br>	mu       sync.Mutex            <span class="hljs-comment">// protects following fields</span><br>	done     atomic.Value          <span class="hljs-comment">// of chan struct&#123;&#125;, created lazily, closed by first cancel call</span><br>	children <span class="hljs-keyword">map</span>[canceler]<span class="hljs-keyword">struct</span>&#123;&#125; <span class="hljs-comment">// set to nil by the first cancel call</span><br>	err      <span class="hljs-type">error</span>                 <span class="hljs-comment">// set to non-nil by the first cancel call</span><br>	cause    <span class="hljs-type">error</span>                 <span class="hljs-comment">// set to non-nil by the first cancel call</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> cancelCtx <span class="hljs-keyword">struct</span> &#123;
+	Context
+
+	mu       sync.Mutex            <span class="hljs-comment">// protects following fields</span>
+	done     atomic.Value          <span class="hljs-comment">// of chan struct&#123;&#125;, created lazily, closed by first cancel call</span>
+	children <span class="hljs-keyword">map</span>[canceler]<span class="hljs-keyword">struct</span>&#123;&#125; <span class="hljs-comment">// set to nil by the first cancel call</span>
+	err      <span class="hljs-type">error</span>                 <span class="hljs-comment">// set to non-nil by the first cancel call</span>
+	cause    <span class="hljs-type">error</span>                 <span class="hljs-comment">// set to non-nil by the first cancel call</span>
+&#125;</code></pre></div>
 <p>这里变得稍微复杂一些了，但是我们可以发现，反向链表的数据结构仍然得到了保留，多余的字段都是用于服务 <code>cancel</code> 功能的。</p>
 <p>那么我们看一看 <code>context.WithCancel()</code> 做了什么，是如何初始化一个 <code>cancelCtx</code> 并用它构建起一个链表节点的：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithCancel</span><span class="hljs-params">(parent Context)</span></span> (ctx Context, cancel CancelFunc) &#123;<br>	c := withCancel(parent)<br>	<span class="hljs-keyword">return</span> c, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; c.cancel(<span class="hljs-literal">true</span>, Canceled, <span class="hljs-literal">nil</span>) &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">withCancel</span><span class="hljs-params">(parent Context)</span></span> *cancelCtx &#123;<br>	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)<br>	&#125;<br>	c := &amp;cancelCtx&#123;&#125;<br>	c.propagateCancel(parent, c)<br>	<span class="hljs-keyword">return</span> c<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *cancelCtx)</span></span> propagateCancel(parent Context, child canceler) &#123;<br>	c.Context = parent<br><br>	done := parent.Done()<br>	<span class="hljs-keyword">if</span> done == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-comment">// parent is never canceled</span><br>	&#125;<br><br>	...<br><br>	<span class="hljs-keyword">if</span> p, ok := parentCancelCtx(parent); ok &#123;<br>		<span class="hljs-comment">// parent is a *cancelCtx, or derives from one.</span><br>		p.mu.Lock()<br>		<span class="hljs-keyword">if</span> p.err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-comment">// parent has already been canceled</span><br>			child.cancel(<span class="hljs-literal">false</span>, p.err, p.cause)<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-keyword">if</span> p.children == <span class="hljs-literal">nil</span> &#123;<br>				p.children = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[canceler]<span class="hljs-keyword">struct</span>&#123;&#125;)<br>			&#125;<br>			p.children[child] = <span class="hljs-keyword">struct</span>&#123;&#125;&#123;&#125;<br>		&#125;<br>		p.mu.Unlock()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	...<br><br>	<span class="hljs-comment">// 这里实现了取消的逻辑</span><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-parent.Done():<br>			child.cancel(<span class="hljs-literal">false</span>, parent.Err(), Cause(parent))<br>		<span class="hljs-keyword">case</span> &lt;-child.Done():<br>		&#125;<br>	&#125;()<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithCancel</span><span class="hljs-params">(parent Context)</span></span> (ctx Context, cancel CancelFunc) &#123;
+	c := withCancel(parent)
+	<span class="hljs-keyword">return</span> c, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; c.cancel(<span class="hljs-literal">true</span>, Canceled, <span class="hljs-literal">nil</span>) &#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">withCancel</span><span class="hljs-params">(parent Context)</span></span> *cancelCtx &#123;
+	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)
+	&#125;
+	c := &amp;cancelCtx&#123;&#125;
+	c.propagateCancel(parent, c)
+	<span class="hljs-keyword">return</span> c
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *cancelCtx)</span></span> propagateCancel(parent Context, child canceler) &#123;
+	c.Context = parent
+
+	done := parent.Done()
+	<span class="hljs-keyword">if</span> done == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-keyword">return</span> <span class="hljs-comment">// parent is never canceled</span>
+	&#125;
+
+	...
+
+	<span class="hljs-keyword">if</span> p, ok := parentCancelCtx(parent); ok &#123;
+		<span class="hljs-comment">// parent is a *cancelCtx, or derives from one.</span>
+		p.mu.Lock()
+		<span class="hljs-keyword">if</span> p.err != <span class="hljs-literal">nil</span> &#123;
+			<span class="hljs-comment">// parent has already been canceled</span>
+			child.cancel(<span class="hljs-literal">false</span>, p.err, p.cause)
+		&#125; <span class="hljs-keyword">else</span> &#123;
+			<span class="hljs-keyword">if</span> p.children == <span class="hljs-literal">nil</span> &#123;
+				p.children = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[canceler]<span class="hljs-keyword">struct</span>&#123;&#125;)
+			&#125;
+			p.children[child] = <span class="hljs-keyword">struct</span>&#123;&#125;&#123;&#125;
+		&#125;
+		p.mu.Unlock()
+		<span class="hljs-keyword">return</span>
+	&#125;
+
+	...
+
+	<span class="hljs-comment">// 这里实现了取消的逻辑</span>
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-keyword">select</span> &#123;
+		<span class="hljs-keyword">case</span> &lt;-parent.Done():
+			child.cancel(<span class="hljs-literal">false</span>, parent.Err(), Cause(parent))
+		<span class="hljs-keyword">case</span> &lt;-child.Done():
+		&#125;
+	&#125;()
+&#125;</code></pre></div>
 <p>上面的代码可能看起来比较复杂，但是本质上实现了一个大致如下的功能：</p>
 <ul>
 <li>将当前的 <code>cacelCtx</code> 与链表中与自己最近的父级 <code>cancelCtx</code> 关联起来</li>
@@ -460,10 +759,38 @@
 <p>具体的取消实现逻辑这里略过，Golang 本身利用了原子变量和锁机制保证了并发安全，最终实现的目标便是在 <code>cancelCtx.done</code> 中安全的放入一个已经被关闭的 <code>chan</code>，从而让外界能够通过 <code>&lt;-ctx.Done()</code> 语法来感知到当前 ctx 已经被取消了；同时还给 <code>ctx.err</code> 赋予了对应的信息，外界便可以通过 <code>ctx.Err()</code> 来获取到这个信息。</p>
 <hr>
 <h3 id="timerCtx">timerCtx</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> timerCtx <span class="hljs-keyword">struct</span> &#123;<br>	cancelCtx<br>	timer *time.Timer <span class="hljs-comment">// Under cancelCtx.mu.</span><br><br>	deadline time.Time<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> timerCtx <span class="hljs-keyword">struct</span> &#123;
+	cancelCtx
+	timer *time.Timer <span class="hljs-comment">// Under cancelCtx.mu.</span>
+
+	deadline time.Time
+&#125;</code></pre></div>
 <p>从定义中，我们不难看出，<code>timerCtx</code> 继承了 <code>cancelCtx</code>，也就是说 <code>timerCtx</code> 也是「可取消」的 <code>Context</code>，在上面图中的链表结构中，它的关联方式与 <code>cancelCtx</code> 是保持一致的。</p>
 <p>只不过，<code>timerCtx</code> 本身还依赖于一个额外的 <code>timer *timer.Timer</code> 来实现它的超时逻辑。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithDeadlineCause</span><span class="hljs-params">(parent Context, d time.Time, cause <span class="hljs-type">error</span>)</span></span> (Context, CancelFunc) &#123;<br>	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)<br>	&#125;<br><br>	...<br><br>	c := &amp;timerCtx&#123;<br>		deadline: d,<br>	&#125;<br>	c.cancelCtx.propagateCancel(parent, c)<br><br>	...<br><br>	c.mu.Lock()<br>	<span class="hljs-keyword">defer</span> c.mu.Unlock()<br>	<span class="hljs-keyword">if</span> c.err == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-comment">// 注意这里，timer 中的 goroutine 在到期之后会调用这个 cancel 方法</span><br>		c.timer = time.AfterFunc(dur, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>			c.cancel(<span class="hljs-literal">true</span>, DeadlineExceeded, cause)<br>		&#125;)<br>	&#125;<br>	<span class="hljs-keyword">return</span> c, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; c.cancel(<span class="hljs-literal">true</span>, Canceled, <span class="hljs-literal">nil</span>) &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithDeadlineCause</span><span class="hljs-params">(parent Context, d time.Time, cause <span class="hljs-type">error</span>)</span></span> (Context, CancelFunc) &#123;
+	<span class="hljs-keyword">if</span> parent == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cannot create context from nil parent&quot;</span>)
+	&#125;
+
+	...
+
+	c := &amp;timerCtx&#123;
+		deadline: d,
+	&#125;
+	c.cancelCtx.propagateCancel(parent, c)
+
+	...
+
+	c.mu.Lock()
+	<span class="hljs-keyword">defer</span> c.mu.Unlock()
+	<span class="hljs-keyword">if</span> c.err == <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-comment">// 注意这里，timer 中的 goroutine 在到期之后会调用这个 cancel 方法</span>
+		c.timer = time.AfterFunc(dur, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+			c.cancel(<span class="hljs-literal">true</span>, DeadlineExceeded, cause)
+		&#125;)
+	&#125;
+	<span class="hljs-keyword">return</span> c, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; c.cancel(<span class="hljs-literal">true</span>, Canceled, <span class="hljs-literal">nil</span>) &#125;
+&#125;</code></pre></div>
 <p>从上面的代码中可以看到，整体上 <code>timerCtx</code> 与 <code>cancelCtx</code> 行为保持一致，但是利用了一个 <code>time.Timer</code> 启动了一个额外的 <code>goroutine</code> 来实现超时之后自动调用 <code>cancel()</code> 的逻辑。</p>
 <p>至此，我们的 <code>Context</code> 继承关系大致如下所示：</p>
 <p><img src="/img/go-ctx/timerCtx.png" srcset="/img/loading.gif" lazyload alt="context.Context 组成的树"></p>
@@ -478,7 +805,9 @@
 <li>…</li>
 </ul>
 <p>Golang 官方对于 Context 的使用还有诸多建议，就个人而言，我认为最需要注意的是我们不应该将 Context 视为一个万能的参数传递容器，否则将导致代码的可读性和可维护性大打折扣 —— 试想如果项目中所有函数都如下定义该是多么可怕的一件事：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Xxx</span><span class="hljs-params">(ctx context.Context)</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Yyy</span><span class="hljs-params">(args <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]any)</span></span><br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Xxx</span><span class="hljs-params">(ctx context.Context)</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Yyy</span><span class="hljs-params">(args <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]any)</span></span></code></pre></div>
 <p>PS：我目前所在的团队从不使用 Context（虽然我本人非常倾向使用），链路上也没有通过 <code>TracingId / LogId</code> 之类的参数进行串联，但是就目前来看，这也没有对我们的运维和迭代造成太大的困扰。</p>
 <p>总而言之，Context 不是银弹，但它已经证明了它的强大。</p>
 

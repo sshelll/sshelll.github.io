@@ -27,7 +27,7 @@
 <meta property="og:description" content="(WIP) POV - Rust Atomics and Locks">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-18T08:01:50.000Z">
-<meta property="article:modified_time" content="2024-12-18T10:35:50.000Z">
+<meta property="article:modified_time" content="2024-12-19T10:03:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary_large_image">
@@ -74,7 +74,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"kayce.world","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -84,6 +84,17 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -288,7 +299,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on December 18, 2024 pm
+                    Last updated on December 19, 2024 pm
                   
                 
               </p>
@@ -298,6 +309,9 @@
                 
                 <div class="note note-warning">
             <p>WIP, No ETA provided</p>
+          </div>
+<div class="note note-danger">
+            <p>TL;DR - Please refer to the ToC on the right side</p>
           </div>
 <blockquote>
 <p>The <strong><em>tremendous</em></strong> book<br>
@@ -327,7 +341,20 @@ in my POV.</p>
             <p><strong>Aside: UnsafeCell</strong><br>Both of them are built with a core primitive called <code>UnsafeCell</code>.</p><p>This struct provides the basic abstraction for interior mutability, however, you have to use <code>unsafe</code> to access.</p><p><code>Cell</code>, <code>RefCell</code> and all other types that allows internal mutability use <code>UnsafeCell</code> to wrap their data and provide <code>safe</code> apis.</p>
           </div>
 <h2 id="MutexGuard-lifetime">MutexGuard lifetime</h2>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">if</span> list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>() == <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">1</span>) &#123; <span class="hljs-comment">// &lt;--- drop here</span><br>    <span class="hljs-title function_ invoke__">do_something</span>();<br>&#125;<br><br><span class="hljs-comment">// PERF: needlessly hold on to the lock while processing the item.</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>() &#123;<br>    <span class="hljs-title function_ invoke__">process_item</span>(item);<br>&#125; <span class="hljs-comment">// &lt;--- drop here</span><br><br><span class="hljs-comment">// FIXED:</span><br><span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>(); <span class="hljs-comment">// &lt;--- drop here</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = item &#123;<br>    <span class="hljs-title function_ invoke__">process_item</span>(item);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">if</span> list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>() == <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-number">1</span>) &#123; <span class="hljs-comment">// &lt;--- drop here</span>
+    <span class="hljs-title function_ invoke__">do_something</span>();
+&#125;
+
+<span class="hljs-comment">// PERF: needlessly hold on to the lock while processing the item.</span>
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>() &#123;
+    <span class="hljs-title function_ invoke__">process_item</span>(item);
+&#125; <span class="hljs-comment">// &lt;--- drop here</span>
+
+<span class="hljs-comment">// FIXED:</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = list.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop</span>(); <span class="hljs-comment">// &lt;--- drop here</span>
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = item &#123;
+    <span class="hljs-title function_ invoke__">process_item</span>(item);
+&#125;</code></pre></div>
 <p>Reason:</p>
 <ul>
 <li>The basic <code>if</code> statement is always a simple <code>boolean</code> expression.</li>
@@ -336,21 +363,129 @@ in my POV.</p>
 <h2 id="Parking">Parking</h2>
 <p>Consider this situation: we only process items when the list is not empty.<br>
 If we use <code>Mutex</code>, then we have to keep calling <code>lock()</code> again and again, which is not efficient.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::collections::VecDeque;<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">queue</span> = Mutex::<span class="hljs-title function_ invoke__">new</span>(VecDeque::<span class="hljs-title function_ invoke__">new</span>());<br><br>    thread::<span class="hljs-title function_ invoke__">scope</span>(|s| &#123;<br>        <span class="hljs-comment">// Consuming thread</span><br>        <span class="hljs-keyword">let</span> <span class="hljs-variable">t</span> = s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;<br>            <span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop_front</span>();<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = item &#123;<br>                dbg!(item);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                thread::<span class="hljs-title function_ invoke__">park</span>();<br>            &#125;<br>        &#125;);<br><br>        <span class="hljs-comment">// Producing thread</span><br>        <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>.. &#123;<br>            queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">push_back</span>(i);<br>            t.<span class="hljs-title function_ invoke__">thread</span>().<span class="hljs-title function_ invoke__">unpark</span>();<br>            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_secs</span>(<span class="hljs-number">1</span>));<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::collections::VecDeque;
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">queue</span> = Mutex::<span class="hljs-title function_ invoke__">new</span>(VecDeque::<span class="hljs-title function_ invoke__">new</span>());
+
+    thread::<span class="hljs-title function_ invoke__">scope</span>(|s| &#123;
+        <span class="hljs-comment">// Consuming thread</span>
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">t</span> = s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;
+            <span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">pop_front</span>();
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = item &#123;
+                dbg!(item);
+            &#125; <span class="hljs-keyword">else</span> &#123;
+                thread::<span class="hljs-title function_ invoke__">park</span>();
+            &#125;
+        &#125;);
+
+        <span class="hljs-comment">// Producing thread</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>.. &#123;
+            queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">push_back</span>(i);
+            t.<span class="hljs-title function_ invoke__">thread</span>().<span class="hljs-title function_ invoke__">unpark</span>();
+            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_secs</span>(<span class="hljs-number">1</span>));
+        &#125;
+    &#125;);
+&#125;</code></pre></div>
 <div class="note note-primary">
             <p>A call to <code>unpark()</code> before the thread parks itself <strong><em>does not get lost</em></strong></p><p>However, unpark requests <strong><em>don’t stack up</em></strong>.</p><p>Calling unpark() two times and then calling park() two times afterwards still results in the thread going to sleep.</p>
           </div>
 <h2 id="Cond-Vars">Cond Vars</h2>
 <p>The example above is low-efficiency when we want to use more consumers.<br>
 Because the producer doesn’t know which consumer to wake up.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;<br>    <span class="hljs-keyword">use</span> std::sync::Condvar;<br>    <span class="hljs-keyword">use</span> std::&#123;collections::VecDeque, sync::Mutex, thread, time::Duration&#125;;<br><br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">queue</span> = Mutex::<span class="hljs-title function_ invoke__">new</span>(VecDeque::<span class="hljs-title function_ invoke__">new</span>());<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">not_empty</span> = Condvar::<span class="hljs-title function_ invoke__">new</span>();<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">empty</span> = Condvar::<span class="hljs-title function_ invoke__">new</span>();<br><br>    thread::<span class="hljs-title function_ invoke__">scope</span>(|s| &#123;<br>        <span class="hljs-comment">// not_empty handler</span><br>        s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;<br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">q</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();<br>            <span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = <span class="hljs-keyword">loop</span> &#123;<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = q.<span class="hljs-title function_ invoke__">pop_front</span>() &#123;<br>                    <span class="hljs-keyword">break</span> item;<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    empty.<span class="hljs-title function_ invoke__">notify_one</span>(); <span class="hljs-comment">// wake up the empty handler(s)</span><br>                    q = not_empty.<span class="hljs-title function_ invoke__">wait</span>(q).<span class="hljs-title function_ invoke__">unwrap</span>();<br>                &#125;<br>            &#125;;<br>            <span class="hljs-title function_ invoke__">drop</span>(q);<br>            <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Got item: &#123;&#125;&quot;</span>, item);<br>        &#125;);<br><br>        <span class="hljs-comment">// empty handler</span><br>        s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;<br>            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">q</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();<br>            <span class="hljs-keyword">loop</span> &#123;<br>                <span class="hljs-keyword">if</span> q.<span class="hljs-title function_ invoke__">is_empty</span>() &#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    q = empty.<span class="hljs-title function_ invoke__">wait</span>(q).<span class="hljs-title function_ invoke__">unwrap</span>();<br>                &#125;<br>            &#125;<br>            <span class="hljs-title function_ invoke__">drop</span>(q);<br>            <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Queue is empty&quot;</span>);<br>            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">400</span>));<br>        &#125;);<br><br>        <span class="hljs-comment">// producer</span><br>        <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>.. &#123;<br>            queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">push_back</span>(i);<br>            not_empty.<span class="hljs-title function_ invoke__">notify_one</span>(); <span class="hljs-comment">// wake up the not_empty handler(s)</span><br>            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_secs</span>(<span class="hljs-number">1</span>));<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    <span class="hljs-keyword">use</span> std::sync::Condvar;
+    <span class="hljs-keyword">use</span> std::&#123;collections::VecDeque, sync::Mutex, thread, time::Duration&#125;;
+
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">queue</span> = Mutex::<span class="hljs-title function_ invoke__">new</span>(VecDeque::<span class="hljs-title function_ invoke__">new</span>());
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">not_empty</span> = Condvar::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">empty</span> = Condvar::<span class="hljs-title function_ invoke__">new</span>();
+
+    thread::<span class="hljs-title function_ invoke__">scope</span>(|s| &#123;
+        <span class="hljs-comment">// not_empty handler</span>
+        s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;
+            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">q</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+            <span class="hljs-keyword">let</span> <span class="hljs-variable">item</span> = <span class="hljs-keyword">loop</span> &#123;
+                <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(item) = q.<span class="hljs-title function_ invoke__">pop_front</span>() &#123;
+                    <span class="hljs-keyword">break</span> item;
+                &#125; <span class="hljs-keyword">else</span> &#123;
+                    empty.<span class="hljs-title function_ invoke__">notify_one</span>(); <span class="hljs-comment">// wake up the empty handler(s)</span>
+                    q = not_empty.<span class="hljs-title function_ invoke__">wait</span>(q).<span class="hljs-title function_ invoke__">unwrap</span>();
+                &#125;
+            &#125;;
+            <span class="hljs-title function_ invoke__">drop</span>(q);
+            <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Got item: &#123;&#125;&quot;</span>, item);
+        &#125;);
+
+        <span class="hljs-comment">// empty handler</span>
+        s.<span class="hljs-title function_ invoke__">spawn</span>(|| <span class="hljs-keyword">loop</span> &#123;
+            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">q</span> = queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+            <span class="hljs-keyword">loop</span> &#123;
+                <span class="hljs-keyword">if</span> q.<span class="hljs-title function_ invoke__">is_empty</span>() &#123;
+                    <span class="hljs-keyword">break</span>;
+                &#125; <span class="hljs-keyword">else</span> &#123;
+                    q = empty.<span class="hljs-title function_ invoke__">wait</span>(q).<span class="hljs-title function_ invoke__">unwrap</span>();
+                &#125;
+            &#125;
+            <span class="hljs-title function_ invoke__">drop</span>(q);
+            <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Queue is empty&quot;</span>);
+            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">400</span>));
+        &#125;);
+
+        <span class="hljs-comment">// producer</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-variable">i</span> <span class="hljs-keyword">in</span> <span class="hljs-number">0</span>.. &#123;
+            queue.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>().<span class="hljs-title function_ invoke__">push_back</span>(i);
+            not_empty.<span class="hljs-title function_ invoke__">notify_one</span>(); <span class="hljs-comment">// wake up the not_empty handler(s)</span>
+            thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_secs</span>(<span class="hljs-number">1</span>));
+        &#125;
+    &#125;);
+&#125;</code></pre></div>
 <h2 id="Memory-Ordering">Memory Ordering</h2>
+<h3 id="Happens-Before">Happens-Before</h3>
+<p>Before we dive into the specific memory orderings below, we must have a deep understanding of <code>happens-before</code> relationship.</p>
+<p><code>happens-before</code> dose not mean that the first operation is literally executed before the second one. (If you want to achieve that, you should use <code>Mutex</code>, <code>CondVar</code>, <code>Chan</code> or other synchronization primitives to help threads communicate.)</p>
+<p>There’re 2 points to remember:</p>
+<ol>
+<li>
+<p><code>happens-before</code> is all about the ‘instruction reordering’ by the compiler or the CPU.</p>
+</li>
+<li>
+<p><code>happens-before</code> itself doesn’t happen until <code>observable behavior</code> occurs.</p>
+</li>
+</ol>
+<p>For example:</p>
+<div class="code-wrapper"><pre><code class="hljs text">
+Thread A:                          Thread B:
+
+some ops (A) ----------
+...                   |
+a.store(1, Release);  | visible
+                      |
+                      |     if a.load(Acquire) == 1 &#123;
+                      -&gt; (B)    // do something
+                            &#125;</code></pre></div>
+<p>There’s no <code>happens-before</code> relationship until Thread B sees the value <code>1</code> in <code>a.load(Acquire)</code>, and at that point, we can say that <code>(A)</code> happens before <code>(B)</code>, or <code>(A)</code> is visible to <code>(B)</code>.</p>
 <h3 id="Relaxed">Relaxed</h3>
 <p>While atomic operations using relaxed memory ordering do not provide any happens-before relationship,<br>
 they do guarantee a total modification order of each individual atomic variable.<br>
 This means that all modifications of the same atomic variable happen in an order that is the same from the perspective of every single thread.</p>
 <p>Example:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> X: AtomicI32 = AtomicI32::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// thread 1</span><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">a</span>() &#123;<br>    X.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">5</span>, Relaxed);<br>    X.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">10</span>, Relaxed);<br>&#125;<br><br><span class="hljs-comment">// thread 2</span><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">b</span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">c</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">d</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;a&#125; &#123;b&#125; &#123;c&#125; &#123;d&#125;&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> X: AtomicI32 = AtomicI32::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+
+<span class="hljs-comment">// thread 1</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">a</span>() &#123;
+    X.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">5</span>, Relaxed);
+    X.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">10</span>, Relaxed);
+&#125;
+
+<span class="hljs-comment">// thread 2</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">b</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">c</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">d</span> = X.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;a&#125; &#123;b&#125; &#123;c&#125; &#123;d&#125;&quot;</span>);
+&#125;</code></pre></div>
 <p>The output will never be <code>0 5 0 15</code> or <code>0 0 10 15</code> due to the order of the 2 <code>fetch_add</code> ops.</p>
 <ul>
 <li><code>0 5 0 15</code>: since we’ve written 5 and it has been read, the next read mustn’t be 0.</li>
@@ -359,38 +494,165 @@ This means that all modifications of the same atomic variable happen in an order
 <hr>
 <h3 id="Release-Acquire">Release / Acquire</h3>
 <p><code>Release</code> corresponds to the <code>store</code> operation, and <code>Acquire</code> corresponds to the <code>load</code> operation.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::sync::atomic::Ordering::&#123;Acquire, Release&#125;;<br><br><span class="hljs-keyword">static</span> DATA: AtomicU64 = AtomicU64::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><span class="hljs-keyword">static</span> READY: AtomicBool = AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>);<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;<br>    thread::<span class="hljs-title function_ invoke__">spawn</span>(|| &#123;<br>        DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">123</span>, Relaxed);<br>        READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release); <span class="hljs-comment">// Everything from before this store ..</span><br>    &#125;);<br>    <span class="hljs-keyword">while</span> !READY.<span class="hljs-title function_ invoke__">load</span>(Acquire) &#123; <span class="hljs-comment">// .. is visible after this loads `true`.</span><br>        thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">100</span>));<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;waiting...&quot;</span>);<br>    &#125;<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed));<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::sync::atomic::Ordering::&#123;Acquire, Release&#125;;
+
+<span class="hljs-keyword">static</span> DATA: AtomicU64 = AtomicU64::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+<span class="hljs-keyword">static</span> READY: AtomicBool = AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>);
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    thread::<span class="hljs-title function_ invoke__">spawn</span>(|| &#123;
+        DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">123</span>, Relaxed);
+        READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release); <span class="hljs-comment">// Everything from before this store ..</span>
+    &#125;);
+    <span class="hljs-keyword">while</span> !READY.<span class="hljs-title function_ invoke__">load</span>(Acquire) &#123; <span class="hljs-comment">// .. is visible after this loads `true`.</span>
+        thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">100</span>));
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;waiting...&quot;</span>);
+    &#125;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed));
+&#125;</code></pre></div>
 <div class="note note-info">
             <p>Note that if we use <code>Relaxed</code> instead of <code>Acquire</code> for <code>READY</code>, we might read <code>0</code> instead of <code>123</code>.<br>That’s because <code>Relaxed</code> only provides a total order for the <strong><em>same</em></strong> atomic variable, not across <strong><em>different</em></strong> variables.</p>
           </div>
 <p>Since <code>Release</code> and <code>Acquire</code> have a happens-before relationship, we can simply use <code>u64</code> instead of <code>AtomicU64</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> <span class="hljs-keyword">mut</span> DATA: <span class="hljs-type">u64</span> = <span class="hljs-number">0</span>;<br><span class="hljs-keyword">static</span> READY: AtomicBool = AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>);<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;<br>    thread::<span class="hljs-title function_ invoke__">spawn</span>(|| &#123;<br>        <span class="hljs-comment">// Safety: Nothing else is accessing DATA,</span><br>        <span class="hljs-comment">// because we haven&#x27;t set the READY flag yet.</span><br>        <span class="hljs-keyword">unsafe</span> &#123; DATA = <span class="hljs-number">123</span> &#125;;<br>        READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release); <span class="hljs-comment">// Everything from before this store ..</span><br>    &#125;);<br>    <span class="hljs-keyword">while</span> !READY.<span class="hljs-title function_ invoke__">load</span>(Acquire) &#123;<br>        <span class="hljs-comment">// .. is visible after this loads `true`.</span><br>        thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">100</span>));<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;waiting...&quot;</span>);<br>    &#125;<br>    <span class="hljs-comment">// Safety: Nothing is mutating DATA, because READY is set.</span><br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, <span class="hljs-keyword">unsafe</span> &#123; DATA &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> <span class="hljs-keyword">mut</span> DATA: <span class="hljs-type">u64</span> = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">static</span> READY: AtomicBool = AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>);
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    thread::<span class="hljs-title function_ invoke__">spawn</span>(|| &#123;
+        <span class="hljs-comment">// Safety: Nothing else is accessing DATA,</span>
+        <span class="hljs-comment">// because we haven&#x27;t set the READY flag yet.</span>
+        <span class="hljs-keyword">unsafe</span> &#123; DATA = <span class="hljs-number">123</span> &#125;;
+        READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release); <span class="hljs-comment">// Everything from before this store ..</span>
+    &#125;);
+    <span class="hljs-keyword">while</span> !READY.<span class="hljs-title function_ invoke__">load</span>(Acquire) &#123;
+        <span class="hljs-comment">// .. is visible after this loads `true`.</span>
+        thread::<span class="hljs-title function_ invoke__">sleep</span>(Duration::<span class="hljs-title function_ invoke__">from_millis</span>(<span class="hljs-number">100</span>));
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;waiting...&quot;</span>);
+    &#125;
+    <span class="hljs-comment">// Safety: Nothing is mutating DATA, because READY is set.</span>
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;&#123;&#125;&quot;</span>, <span class="hljs-keyword">unsafe</span> &#123; DATA &#125;);
+&#125;</code></pre></div>
 <hr>
 <h3 id="SeqCst">SeqCst</h3>
 <p>To be short, the order of excution is just like the order of the codes.<br>
 Here’s a example of the difference between <code>Acq/Rel</code> and <code>SeqCst</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> A: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><span class="hljs-keyword">static</span> B: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread1</span>() &#123;<br>    A.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, SeqCst);<br>    B.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">2</span>, SeqCst);<br>&#125;<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread2</span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = B.<span class="hljs-title function_ invoke__">load</span>(SeqCst);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = A.<span class="hljs-title function_ invoke__">load</span>(SeqCst);<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;a = &#123;&#125;, b = &#123;&#125;&quot;</span>, a, b);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> A: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+<span class="hljs-keyword">static</span> B: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread1</span>() &#123;
+    A.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, SeqCst);
+    B.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">2</span>, SeqCst);
+&#125;
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread2</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = B.<span class="hljs-title function_ invoke__">load</span>(SeqCst);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = A.<span class="hljs-title function_ invoke__">load</span>(SeqCst);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;a = &#123;&#125;, b = &#123;&#125;&quot;</span>, a, b);
+&#125;</code></pre></div>
 <blockquote>
 <p>If b is <code>2</code> then a must be <code>1</code>.</p>
 </blockquote>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> A: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><span class="hljs-keyword">static</span> B: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread1</span>() &#123;<br>    A.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, Release);<br>    B.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">2</span>, Relaxed);<br>&#125;<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread2</span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = B.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = A.<span class="hljs-title function_ invoke__">load</span>(Acquire);<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;a = &#123;&#125;, b = &#123;&#125;&quot;</span>, a, b);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">static</span> A: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+<span class="hljs-keyword">static</span> B: AtomicUsize = AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">0</span>);
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread1</span>() &#123;
+    A.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, Release);
+    B.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">2</span>, Relaxed);
+&#125;
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">thread2</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">b</span> = B.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = A.<span class="hljs-title function_ invoke__">load</span>(Acquire);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;a = &#123;&#125;, b = &#123;&#125;&quot;</span>, a, b);
+&#125;</code></pre></div>
 <blockquote>
 <p>If b is <code>2</code>, we can’t guarantee that a is <code>1</code>.</p>
 </blockquote>
 <hr>
 <h3 id="Fence">Fence</h3>
 <p>To be short, <code>fence</code> stops the compiler from reordering instructions following the fence with instructions preceding the fence.</p>
+<p>We’ve already known that <code>Release</code> and <code>Acquire</code> have a happens-before relationship, and we can use <code>fence</code> to substitute them like this:</p>
+<p><strong>before:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// Thread A</span>
+&#123;
+    DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">42</span>, Relaxed);
+    READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release); <span class="hljs-comment">// What happens-before the `Release`...</span>
+&#125;
+
+<span class="hljs-comment">// Thread B</span>
+<span class="hljs-keyword">if</span> READY.<span class="hljs-title function_ invoke__">load</span>(Acquire) &#123;            <span class="hljs-comment">// ... is visible after the `Acquire`.</span>
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">value</span> = DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed); <span class="hljs-comment">// The observation has occured (READY false -&gt; true), so we can see the value must be 42.</span>
+    <span class="hljs-built_in">assert_eq!</span>(value, <span class="hljs-number">42</span>);
+&#125;</code></pre></div>
+<p><strong>after:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// Thread A</span>
+&#123;
+    DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">42</span>, Relaxed);
+
+    <span class="hljs-title function_ invoke__">fence</span>(Release);             <span class="hljs-comment">// fence before store</span>
+    READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Relaxed); <span class="hljs-comment">// just Relaxed</span>
+&#125;
+
+<span class="hljs-comment">// Thread B</span>
+<span class="hljs-keyword">if</span> READY.<span class="hljs-title function_ invoke__">load</span>(Relaxed) &#123; <span class="hljs-comment">// just Relaxed</span>
+    <span class="hljs-title function_ invoke__">fence</span>(Acquire);      <span class="hljs-comment">// fence after load</span>
+
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">value</span> = DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-built_in">assert_eq!</span>(value, <span class="hljs-number">42</span>);
+&#125;</code></pre></div>
 <ol>
 <li><code>fence</code> after <code>load</code>:</li>
 </ol>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-comment">// Thread A</span><br>&#123;<br>    DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">42</span>, Relaxed);<br>    READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, ??);<br>&#125;<br><br><span class="hljs-comment">// Thread B</span><br><span class="hljs-keyword">if</span> READY.<span class="hljs-title function_ invoke__">load</span>(??) &#123;<br>    <span class="hljs-comment">// fence after</span><br>    <span class="hljs-title function_ invoke__">fence</span>(Acquire);<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">value</span> = DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;DATA = &#123;&#125;&quot;</span>, value);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>Let’s say, if we move the <code>fence</code> to the front of the <code>if</code> block, then the compiler <strong><em>might</em></strong> reorder the <code>load</code> before the <code>if</code> check:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-comment">// Thread B</span><br><span class="hljs-title function_ invoke__">fence</span>(Acquire);<br><span class="hljs-keyword">let</span> <span class="hljs-variable">value</span> = DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed);<br><span class="hljs-keyword">if</span> READY.<span class="hljs-title function_ invoke__">load</span>(??) &#123;<br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;DATA = &#123;&#125;&quot;</span>, value);<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>So we’ll get <code>DATA = 0</code> instead of <code>DATA = 42</code>.</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// Thread B</span>
+<span class="hljs-title function_ invoke__">fence</span>(Acquire);
+<span class="hljs-keyword">let</span> <span class="hljs-variable">value</span> = DATA.<span class="hljs-title function_ invoke__">load</span>(Relaxed); <span class="hljs-comment">// what value will be?</span>
+<span class="hljs-keyword">if</span> READY.<span class="hljs-title function_ invoke__">load</span>(Relaxed) &#123;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;DATA = &#123;&#125;&quot;</span>, value);
+&#125;</code></pre></div>
+<p>So we’ll probably get <code>DATA = 0</code> instead of <code>DATA = 42</code>.</p>
 <ol start="2">
 <li><code>fence</code> before <code>store</code></li>
 </ol>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs rust">&#123;<br>    DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">42</span>, Relaxed);<br>    <span class="hljs-title function_ invoke__">fence</span>(Release); <span class="hljs-comment">// make sure DATA is stored</span><br>    READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Relaxed);<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust">&#123;
+    DATA.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">42</span>, Relaxed);
+    <span class="hljs-title function_ invoke__">fence</span>(Release); <span class="hljs-comment">// make sure DATA is stored</span>
+    READY.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Relaxed);
+&#125;</code></pre></div>
+<p>Finally, check another example to make a deeper impression - use <code>fence</code> to get better performance:</p>
+<div style="display: flex; flex-direction: row; justify-content: space-between;">
+  <div style="width: 49%;">
+    <div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">p</span> = PTR.<span class="hljs-title function_ invoke__">load</span>(Acquire);
+<span class="hljs-keyword">if</span> p.<span class="hljs-title function_ invoke__">is_null</span>() &#123;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;no data&quot;</span>);
+&#125; <span class="hljs-keyword">else</span> &#123;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;data = &#123;&#125;&quot;</span>, <span class="hljs-keyword">unsafe</span> &#123; *p &#125;);
+&#125;
+
+</code></pre></div>
+  </div>
+  <div style="width: 49%;">
+    <div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">p</span> = PTR.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+<span class="hljs-keyword">if</span> p.<span class="hljs-title function_ invoke__">is_null</span>() &#123;
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;no data&quot;</span>);
+&#125; <span class="hljs-keyword">else</span> &#123;
+    <span class="hljs-title function_ invoke__">fence</span>(Acquire);
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;data = &#123;&#125;&quot;</span>, <span class="hljs-keyword">unsafe</span> &#123; *p &#125;);
+&#125;</code></pre></div>
+  </div>
+</div>
+<div class="note note-info">
+            <ul><li><p>Why is the performance better?<br>Because the <code>fence</code> is only needed when <code>p</code> is not null, and load by <code>Relaxed</code> is lighter weight than <code>Acquire</code>.</p></li><li><p>How does it work?<br>Because <code>fence</code> stops <code>*p</code> from being reordered before the <code>if</code> check, and we can avoid the <code>Acquire</code> load when <code>p</code> is null.</p></li></ul>
+          </div>
+<div class="note note-second">
+            <p>Any way, if you find it hard to understand, keeping these 2 rules in mind might help:</p><div class="code-wrapper"><pre><code class="hljs rust">a.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, Release);
+<span class="hljs-comment">// equals to</span>
+<span class="hljs-title function_ invoke__">fence</span>(Release);
+a.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">1</span>, Relaxed);</code></pre></div><div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = b.<span class="hljs-title function_ invoke__">load</span>(Acquire);
+<span class="hljs-comment">// equals to</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = b.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+<span class="hljs-title function_ invoke__">fence</span>(Acquire);</code></pre></div><p>If you simply do ‘Variable Replacement’, you’ll see that a <code>fence</code> isn’t actually dependent on another <code>fence</code>, it can also work with a <code>store</code> or a <code>load</code>.</p><p>i.e. A <code>fence(Acquire)</code> doesn’t have to work with a <code>fence(Release)</code>, we don’t have to use <code>fence</code> in pairs.</p><p>And that’s how the last example works.</p><p>PS: The ‘replacement’ doesn’t strictly requires you to do something like <code>:s/ori/new</code>. Of course you can add some lines between <code>fence</code> and <code>store</code> / <code>load</code>, as long as the codes you add don’t care about the mem order.</p>
+          </div>
 <hr>
 <h3 id="Misconceptions">Misconceptions</h3>
 <ol>
@@ -450,23 +712,237 @@ If you need them to be part of a globally consistent order, <u>both operations w
 it might be better for the threads to repeatedly try to lock it without actually going to sleep.</p>
 </blockquote>
 <h3 id="Minimal-Impl">Minimal Impl</h3>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span> <span class="hljs-title class_">SpinLock</span> &#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">const</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;<br>        <span class="hljs-keyword">Self</span> &#123; locked: AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>) &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;<br>            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">unlock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">false</span>, Release);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span> <span class="hljs-title class_">SpinLock</span> &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">const</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>() <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;
+        <span class="hljs-keyword">Self</span> &#123; locked: AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>) &#125;
+    &#125;
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;
+            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">unlock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">false</span>, Release);
+    &#125;
+&#125;</code></pre></div>
 <hr>
 <h3 id="Hold-value">Hold value</h3>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">SpinLock</span>&lt;T&gt; &#123;<br>    locked: AtomicBool,<br>    value: UnsafeCell&lt;T&gt;,<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;T&gt; SpinLock&lt;T&gt; &#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: T) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;<br>        <span class="hljs-keyword">Self</span> &#123;<br>            locked: AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>),<br>            value: UnsafeCell::<span class="hljs-title function_ invoke__">new</span>(value),<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// use this macro to suppress the clippy error</span><br>    <span class="hljs-meta">#[allow(clippy::mut_from_ref)]</span><br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;<span class="hljs-keyword">mut</span> T &#123;<br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;<br>            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();<br>        &#125;<br>        <span class="hljs-keyword">unsafe</span> &#123; &amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.value.<span class="hljs-title function_ invoke__">get</span>() &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">unlock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">false</span>, Release);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">SpinLock</span>&lt;T&gt; &#123;
+    locked: AtomicBool,
+    value: UnsafeCell&lt;T&gt;,
+&#125;
+
+<span class="hljs-keyword">impl</span>&lt;T&gt; SpinLock&lt;T&gt; &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: T) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;
+        <span class="hljs-keyword">Self</span> &#123;
+            locked: AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>),
+            value: UnsafeCell::<span class="hljs-title function_ invoke__">new</span>(value),
+        &#125;
+    &#125;
+
+    <span class="hljs-comment">// use this macro to suppress the clippy error</span>
+    <span class="hljs-meta">#[allow(clippy::mut_from_ref)]</span>
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;<span class="hljs-keyword">mut</span> T &#123;
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;
+            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();
+        &#125;
+        <span class="hljs-keyword">unsafe</span> &#123; &amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.value.<span class="hljs-title function_ invoke__">get</span>() &#125;
+    &#125;
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">unlock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">false</span>, Release);
+    &#125;
+&#125;</code></pre></div>
 <hr>
 <h3 id="Use-Guard-to-auto-unlock">Use Guard to auto unlock</h3>
 <blockquote>
 <p>Ignore the <code>Swift</code> syntax, <code>highlightjs</code> doesn’t handle the rust lifetime specifier properly.</p>
 </blockquote>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Guard</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;<br>    lock: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">SpinLock</span>&lt;<span class="hljs-type">T</span>&gt;,<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Deref</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;<br>    type <span class="hljs-type">Target</span> <span class="hljs-operator">=</span> <span class="hljs-type">T</span>;<br>    fn deref(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span><span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;<br>        unsafe &#123; <span class="hljs-operator">&amp;*</span><span class="hljs-keyword">self</span>.lock.value &#125;<br>    &#125;<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">DerefMut</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;<br>    fn deref_mut(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;<br>        unsafe &#123; <span class="hljs-operator">&amp;</span>mut <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.lock.value &#125;<br>    &#125;<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;<br>    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">self</span>.lock.unlock();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Guard</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
+    lock: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">SpinLock</span>&lt;<span class="hljs-type">T</span>&gt;,
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Deref</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
+    type <span class="hljs-type">Target</span> <span class="hljs-operator">=</span> <span class="hljs-type">T</span>;
+    fn deref(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span><span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;
+        unsafe &#123; <span class="hljs-operator">&amp;*</span><span class="hljs-keyword">self</span>.lock.value &#125;
+    &#125;
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">DerefMut</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
+    fn deref_mut(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;
+        unsafe &#123; <span class="hljs-operator">&amp;</span>mut <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.lock.value &#125;
+    &#125;
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
+    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.lock.unlock();
+    &#125;
+&#125;</code></pre></div>
 <p>Now let’s change the <code>lock</code> method to return a <code>Guard</code>:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; SpinLock&lt;T&gt; &#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Guard&lt;T&gt; &#123;<br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;<br>            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();<br>        &#125;<br>        Guard &#123; lock: <span class="hljs-keyword">self</span> &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; SpinLock&lt;T&gt; &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Guard&lt;T&gt; &#123;
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.locked.<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-literal">true</span>, Acquire) &#123;
+            std::hint::<span class="hljs-title function_ invoke__">spin_loop</span>();
+        &#125;
+        Guard &#123; lock: <span class="hljs-keyword">self</span> &#125;
+    &#125;
+&#125;</code></pre></div>
+<hr>
+<h3 id="Fence-it">Fence it!</h3>
+<p>Remember we’ve talked about using <code>fence</code> to substitute <code>load</code> or <code>store</code> in the <a href="#Fence">previous section</a>? There happens to be an example of building a <code>SpinLock</code> with <code>fence</code> in the rust doc of <code>fence</code> itself:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Mutex</span> &#123;
+    flag: AtomicBool,
+&#125;
+
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Mutex</span> &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>() <span class="hljs-punctuation">-&gt;</span> Mutex &#123;
+        Mutex &#123;
+            flag: AtomicBool::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-literal">false</span>),
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-comment">// Wait until the old value is `false`.</span>
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>
+            .flag
+            .<span class="hljs-title function_ invoke__">compare_exchange_weak</span>(<span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, Ordering::Relaxed, Ordering::Relaxed)
+            .<span class="hljs-title function_ invoke__">is_err</span>()
+        &#123;&#125;
+        <span class="hljs-comment">// This fence synchronizes-with store in `unlock`.</span>
+        <span class="hljs-title function_ invoke__">fence</span>(Ordering::Acquire);
+    &#125;
+
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">unlock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">false</span>, Ordering::Release);
+    &#125;
+&#125;</code></pre></div>
+<p>A little bit confused of the single <code>fence</code>? Let’s break it down:</p>
+<p>First, to see things clearly, we can cast the <code>while</code> loop to a <code>loop</code>:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+    <span class="hljs-comment">// Wait until the old value is `false`.</span>
+    <span class="hljs-keyword">loop</span> &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>
+            .flag
+            .<span class="hljs-title function_ invoke__">compare_exchange_weak</span>(<span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, Ordering::Relaxed, Ordering::Relaxed)
+            .<span class="hljs-title function_ invoke__">is_ok</span>()
+        &#123;
+            <span class="hljs-keyword">break</span>;
+        &#125;
+    &#125;
+    <span class="hljs-comment">// This fence synchronizes-with store in `unlock`.</span>
+    <span class="hljs-title function_ invoke__">fence</span>(Ordering::Acquire);
+&#125;</code></pre></div>
+<p>Then, we replace <code>compare_exchange_weak</code> with <code>load</code> and <code>store</code>, note that this is <span class="label label-danger">impossible</span> in real code because split <code>cas</code> into individual <code>load</code> and <code>store</code> will break the atomicity:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+    <span class="hljs-comment">// Wait until the old value is `false`.</span>
+    <span class="hljs-keyword">loop</span> &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">load</span>(Ordering::Relaxed) == <span class="hljs-literal">false</span> &#123;
+            <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Ordering::Relaxed);
+            <span class="hljs-keyword">break</span>;
+        &#125;
+    &#125;
+    <span class="hljs-comment">// This fence synchronizes-with store in `unlock`.</span>
+    <span class="hljs-title function_ invoke__">fence</span>(Ordering::Acquire);
+&#125;</code></pre></div>
+<p>Do a little bit adjustment:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+    <span class="hljs-comment">// Wait until the old value is `false`.</span>
+    <span class="hljs-keyword">loop</span> &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">load</span>(Ordering::Relaxed) == <span class="hljs-literal">false</span> &#123;
+            <span class="hljs-title function_ invoke__">fence</span>(Ordering::Acquire);
+            <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Ordering::Relaxed);
+            <span class="hljs-keyword">break</span>;
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+<p>Now we can see that <code>fence</code> after <code>load</code> pattern! It’s equivalent to:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) &#123;
+    <span class="hljs-comment">// Wait until the old value is `false`.</span>
+    <span class="hljs-keyword">loop</span> &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">load</span>(Ordering::Acquire) == <span class="hljs-literal">false</span> &#123;
+            <span class="hljs-keyword">self</span>.flag.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Ordering::Relaxed);
+            <span class="hljs-keyword">break</span>;
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+<p>And that’s exactly how does the <code>fence</code> synchronizes-with the <code>store</code> in <code>unlock</code>.</p>
+<p>It’s a little bit verbose, but it’s a good way to understand how <code>fence</code> works.</p>
 <h2 id="Chan">Chan</h2>
 <blockquote>
 <p>Ignore the <code>Swift</code> syntax, <code>highlightjs</code> doesn’t handle the rust lifetime specifier properly.</p>
 </blockquote>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;<br>    message: <span class="hljs-type">UnsafeCell</span>&lt;<span class="hljs-type">MaybeUninit</span>&lt;<span class="hljs-type">T</span>&gt;&gt;,<br>    ready: <span class="hljs-type">AtomicBool</span>,<br>&#125;<br><br>unsafe impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; <span class="hljs-keyword">where</span> <span class="hljs-type">T</span>: <span class="hljs-type">Send</span> &#123;&#125;<br><br>pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Sender</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;<br>    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,<br>    recv_thread: <span class="hljs-type">Thread</span>,<br>&#125;<br><br>pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Receiver</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;<br>    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,<br>    _marker: std::marker::<span class="hljs-type">PhantomData</span>&lt;&amp;&#x27;a <span class="hljs-type">T</span>&gt;,<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;<br>    pub const fn new() -&gt; <span class="hljs-keyword">Self</span> &#123;<br>        <span class="hljs-keyword">Self</span> &#123;<br>            message: <span class="hljs-type">UnsafeCell</span>::new(MaybeUninit::uninit()),<br>            ready: <span class="hljs-type">AtomicBool</span>::new(<span class="hljs-literal">false</span>),<br>        &#125;<br>    &#125;<br><br>    pub fn split(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; (<span class="hljs-type">Sender</span>&lt;<span class="hljs-type">T</span>&gt;, <span class="hljs-type">Receiver</span>&lt;<span class="hljs-type">T</span>&gt;) &#123;<br>        <span class="hljs-operator">*</span><span class="hljs-keyword">self</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">Self</span>::new();<br>        (<br>            <span class="hljs-type">Sender</span> &#123;<br>                channel: <span class="hljs-keyword">self</span>,<br>                recv_thread: thread::current(),<br>            &#125;,<br>            <span class="hljs-type">Receiver</span> &#123;<br>                channel: <span class="hljs-keyword">self</span>,<br>                _marker: std::marker::<span class="hljs-type">PhantomData</span>,<br>            &#125;,<br>        )<br>    &#125;<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sender</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;<br>    pub fn send(<span class="hljs-keyword">self</span>, message: <span class="hljs-type">T</span>) &#123;<br>        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).write(message) &#125;;<br>        <span class="hljs-keyword">self</span>.channel.ready.store(<span class="hljs-literal">true</span>, <span class="hljs-type">Release</span>);<br>        <span class="hljs-keyword">self</span>.recv_thread.unpark();<br>    &#125;<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Receiver</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;<br>    pub fn is_ready(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; bool &#123;<br>        <span class="hljs-keyword">self</span>.channel.ready.load(<span class="hljs-type">Relaxed</span>)<br>    &#125;<br><br>    pub fn receive(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-type">T</span> &#123;<br>        <span class="hljs-keyword">while</span> <span class="hljs-operator">!</span><span class="hljs-keyword">self</span>.channel.ready.swap(<span class="hljs-literal">false</span>, <span class="hljs-type">Acquire</span>) &#123;<br>            thread::park();<br>        &#125;<br>        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).assume_init_read() &#125;<br>    &#125;<br>&#125;<br><br>impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;<br>    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.ready.get_mut() &#123;<br>            unsafe &#123; <span class="hljs-keyword">self</span>.message.get_mut().assume_init_drop() &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
+    message: <span class="hljs-type">UnsafeCell</span>&lt;<span class="hljs-type">MaybeUninit</span>&lt;<span class="hljs-type">T</span>&gt;&gt;,
+    ready: <span class="hljs-type">AtomicBool</span>,
+&#125;
+
+unsafe impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; <span class="hljs-keyword">where</span> <span class="hljs-type">T</span>: <span class="hljs-type">Send</span> &#123;&#125;
+
+pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Sender</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
+    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,
+    recv_thread: <span class="hljs-type">Thread</span>,
+&#125;
+
+pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Receiver</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
+    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,
+    _marker: std::marker::<span class="hljs-type">PhantomData</span>&lt;&amp;&#x27;a <span class="hljs-type">T</span>&gt;,
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
+    pub const fn new() -&gt; <span class="hljs-keyword">Self</span> &#123;
+        <span class="hljs-keyword">Self</span> &#123;
+            message: <span class="hljs-type">UnsafeCell</span>::new(MaybeUninit::uninit()),
+            ready: <span class="hljs-type">AtomicBool</span>::new(<span class="hljs-literal">false</span>),
+        &#125;
+    &#125;
+
+    pub fn split(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; (<span class="hljs-type">Sender</span>&lt;<span class="hljs-type">T</span>&gt;, <span class="hljs-type">Receiver</span>&lt;<span class="hljs-type">T</span>&gt;) &#123;
+        <span class="hljs-operator">*</span><span class="hljs-keyword">self</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">Self</span>::new();
+        (
+            <span class="hljs-type">Sender</span> &#123;
+                channel: <span class="hljs-keyword">self</span>,
+                recv_thread: thread::current(),
+            &#125;,
+            <span class="hljs-type">Receiver</span> &#123;
+                channel: <span class="hljs-keyword">self</span>,
+                _marker: std::marker::<span class="hljs-type">PhantomData</span>,
+            &#125;,
+        )
+    &#125;
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sender</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
+    pub fn send(<span class="hljs-keyword">self</span>, message: <span class="hljs-type">T</span>) &#123;
+        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).write(message) &#125;;
+        <span class="hljs-keyword">self</span>.channel.ready.store(<span class="hljs-literal">true</span>, <span class="hljs-type">Release</span>);
+        <span class="hljs-keyword">self</span>.recv_thread.unpark();
+    &#125;
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Receiver</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
+    pub fn is_ready(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; bool &#123;
+        <span class="hljs-keyword">self</span>.channel.ready.load(<span class="hljs-type">Relaxed</span>)
+    &#125;
+
+    pub fn receive(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-type">T</span> &#123;
+        <span class="hljs-keyword">while</span> <span class="hljs-operator">!</span><span class="hljs-keyword">self</span>.channel.ready.swap(<span class="hljs-literal">false</span>, <span class="hljs-type">Acquire</span>) &#123;
+            thread::park();
+        &#125;
+        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).assume_init_read() &#125;
+    &#125;
+&#125;
+
+impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
+    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.ready.get_mut() &#123;
+            unsafe &#123; <span class="hljs-keyword">self</span>.message.get_mut().assume_init_drop() &#125;
+        &#125;
+    &#125;
+&#125;</code></pre></div>
 <p>Pay attention to these points:</p>
 <ol>
 <li>Use <code>MaybeUninit</code> to save memory.</li>
@@ -475,10 +951,21 @@ it might be better for the threads to repeatedly try to lock it without actually
 <li>Do not forget to drop the <code>MaybeUninit</code> due to the struct won’t drop the inner data automatically.</li>
 </ol>
 <h2 id="Arc">Arc</h2>
+<h3 id="Minimal-Impl-2">Minimal Impl</h3>
 <ul>
 <li>
 <p>snippet 1:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">ArcData</span>&lt;T&gt; &#123;<br>    ref_cnt: AtomicUsize,<br>    data: T,<br>&#125;<br><br><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;<br>    data: NonNull&lt;ArcData&lt;T&gt;&gt;,<br>&#125;<br><br><span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Send</span> + <span class="hljs-built_in">Sync</span>&gt; <span class="hljs-built_in">Send</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;<br><span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Send</span> + <span class="hljs-built_in">Sync</span>&gt; <span class="hljs-built_in">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">ArcData</span>&lt;T&gt; &#123;
+    ref_cnt: AtomicUsize,
+    data: T,
+&#125;
+
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;
+    data: NonNull&lt;ArcData&lt;T&gt;&gt;,
+&#125;
+
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Send</span> + <span class="hljs-built_in">Sync</span>&gt; <span class="hljs-built_in">Send</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Send</span> + <span class="hljs-built_in">Sync</span>&gt; <span class="hljs-built_in">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;</code></pre></div>
 <ul>
 <li><code>NonNull</code> is almost same as <code>*mut T</code> but non-null and [covariant]</li>
 <li><code>Arc&lt;T&gt;</code> should be shared between threads, so <code>T</code> should be <code>Sync</code>.</li>
@@ -487,14 +974,53 @@ it might be better for the threads to repeatedly try to lock it without actually
 </li>
 <li>
 <p>snippet 2:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; Arc&lt;T&gt; &#123;<br>    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(data: T) <span class="hljs-punctuation">-&gt;</span> Arc&lt;T&gt; &#123;<br>        Arc &#123;<br>            ptr: NonNull::<span class="hljs-title function_ invoke__">from</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">leak</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">new</span>(ArcData &#123;<br>                ref_count: AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">1</span>),<br>                data,<br>            &#125;))),<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">data</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;ArcData&lt;T&gt; &#123;<br>        <span class="hljs-keyword">unsafe</span> &#123; <span class="hljs-keyword">self</span>.ptr.<span class="hljs-title function_ invoke__">as_ref</span>() &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;T&gt; Deref <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;<br>    <span class="hljs-keyword">type</span> <span class="hljs-title class_">Target</span> = T;<br><br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">deref</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;T &#123;<br>        &amp;<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().data<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; Arc&lt;T&gt; &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(data: T) <span class="hljs-punctuation">-&gt;</span> Arc&lt;T&gt; &#123;
+        Arc &#123;
+            ptr: NonNull::<span class="hljs-title function_ invoke__">from</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">leak</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">new</span>(ArcData &#123;
+                ref_count: AtomicUsize::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">1</span>),
+                data,
+            &#125;))),
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">data</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;ArcData&lt;T&gt; &#123;
+        <span class="hljs-keyword">unsafe</span> &#123; <span class="hljs-keyword">self</span>.ptr.<span class="hljs-title function_ invoke__">as_ref</span>() &#125;
+    &#125;
+&#125;
+
+<span class="hljs-keyword">impl</span>&lt;T&gt; Deref <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;
+    <span class="hljs-keyword">type</span> <span class="hljs-title class_">Target</span> = T;
+
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">deref</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;T &#123;
+        &amp;<span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().data
+    &#125;
+&#125;</code></pre></div>
 <ul>
 <li>Use <code>Box::leak</code> to give up the exclusive ownership of a <code>Box</code> allocation.</li>
 </ul>
 </li>
 <li>
 <p>snippet 3:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Clone</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;<br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">clone</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().ref_count.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">1</span>, Relaxed) &gt; <span class="hljs-type">usize</span>::MAX / <span class="hljs-number">2</span> &#123;<br>            std::process::<span class="hljs-title function_ invoke__">abort</span>();<br>        &#125;<br>        Arc &#123; ptr: <span class="hljs-keyword">self</span>.ptr &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;<br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().ref_count.<span class="hljs-title function_ invoke__">fetch_sub</span>(<span class="hljs-number">1</span>, Release) == <span class="hljs-number">1</span> &#123;<br>            <span class="hljs-title function_ invoke__">fence</span>(Acquire);<br>            <span class="hljs-keyword">unsafe</span> &#123;<br>                <span class="hljs-title function_ invoke__">drop</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">from_raw</span>(<span class="hljs-keyword">self</span>.ptr.<span class="hljs-title function_ invoke__">as_ptr</span>()));<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Clone</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">clone</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().ref_count.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">1</span>, Relaxed) &gt; <span class="hljs-type">usize</span>::MAX / <span class="hljs-number">2</span> &#123;
+            std::process::<span class="hljs-title function_ invoke__">abort</span>();
+        &#125;
+        Arc &#123; ptr: <span class="hljs-keyword">self</span>.ptr &#125;
+    &#125;
+&#125;
+
+<span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">self</span>.<span class="hljs-title function_ invoke__">data</span>().ref_count.<span class="hljs-title function_ invoke__">fetch_sub</span>(<span class="hljs-number">1</span>, Release) == <span class="hljs-number">1</span> &#123;
+            <span class="hljs-title function_ invoke__">fence</span>(Acquire);
+            <span class="hljs-keyword">unsafe</span> &#123;
+                <span class="hljs-title function_ invoke__">drop</span>(<span class="hljs-type">Box</span>::<span class="hljs-title function_ invoke__">from_raw</span>(<span class="hljs-keyword">self</span>.ptr.<span class="hljs-title function_ invoke__">as_ptr</span>()));
+            &#125;
+        &#125;
+    &#125;
+&#125;</code></pre></div>
 <ul>
 <li><code>fetch_add</code> and <code>fetch_sub</code> are used to increment and decrement the reference count.</li>
 <li><code>fetch_add</code> is <code>Relaxed</code> because we don’t need to guarantee the order of the reference count, but pay attention to the next line.</li>
@@ -504,8 +1030,86 @@ In hence, we can use <code>AcqRel</code> for that, however, only the final decre
 </ul>
 </li>
 </ul>
+<hr>
+<h3 id="Self-Reference">Self-Reference</h3>
 <p>Futher more, if we want to handle ‘self-reference’ struct with <code>Arc</code>, it might cause memory leak, because the <code>Arc</code> will only be dropped when the reference count is zero while self-reference struct will never be zero:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;<br><br><span class="hljs-meta">#[derive(Debug)]</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">MyStruct</span> &#123;<br>    value: <span class="hljs-type">String</span>,<br>    self_ref: <span class="hljs-type">Option</span>&lt;Arc&lt;Mutex&lt;MyStruct&gt;&gt;&gt;,<br>&#125;<br><br><span class="hljs-keyword">impl</span> <span class="hljs-title class_">MyStruct</span> &#123;<br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: <span class="hljs-type">String</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;<br>        MyStruct &#123;<br>            value,<br>            self_ref: <span class="hljs-literal">None</span>,<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">set_reference</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, other: Arc&lt;Mutex&lt;MyStruct&gt;&gt;) &#123;<br>        <span class="hljs-keyword">self</span>.self_ref = <span class="hljs-title function_ invoke__">Some</span>(other);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">impl</span> <span class="hljs-title class_">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">MyStruct</span> &#123;<br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;MyStruct is dropped&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">DetectDrop</span> &#123;&#125;<br><br><span class="hljs-keyword">impl</span> <span class="hljs-title class_">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">DetectDrop</span> &#123;<br>    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;<br>        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;DetectDrop is dropped&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = Arc::<span class="hljs-title function_ invoke__">new</span>(Mutex::<span class="hljs-title function_ invoke__">new</span>(MyStruct::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-string">&quot;Hello&quot;</span>.<span class="hljs-title function_ invoke__">to_string</span>())));<br>    <span class="hljs-keyword">let</span> <span class="hljs-variable">_b</span> = Arc::<span class="hljs-title function_ invoke__">new</span>(DetectDrop &#123;&#125;);<br><br>    &#123;<br>        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">a_ref</span> = a.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();<br>        a_ref.<span class="hljs-title function_ invoke__">set_reference</span>(a.<span class="hljs-title function_ invoke__">clone</span>());<br>    &#125;<br><br>    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Arc count: &#123;&#125;&quot;</span>, Arc::<span class="hljs-title function_ invoke__">strong_count</span>(&amp;a));<br>&#125;<br><br><span class="hljs-comment">// OUTPUT:</span><br><span class="hljs-comment">// Arc count: 2</span><br><span class="hljs-comment">// DetectDrop is dropped</span><br></code></pre></td></tr></table></figure>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::sync::&#123;Arc, Mutex&#125;;
+
+<span class="hljs-meta">#[derive(Debug)]</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">MyStruct</span> &#123;
+    value: <span class="hljs-type">String</span>,
+    self_ref: <span class="hljs-type">Option</span>&lt;Arc&lt;Mutex&lt;MyStruct&gt;&gt;&gt;,
+&#125;
+
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">MyStruct</span> &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(value: <span class="hljs-type">String</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;
+        MyStruct &#123;
+            value,
+            self_ref: <span class="hljs-literal">None</span>,
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">set_reference</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>, other: Arc&lt;Mutex&lt;MyStruct&gt;&gt;) &#123;
+        <span class="hljs-keyword">self</span>.self_ref = <span class="hljs-title function_ invoke__">Some</span>(other);
+    &#125;
+&#125;
+
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">MyStruct</span> &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;MyStruct is dropped&quot;</span>);
+    &#125;
+&#125;
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">DetectDrop</span> &#123;&#125;
+
+<span class="hljs-keyword">impl</span> <span class="hljs-title class_">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">DetectDrop</span> &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">drop</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;DetectDrop is dropped&quot;</span>);
+    &#125;
+&#125;
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">a</span> = Arc::<span class="hljs-title function_ invoke__">new</span>(Mutex::<span class="hljs-title function_ invoke__">new</span>(MyStruct::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-string">&quot;Hello&quot;</span>.<span class="hljs-title function_ invoke__">to_string</span>())));
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">_b</span> = Arc::<span class="hljs-title function_ invoke__">new</span>(DetectDrop &#123;&#125;);
+
+    &#123;
+        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">a_ref</span> = a.<span class="hljs-title function_ invoke__">lock</span>().<span class="hljs-title function_ invoke__">unwrap</span>();
+        a_ref.<span class="hljs-title function_ invoke__">set_reference</span>(a.<span class="hljs-title function_ invoke__">clone</span>());
+    &#125;
+
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;Arc count: &#123;&#125;&quot;</span>, Arc::<span class="hljs-title function_ invoke__">strong_count</span>(&amp;a));
+&#125;
+
+<span class="hljs-comment">// OUTPUT:</span>
+<span class="hljs-comment">// Arc count: 2</span>
+<span class="hljs-comment">// DetectDrop is dropped</span></code></pre></div>
+<p>So, here comes the <code>Weak</code>.</p>
+<hr>
+<h3 id="Weak">Weak</h3>
+<p><code>Weak</code> is a non-owning reference to the managed allocation, which means it won’t increase the reference count.</p>
+<p>To achieve that, we can simply split the <code>Arc</code> into <code>Weak</code> and <code>Arc</code>:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;
+    ptr: NonNull&lt;ArcData&lt;T&gt;&gt;,
+&#125;
+
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Sync</span> + <span class="hljs-built_in">Send</span>&gt; <span class="hljs-built_in">Send</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Sync</span> + <span class="hljs-built_in">Send</span>&gt; <span class="hljs-built_in">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Arc</span>&lt;T&gt; &#123;&#125;
+
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Weak</span>&lt;T&gt; &#123;
+    ptr: NonNull&lt;ArcData&lt;T&gt;&gt;,
+&#125;
+
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Sync</span> + <span class="hljs-built_in">Send</span>&gt; <span class="hljs-built_in">Send</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Weak</span>&lt;T&gt; &#123;&#125;
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T: <span class="hljs-built_in">Sync</span> + <span class="hljs-built_in">Send</span>&gt; <span class="hljs-built_in">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Weak</span>&lt;T&gt; &#123;&#125;
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">ArcData</span>&lt;T&gt; &#123;
+    <span class="hljs-comment">/// Number of `Arc`s.</span>
+    data_ref_count: AtomicUsize,
+    <span class="hljs-comment">/// Number of `Weak`s, plus one if there are any `Arc`s.</span>
+    alloc_ref_count: AtomicUsize,
+    <span class="hljs-comment">/// The data. Dropped if there are only weak pointers left.</span>
+    data: UnsafeCell&lt;ManuallyDrop&lt;T&gt;&gt;,
+&#125;</code></pre></div>
 
                 
               </div>
@@ -570,7 +1174,7 @@ In hence, we can use <code>AcqRel</code> for that, however, only the final decre
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>December 18, 2024</div>
+          <div>December 19, 2024</div>
         </div>
       
       
