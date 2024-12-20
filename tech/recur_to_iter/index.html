@@ -19,16 +19,17 @@
   <meta name="author" content="kayce">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Cross compile Rust code on OSX for Linux">
+    <meta name="description" content="Recursion to Iteration">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Rust Cross Compile on OSX">
-<meta property="og:url" content="https://kayce.world/tech/rust_cross_compile_on_osx/index.html">
+<meta property="og:title" content="Recursion to Iteration">
+<meta property="og:url" content="https://kayce.world/tech/recur_to_iter/index.html">
 <meta property="og:site_name" content="kayce">
-<meta property="og:description" content="Cross compile Rust code on OSX for Linux">
+<meta property="og:description" content="Recursion to Iteration">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-12-18T13:54:58.000Z">
-<meta property="article:modified_time" content="2024-12-18T14:08:13.815Z">
+<meta property="article:published_time" content="2024-12-20T14:59:55.000Z">
+<meta property="article:modified_time" content="2024-12-20T14:59:55.000Z">
 <meta property="article:author" content="kayce">
+<meta property="article:tag" content="Golang">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -36,7 +37,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Rust Cross Compile on OSX - kayce</title>
+  <title>Recursion to Iteration - kayce</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -225,7 +226,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Rust Cross Compile on OSX"></span>
+            <span id="subtitle" data-typed-text="Recursion to Iteration"></span>
           
         </div>
 
@@ -241,8 +242,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-18 21:54" pubdate>
-          December 18, 2024 pm
+        <time datetime="2024-12-20 22:59" pubdate>
+          December 20, 2024 pm
         </time>
       </span>
     
@@ -294,80 +295,130 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Rust Cross Compile on OSX</h1>
-            
-              <p id="updated-time" class="note note-info" style="">
-                
-                  
-                    Last updated on December 18, 2024 pm
-                  
-                
-              </p>
+            <h1 id="seo-header">Recursion to Iteration</h1>
             
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>Talk is cheap, show me the Makefile.</p>
+                <p>Normally, recursion is more readable and easier to understand than iteration. However, recursion can be less efficient than iteration because of the overhead of function calls and the stack. What’s more, some languages don’t optimize tail recursion, which can lead to stack overflow errors.</p>
+<div class="note note-primary">
+            <p>Luckily, we can always convert recursion to iteration.</p>
+          </div>
+<h2 id="Example-Generate-balanced-parentheses">Example: Generate balanced parentheses</h2>
+<blockquote>
+<p>Given <code>n</code> pairs of parentheses, write a function to generate all combinations of well-formed parentheses.<br>
+Such as, with <code>n = 3</code>, a solution set is:<br>
+<code>[&quot;((()))&quot;,&quot;(()())&quot;,&quot;(())()&quot;,&quot;()(())&quot;,&quot;()()()&quot;]</code></p>
 </blockquote>
-<h2 id="Setup">Setup</h2>
-<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-musl</span>
-<span class="hljs-section">setup-osx-musl:</span>
-	@brew install filosottile/musl-cross/musl-cross
-	<span class="hljs-comment"># @sudo ln -s &quot;$(brew --prefix musl-cross)/bin/x86_64-linux-musl-gcc&quot; /usr/local/bin/musl-gcc</span>
+<h3 id="Rust">Rust</h3>
+<h4 id="Recursion">Recursion</h4>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens</span>(n: <span class="hljs-type">u16</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt; &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">res</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-title function_ invoke__">balanced_parens0</span>(n, n, <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">new</span>(), &amp;<span class="hljs-keyword">mut</span> res);
+    res
+&#125;
 
-<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-gnu</span>
-<span class="hljs-section">setup-osx-gnu:</span>
-	@brew tap SergioBenitez/osxct
-	@brew install x86_64-unknown-linux-gnu</code></pre></div>
-<h2 id="Build">Build</h2>
-<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-gnu</span>
-<span class="hljs-section">osx-cross-build-gnu:</span>
-	@echo <span class="hljs-string">&quot;Building presence-tool with gnu&quot;</span>
-	@rustup target add x86_64-unknown-linux-gnu
-	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --release --target=x86_64-unknown-linux-gnu
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens0</span>(l: <span class="hljs-type">u16</span>, r: <span class="hljs-type">u16</span>, s: <span class="hljs-type">String</span>, res: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt;) &#123;
+    <span class="hljs-keyword">if</span> l + r == <span class="hljs-number">0</span> &#123;
+        res.<span class="hljs-title function_ invoke__">push</span>(s);
+        <span class="hljs-keyword">return</span>;
+    &#125;
+    <span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
+        <span class="hljs-title function_ invoke__">balanced_parens0</span>(l - <span class="hljs-number">1</span>, r, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;(&quot;</span>, res);
+    &#125;
+    <span class="hljs-keyword">if</span> r &gt; l &#123;
+        <span class="hljs-title function_ invoke__">balanced_parens0</span>(l, r - <span class="hljs-number">1</span>, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;)&quot;</span>, res);
+    &#125;
+&#125;</code></pre></div>
+<h4 id="Iteration">Iteration</h4>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens</span>(n: <span class="hljs-type">u16</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt; &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">res</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">stack</span> = <span class="hljs-built_in">vec!</span>[];
+    stack.<span class="hljs-title function_ invoke__">push</span>((n, n, <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">new</span>()));
+    <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>((l, r, s)) = stack.<span class="hljs-title function_ invoke__">pop</span>() &#123;
+        <span class="hljs-keyword">if</span> l + r == <span class="hljs-number">0</span> &#123;
+            res.<span class="hljs-title function_ invoke__">push</span>(s);
+            <span class="hljs-keyword">continue</span>;
+        &#125;
+        <span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
+            stack.<span class="hljs-title function_ invoke__">push</span>((l - <span class="hljs-number">1</span>, r, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;(&quot;</span>));
+        &#125;
+        <span class="hljs-keyword">if</span> r &gt; l &#123;
+            stack.<span class="hljs-title function_ invoke__">push</span>((l, r - <span class="hljs-number">1</span>, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;)&quot;</span>));
+        &#125;
+    &#125;
+    res
+&#125;</code></pre></div>
+<hr>
+<h3 id="Golang">Golang</h3>
+<h4 id="Recursion-2">Recursion</h4>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BalancedParens</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">string</span> &#123;
+	res := []<span class="hljs-type">string</span>&#123;&#125;
+	balancedParens(n, n, <span class="hljs-string">&quot;&quot;</span>, &amp;res)
+	<span class="hljs-keyword">return</span> res
+&#125;
 
-<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-cross-build-musl</span>
-<span class="hljs-section">osx-cross-build-musl:</span>
-	@echo <span class="hljs-string">&quot;Building presence-tool with musl&quot;</span>
-	@rustup target add x86_64-unknown-linux-musl
-	@CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-musl-gcc cargo build --release --target x86_64-unknown-linux-musl</code></pre></div>
-<h2 id="Chore">Chore</h2>
-<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: osx-setup-cargo-hint</span>
-<span class="hljs-section">setup-osx-cargo-hint:</span>
-	@echo <span class="hljs-string">&quot;Put these lines into your ~/.cargo/config.toml:&quot;</span>
-	@echo &#x27;```toml&#x27;
-	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-musl]&quot;</span>
-	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-linux-musl-gcc\&quot;&quot;</span>
-	@echo <span class="hljs-string">&quot;[target.x86_64-unknown-linux-gnu]&quot;</span>
-	@echo <span class="hljs-string">&quot;linker = \&quot;x86_64-unknown-linux-gnu-gcc\&quot;&quot;</span>
-	@echo &#x27;```&#x27;
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">balancedParens</span><span class="hljs-params">(l, r <span class="hljs-type">int</span>, s <span class="hljs-type">string</span>, res *[]<span class="hljs-type">string</span>)</span></span> &#123;
+	<span class="hljs-keyword">if</span> l == <span class="hljs-number">0</span> &amp;&amp; r == <span class="hljs-number">0</span> &#123;
+		*res = <span class="hljs-built_in">append</span>(*res, s)
+		<span class="hljs-keyword">return</span>
+	&#125;
 
-<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: install-bin</span>
-<span class="hljs-section">install-bin:</span>
-	@echo <span class="hljs-string">&quot;Installing current bin crate to ~/.cargo/bin&quot;</span>
-	@cargo install --path .
+	<span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
+		balancedParens(l<span class="hljs-number">-1</span>, r, s+<span class="hljs-string">&quot;(&quot;</span>, res)
+	&#125;
 
-<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-osx</span>
-<span class="hljs-section">check-dynamic-link-osx: build</span>
-	@echo <span class="hljs-string">&quot;Checking for dynamic linking on OSX&quot;</span>
-	@otool -L target/release/presence-tool
+	<span class="hljs-keyword">if</span> r &gt; l &#123;
+		balancedParens(l, r<span class="hljs-number">-1</span>, s+<span class="hljs-string">&quot;)&quot;</span>, res)
+	&#125;
+&#125;</code></pre></div>
+<h4 id="Iteration-2">Iteration</h4>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> stackFrame <span class="hljs-keyword">struct</span> &#123;
+	l <span class="hljs-type">int</span>
+	r <span class="hljs-type">int</span>
+	s <span class="hljs-type">string</span>
+&#125;
 
-<span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: check-dynamic-link-linux</span>
-<span class="hljs-section">check-dynamic-link-linux: build-musl</span>
-	@echo <span class="hljs-string">&quot;Checking for dynamic linking on Linux&quot;</span>
-	@ldd target/release/presence-tool</code></pre></div>
-<h2 id="Cargo-Config">Cargo Config</h2>
-<div class="code-wrapper"><pre><code class="hljs toml"><span class="hljs-section">[target.x86_64-unknown-linux-musl]</span>
-<span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-linux-musl-gcc&quot;</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BalancedParens</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">string</span> &#123;
+	res := []<span class="hljs-type">string</span>&#123;&#125;
+	stack := <span class="hljs-built_in">make</span>([]stackFrame, <span class="hljs-number">0</span>, n)
+	stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;n, n, <span class="hljs-string">&quot;&quot;</span>&#125;)
+	<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(stack) &gt; <span class="hljs-number">0</span> &#123;
+		<span class="hljs-comment">// pop</span>
+		frame := stack[<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
+		stack = stack[:<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
 
-<span class="hljs-section">[target.x86_64-unknown-linux-gnu]</span>
-<span class="hljs-attr">linker</span> = <span class="hljs-string">&quot;x86_64-unknown-linux-gnu-gcc&quot;</span></code></pre></div>
-<p>Once you’ve configured your <code>Cargo.toml</code> and <code>~/.cargo/config.toml</code>, you can simply try this:</p>
-<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: build-musl</span>
-<span class="hljs-section">build-musl:</span>
-	@rustup target add x86_64-unknown-linux-musl <span class="hljs-comment"># this line is optional</span>
-	@cargo build --release --target x86_64-unknown-linux-musl</code></pre></div>
+		<span class="hljs-keyword">if</span> frame.l == <span class="hljs-number">0</span> &amp;&amp; frame.r == <span class="hljs-number">0</span> &#123;
+			res = <span class="hljs-built_in">append</span>(res, frame.s)
+			<span class="hljs-keyword">continue</span>
+		&#125;
+
+		<span class="hljs-keyword">if</span> frame.l &gt; <span class="hljs-number">0</span> &#123;
+			stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;frame.l - <span class="hljs-number">1</span>, frame.r, frame.s + <span class="hljs-string">&quot;(&quot;</span>&#125;)
+		&#125;
+
+		<span class="hljs-keyword">if</span> frame.r &gt; frame.l &#123;
+			stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;frame.l, frame.r - <span class="hljs-number">1</span>, frame.s + <span class="hljs-string">&quot;)&quot;</span>&#125;)
+		&#125;
+	&#125;
+	<span class="hljs-keyword">return</span> res
+&#125;</code></pre></div>
+<h2 id="3-Steps-to-Convert">3 Steps to Convert</h2>
+<p>Let’s dissect what’s going on:</p>
+<ol>
+<li>Extract the <strong><code>arguments</code></strong> of the recursive function signature into a <strong><code>frame</code></strong> struct(or tuple, etc.)</li>
+<li>Make a stack and store the <strong><code>first</code></strong> frame with the arguments of the initial call to the recursive function</li>
+<li>Copy the code inside the recursive function to the iteration loop, and…
+<ul>
+<li>replace the recursive <strong><code>call</code></strong> with <strong><code>pushing</code></strong> a new frame to the stack</li>
+<li>replace the <strong><code>return</code></strong> statement with <strong><code>continue</code></strong> to jump to the next iteration</li>
+</ul>
+</li>
+</ol>
+<div class="note note-primary">
+            <p>By following these steps, we can 100% convert any recursive function to an iterative one.</p>
+          </div>
+<p>Yes, the iterative code still has some space for optimization in some cases, such as reusing variables, etc. But the key point is to show you how to convert recursion to iteration.</p>
 
                 
               </div>
@@ -401,6 +452,8 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/Golang/" class="print-no-link">#Golang</a>
+      
         <a href="/tags/Rust/" class="print-no-link">#Rust</a>
       
     </div>
@@ -413,8 +466,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Rust Cross Compile on OSX</div>
-      <div>https://kayce.world/tech/rust_cross_compile_on_osx/</div>
+      <div>Recursion to Iteration</div>
+      <div>https://kayce.world/tech/recur_to_iter/</div>
     </div>
     <div class="license-meta">
       
@@ -426,14 +479,9 @@
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 18, 2024</div>
+          <div>December 20, 2024</div>
         </div>
       
-      
-        <div class="license-meta-item license-meta-date">
-          <div>Updated on</div>
-          <div>December 18, 2024</div>
-        </div>
       
       
         <div class="license-meta-item">
@@ -475,18 +523,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/tech/recur_to_iter/" title="Recursion to Iteration">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Recursion to Iteration</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/tech/rust_atomics_and_locks/" title="Rust Atomics and Locks">
-                        <span class="hidden-mobile">Rust Atomics and Locks</span>
+                      <a href="/tech/rust_cross_compile_on_osx/" title="Rust Cross Compile on OSX">
+                        <span class="hidden-mobile">Rust Cross Compile on OSX</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -509,7 +551,7 @@
         var options = Object.assign(
           {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"485e76d306112a519d43b4118efa8971c3ff6069","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"en-US","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
-            id: 'fea4c9183b7d9c24a65e0642d9ffec25'
+            id: 'ec65af4c4b7650eb1e1767919daf1695'
           }
         )
         var gitalk = new Gitalk(options);

@@ -1,3 +1,4 @@
+https://kayce.world/tech/recur_to_iter/
 https://kayce.world/music/index.html
 https://kayce.world/music-2024/index.html
 https://kayce.world/tech/rust_atomics_and_locks/
