@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://kayce.world/tech/high_perf_kafka_consumer/</loc>
+    
+    <lastmod>2024-12-22</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://kayce.world/about/index.html</loc>
     
     <lastmod>2024-12-21</lastmod>
@@ -68,15 +77,6 @@
     <loc>https://kayce.world/dessert/double_entry_bookkeeping/</loc>
     
     <lastmod>2024-12-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://kayce.world/tech/high_perf_kafka_consumer/</loc>
-    
-    <lastmod>2024-12-15</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -155,20 +155,6 @@
 
   
   <url>
-    <loc>https://kayce.world/tags/%E8%82%A1%E7%A5%A8/</loc>
-    <lastmod>2024-12-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://kayce.world/tags/%E9%87%91%E8%9E%8D/</loc>
-    <lastmod>2024-12-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://kayce.world/tags/AWS/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -183,14 +169,21 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/tags/Chores/</loc>
+    <loc>https://kayce.world/tags/%E8%82%A1%E7%A5%A8/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://kayce.world/tags/Finance/</loc>
+    <loc>https://kayce.world/tags/%E9%87%91%E8%9E%8D/</loc>
+    <lastmod>2024-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Chores/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -205,6 +198,13 @@
   
   <url>
     <loc>https://kayce.world/tags/ByteDance/</loc>
+    <lastmod>2024-12-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Finance/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -255,14 +255,14 @@
 
   
   <url>
-    <loc>https://kayce.world/categories/economics/</loc>
+    <loc>https://kayce.world/categories/tech/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://kayce.world/categories/tech/</loc>
+    <loc>https://kayce.world/categories/economics/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -276,14 +276,14 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/categories/dessert/</loc>
+    <loc>https://kayce.world/categories/career/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://kayce.world/categories/career/</loc>
+    <loc>https://kayce.world/categories/dessert/</loc>
     <lastmod>2024-12-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
