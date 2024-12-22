@@ -349,9 +349,8 @@
 <p>最简单的消费模型其实和上面描述的过程是一致的，如下：</p>
 <p><img src="/img/kafka-go/simple.png" srcset="/img/loading.gif" lazyload alt="一次消费一条消息"></p>
 <p>当消费成功时直接提交；当消费失败时，根据需要进行无限重试，或是直接丢弃（提交 commit 请求视为成功）。</p>
-<p>常用 RocketMQ 的用户可以思考一下为什么我们一定要阻塞在某一条消息的处理上，为什么不能使用一个 <code>sync.WaitGroup</code> 来进行一定程度的并发呢？</p>
-<p>曾经我在字节工作期间使用 RocketMQ 时，确实是这么做的，就像在接到 HTTP 请求后开启协程来处理一样，在接到消息后也开启协程进行处理。但这是建立在 RocketMQ 本身是支持消息重试的基础上的，当 RocketMQ 消息消费失败后，我们可以显示地向 RocketMQ 提交一个 <code>NACK</code> 请求来表明消息处理失败了，此时消息会被 RocketMQ 丢入重试队列中等待二次消费，当失败次数达到阈值后，会被其放进死信队列中，消息永远是不会丢失的。</p>
-<p>但对于 Kafka 而言，它的提交行为是不区分 <code>ACK </code> / <code> NACK</code> 的，它的 commit 请求中只包含一个 <code>offset</code> 参数来标识当前消费者的消费进度。与此同时，kafka-go sdk 又在内存中将消息缓存到 chan 中，当我开启若干个协程调用 FetchMessage 方法时，获取到的消息是完全不同的。也就是说，当我开启三个协程处理三条消息时，可能分别在处理 offset = <code>1</code> / <code>2</code> / <code>3</code> 的 3 条消息，当 1 和 2 处理失败但 3 处理成功时，一旦将 3 commit 到 Kafka 中，1 和 2 就永久的丢失了（再也不会被消费了）。</p>
+<p>为什么我们一定要阻塞在某一条消息的处理上，为什么不能使用一个 <code>sync.WaitGroup</code> 来进行一定程度的并发呢？</p>
+<p>因为对于 Kafka 而言，它的提交行为是不区分 <code>ACK </code> / <code> NACK</code> 的，它的 commit 请求中只包含一个 <code>offset</code> 参数来标识当前消费者的消费进度。与此同时，kafka-go sdk 又在内存中将消息缓存到 chan 中，当我开启若干个协程调用 FetchMessage 方法时，获取到的消息是完全不同的。也就是说，当我开启三个协程处理三条消息时，可能分别在处理 offset = <code>1</code> / <code>2</code> / <code>3</code> 的 3 条消息，当 1 和 2 处理失败但 3 处理成功时，一旦将 3 commit 到 Kafka 中，1 和 2 就永久的丢失了（再也不会被消费了）。</p>
 <p>这种模型虽然很简单，但也十分低效，适合的场景也非常有限，举几个实际的例子：</p>
 <ol>
 <li>新增 / 注销账号产生的消息。类似的场景下消息产生的 QPS 很可能 &lt; 1，因此使用该模型并不会造成性能瓶颈，反而在一定程度上可以提升开发效率。</li>
@@ -359,9 +358,10 @@
 </ol>
 <hr>
 <h3 id="高性能的批量消费模型">高性能的批量消费模型</h3>
-<p>在 Kafka 不支持 <code>ACK</code> / <code>NACK</code> 的情况之下，如果我们仍需要保证消费的有序性，是不是就无法使用并发消费了呢？当然不是。接下来将介绍一种可配置、高并发的高性能消费模型：</p>
+<p>在 Kafka 不支持 <code>ACK</code> / <code>NACK</code> 的情况之下，如果我们仍需要保证消费的有序性，是不是就无法使用并发消费了呢？</p>
 <h4 id="以-Partition-为维度并发">以 Partition 为维度并发</h4>
-<p>熟悉 Kafka 架构的同学可能知道，Kafka 同一个 Topic 下的消息是分为多个 Partition 进行存储的，每个 Partition 中的消息都是按照投递的顺序进行排序的，也就是说，我们在消费同一个 Topic 的情况下，至少可以进行 Partition 维度的并发——就像在 RocketMQ 中，每个 Queue 中的消息是局部有序的。</p>
+<p>Kafka 同一个 Topic 下的消息是分为多个 Partition 进行存储的，每个 Partition 中的消息都是按照投递的顺序进行排序的，也就是说，我们在消费同一个 Topic 的情况下，至少可以进行 Partition 维度的并发——就像在 RocketMQ 中，每个 Queue 中的消息是局部有序的。</p>
+<p>因此，我们可以以 Partition 为维度进行并发消费。于此同时，我们还可以对于每个 Partition 都批量的拉取消息，然后进行批量的处理，但是需要消费方保证消息处理的幂等性，避免重复消费。</p>
 <p><img src="/img/kafka-go/by_partition.png" srcset="/img/loading.gif" lazyload alt="根据 partition 并发处理"></p>
 <p>在这种模型中，我们需要做的主要有两件事：</p>
 <ol>
@@ -466,13 +466,8 @@
 <li><code>minBatchSize</code>，每次批量处理消息的最小数量——某些时候上游已经暂时不再产生消息，此时为了避免持续空转到超时，可以提前返回</li>
 </ol>
 <hr>
-<h4 id="从单条转向到批量处理消息">从单条转向到批量处理消息</h4>
-<p>从上面的 <code>KafkaConsumer</code> 中可以看到，我们对于消息的处理从单条转向了批量。在批量处理的过程中，我们需要保证所有消息都处理成功后（至少是业务上认为处理成功），再返回成功，常见的处理方式就是无限重试。在处理完一批消息之后，我们需要批量的提交消息，kafka-go 本身就提供了批量处理消息的函数，但是我们也需要进行一些合理的封装来实现如下功能：</p>
-<ol>
-<li>给 kafka 对应的 partition 提交 offset</li>
-<li>合理拆分消息数组，避免一次性提交的消息大小超过 kafka 的配置限额</li>
-<li>对 kafka 的连接进行合理的检测</li>
-</ol>
+<h4 id="批量发送消息">批量发送消息</h4>
+<p>除了消费可以实现批量之外，生产也可以实现批量。</p>
 <p>伪代码如下：</p>
 <div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> KafkaPartitionProducer[T msgtype.KafkaMessage] <span class="hljs-keyword">struct</span> &#123;
 	brokers   []<span class="hljs-type">string</span>
@@ -586,6 +581,9 @@
 
 	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
 &#125;</code></pre></div>
+<div class="note note-light">
+            <p>值得一提的是，上面代码中的 <code>buildKafkaMessage</code> 可能会成为一个瓶颈点，比如我们的构造逻辑包含一些压缩或者 IO 密集的操作。</p><p>此时我们可以使用协程池并发构造，以提升生产的吞吐量。</p><p>除此之外，它还有可能成为对于 kafka broker 的压力点，比如假设我的消息消费逻辑是一个转发逻辑，从上游获取消息后进行处理再转发给下游 kafka，我们利用上一小节的 <code>KafkaConsumer</code> 进行消费会构造出 <code>Partition</code> 级别的并发，可能会导致下游 kafka 的压力过大。</p><p>此时我们可以使用 <code>chan</code> 进行解耦和限流，实现并发消费+串行生产的转发模型。</p>
+          </div>
 <hr>
 <h4 id="消费过程的流水线">消费过程的流水线</h4>
 <p>考虑到 Kafka 的消费过程本质上也是一个不同流程的串联，于是我们可以在消费过程上进一步的进行优化。</p>
