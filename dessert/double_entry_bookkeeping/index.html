@@ -380,16 +380,17 @@
 <h3 id="一、事件">一、事件</h3>
 <p>事件的类型已经在上面标注出来了，你可以理解为这是行业内的通用实践，也可以理解为这是基于安全考量所必备的一些步骤。</p>
 <p>比如，理论上来说，平台给商家打款，也可以不关心外部的网联的对账：</p>
-<details>
-<summary><i>TL;DR 点击展开</i></summary>
-<blockquote>
-假设我是「XX 支付」，用户的钱在我的系统里本质上只是一个数字，在不涉及出入金的情况下，我完全可以随意修改这个数字。<br>
-平台的零钱 / 余额只能在平台内流通，直到你点击「提现到银行卡」，这笔钱我才真正需要和银行结算。<br>
-因此用户付费购买商品这个流程，我可以直接把 user.balance - 5, merchant.balance + 5，然后告诉商家「你的钱到账了」。<br>
-我们之所以需要消费上述的具体事件来推进流程，是因为这笔钱的来源并不是平台内的用户零钱，而是用户的银行卡，也就是说用户选择了「使用银行卡支付」。<br>
-所以如果我主动跳过其中的核心检查步骤，直接给商户加钱，那么万一用户的银行卡扣款失败，那我作为平台就损失了 5 元。
-</blockquote>
-</details>
+
+    <div class="fold">
+      <div class="fold-title fold-default collapsed" data-toggle="collapse" href="#collapse-a9d83a35" role="button" aria-expanded="false" aria-controls="collapse-a9d83a35">
+        <div class="fold-arrow">▶</div>TL;DR
+      </div>
+      <div class="fold-collapse collapse" id="collapse-a9d83a35">
+        <div class="fold-content">
+          <p>假设我是「XX 支付」，用户的钱在我的系统里本质上只是一个数字，在不涉及出入金的情况下，我完全可以随意修改这个数字。<br>平台的零钱 / 余额只能在平台内流通，直到你点击「提现到银行卡」，这笔钱我才真正需要和银行结算。<br>因此用户付费购买商品这个流程，我可以直接把 user.balance - 5, merchant.balance + 5，然后告诉商家「你的钱到账了」。<br>我们之所以需要消费上述的具体事件来推进流程，是因为这笔钱的来源并不是平台内的用户零钱，而是用户的银行卡，也就是说用户选择了「使用银行卡支付」。<br>所以如果我主动跳过其中的核心检查步骤，直接给商户加钱，那么万一用户的银行卡扣款失败，那我作为平台就损失了 5 元。</p>
+        </div>
+      </div>
+    </div>
 <hr>
 <h3 id="二、C-D-的特征">二、C / D 的特征</h3>
 <p>复习一下：C = credit 贷记，D = debit 借记。</p>
@@ -397,36 +398,45 @@
 <ul>
 <li>
 <p>每一列的 C 和 D 的和都是 0（除了最后两列）</p>
-<details>
-<summary><i>解释</i></summary>
-<blockquote>
-<u>每一列代表的都是某个独立账户的变动</u>，那么显然，除了最终的商户余额户和备付金头寸，其他账户的变动都是功能性的、短暂的。<br>
-换句话来说，钱只是经过这些账户流入了商户的钱包，这些账户在不收取手续费的情况下，不应该从中拿取或者给予任何金额。<br>
-为什么后两列不符合特征呢？因为商户通过卖饮料赚到了 5 元。
-</blockquote>
-</details>
+
+    <div class="fold">
+      <div class="fold-title fold-info collapsed" data-toggle="collapse" href="#collapse-ec4cc7c3" role="button" aria-expanded="false" aria-controls="collapse-ec4cc7c3">
+        <div class="fold-arrow">▶</div>解释
+      </div>
+      <div class="fold-collapse collapse" id="collapse-ec4cc7c3">
+        <div class="fold-content">
+          <p><u>每一列代表的都是某个独立账户的变动</u>，那么显然，除了最终的商户余额户和备付金头寸，其他账户的变动都是功能性的、短暂的。<br>换句话来说，钱只是经过这些账户流入了商户的钱包，这些账户在不收取手续费的情况下，不应该从中拿取或者给予任何金额。<br>为什么后两列不符合特征呢？因为商户通过卖饮料赚到了 5 元。</p>
+        </div>
+      </div>
+    </div>
 </li>
 <li>
 <p>每一行的 C 和 D 的和都是 0（除了第一行）</p>
-<details>
-<summary><i>解释</i></summary>
-<blockquote>
-<u>每一行代表的都是一个事件产生的账户变动</u>，这个变动显然是双向的，要符合借贷必相等的原则。<br>
-为什么第一行不符合特征呢？因为商户本质是要收钱的，这个钱本身就是由外部用户的银行卡流入我们平台再结算给商户的。<br>
-换句话来说，我向第一个杯子里倒了水，此时第一个杯子里的水就独立的增加了，后续向第二第三个杯子里转移水的时候，前一个杯子里的水会减少，后一个杯子里的水会增加。
-</blockquote>
-</details>
+
+    <div class="fold">
+      <div class="fold-title fold-info collapsed" data-toggle="collapse" href="#collapse-bb76695e" role="button" aria-expanded="false" aria-controls="collapse-bb76695e">
+        <div class="fold-arrow">▶</div>解释
+      </div>
+      <div class="fold-collapse collapse" id="collapse-bb76695e">
+        <div class="fold-content">
+          <p><u>每一行代表的都是一个事件产生的账户变动</u>，这个变动显然是双向的，要符合借贷必相等的原则。<br>为什么第一行不符合特征呢？因为商户本质是要收钱的，这个钱本身就是由外部用户的银行卡流入我们平台再结算给商户的。<br>换句话来说，我向第一个杯子里倒了水，此时第一个杯子里的水就独立的增加了，后续向第二第三个杯子里转移水的时候，前一个杯子里的水会减少，后一个杯子里的水会增加。</p>
+        </div>
+      </div>
+    </div>
 </li>
 <li>
 <p>符号与账户类型对应</p>
-<details>
-<summary><i>解释</i></summary>
-<blockquote>
-<u>账户本身的CD代表了账户的基本属性——表达资产还是负债</u>。<br>
-那么对应的，如果我是一个负债账户C，此时我又额外背上了一笔贷款，显然我在这个账户上应该使用加法，而不是减法。<br>
-同样，如果我还清了一笔债务D，那么我应该使用减法，而不是加法。<br>
-</blockquote>
-</details>
+
+    <div class="fold">
+      <div class="fold-title fold-info collapsed" data-toggle="collapse" href="#collapse-2871e189" role="button" aria-expanded="false" aria-controls="collapse-2871e189">
+        <div class="fold-arrow">▶</div>解释
+      </div>
+      <div class="fold-collapse collapse" id="collapse-2871e189">
+        <div class="fold-content">
+          <p><u>账户本身的CD代表了账户的基本属性——表达资产还是负债</u>。<br>那么对应的，如果我是一个负债账户C，此时我又额外背上了一笔贷款，显然我在这个账户上应该使用加法，而不是减法。<br>同样，如果我还清了一笔债务D，那么我应该使用减法，而不是加法。</p>
+        </div>
+      </div>
+    </div>
 </li>
 </ul>
 <hr>
