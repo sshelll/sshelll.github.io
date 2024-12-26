@@ -19,25 +19,24 @@
   <meta name="author" content="kayce">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Easily convert recursion to iteration within 3 steps">
+    <meta name="description" content="加密货币交易所中的安全传输实践">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Recursion to Iteration">
-<meta property="og:url" content="https://kayce.world/tech/recur_to_iter/index.html">
+<meta property="og:title" content="基于签名的鉴权架构">
+<meta property="og:url" content="https://kayce.world/tech/signature_based_auth_arch/index.html">
 <meta property="og:site_name" content="kayce">
-<meta property="og:description" content="Easily convert recursion to iteration within 3 steps">
+<meta property="og:description" content="加密货币交易所中的安全传输实践">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-12-20T14:59:00.000Z">
-<meta property="article:modified_time" content="2024-12-26T14:20:00.000Z">
+<meta property="article:published_time" content="2024-12-26T13:40:17.890Z">
+<meta property="article:modified_time" content="2024-12-26T13:40:17.891Z">
 <meta property="article:author" content="kayce">
-<meta property="article:tag" content="Golang">
-<meta property="article:tag" content="Rust">
+<meta property="article:tag" content="Auth">
 <meta name="twitter:card" content="summary_large_image">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Recursion to Iteration - kayce</title>
+  <title>基于签名的鉴权架构 - kayce</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -230,7 +229,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Recursion to Iteration"></span>
+            <span id="subtitle" data-typed-text="基于签名的鉴权架构"></span>
           
         </div>
 
@@ -246,8 +245,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-20 22:59" pubdate>
-          December 20, 2024 pm
+        <time datetime="2024-12-26 21:40" pubdate>
+          December 26, 2024 pm
         </time>
       </span>
     
@@ -299,7 +298,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Recursion to Iteration</h1>
+            <h1 id="seo-header">基于签名的鉴权架构</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
@@ -312,214 +311,120 @@
             
               <div class="markdown-body">
                 
-                <p>Normally, recursion is more readable and easier to understand than iteration. However, recursion can be less efficient than iteration because of the overhead of function calls and the stack. What’s more, some languages don’t optimize tail recursion, which can lead to stack overflow errors.</p>
-<div class="note note-primary">
-            <p>Luckily, we can always convert recursion to iteration.</p>
+                <div class="note note-warning">
+            <p>WIP, No ETA provided.</p>
           </div>
-<h2 id="Example-Generate-balanced-parentheses">Example: Generate balanced parentheses</h2>
 <blockquote>
-<p>Given <code>n</code> pairs of parentheses, write a function to generate all combinations of well-formed parentheses.<br>
-Such as, with <code>n = 3</code>, a solution set is:<br>
-<code>[&quot;((()))&quot;,&quot;(()())&quot;,&quot;(())()&quot;,&quot;()(())&quot;,&quot;()()()&quot;]</code></p>
+<p>请求处理的核心一环是鉴权，而在加密货币交易所中，鉴权的要求更为严格，因为它涉及到用户的资产安全。本文介绍一下我在前司基础架构组工作时瞥见的鉴权架构与实践。</p>
 </blockquote>
-<h3 id="Rust">Rust</h3>
-<h4 id="Recursion">Recursion</h4>
-<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens</span>(n: <span class="hljs-type">u16</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt; &#123;
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">res</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
-    <span class="hljs-title function_ invoke__">balanced_parens0</span>(n, n, <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">new</span>(), &amp;<span class="hljs-keyword">mut</span> res);
-    res
-&#125;
+<h2 id="核心原理">核心原理</h2>
+<p>简单来说，签名鉴权的核心原理就是使用一个字符串对另一个字符串进行散列 / 哈希，然后得到一个新的字符串，该字符串不可逆，且不考虑碰撞的情况下，唯一对应于原字符串。</p>
+<p>$$<br>
+hash(key, data) = signature<br>
+$$</p>
+<p>我们将它套用到请求场景中，可以变化为:</p>
+<p>$$<br>
+hash(key, request_info) = signature<br>
+$$</p>
+<p>实践中，我们一般使用 HMAC-SHA256 算法进行签名:</p>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	data := <span class="hljs-string">&quot;Hello, world!&quot;</span>
+	key := <span class="hljs-string">&quot;my_secret_key&quot;</span>
 
-<span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens0</span>(l: <span class="hljs-type">u16</span>, r: <span class="hljs-type">u16</span>, s: <span class="hljs-type">String</span>, res: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt;) &#123;
-    <span class="hljs-keyword">if</span> l + r == <span class="hljs-number">0</span> &#123;
-        res.<span class="hljs-title function_ invoke__">push</span>(s);
-        <span class="hljs-keyword">return</span>;
-    &#125;
-    <span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
-        <span class="hljs-title function_ invoke__">balanced_parens0</span>(l - <span class="hljs-number">1</span>, r, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;(&quot;</span>, res);
-    &#125;
-    <span class="hljs-keyword">if</span> r &gt; l &#123;
-        <span class="hljs-title function_ invoke__">balanced_parens0</span>(l, r - <span class="hljs-number">1</span>, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;)&quot;</span>, res);
-    &#125;
+	h := hmac.New(sha256.New, []<span class="hljs-type">byte</span>(key))
+	h.Write([]<span class="hljs-type">byte</span>(data))
+	hash := h.Sum(<span class="hljs-literal">nil</span>)
+
+	hashHex := hex.EncodeToString(hash)
+	fmt.Println(<span class="hljs-string">&quot;HMAC-SHA-256 Hash:&quot;</span>, hashHex)
 &#125;</code></pre></div>
-<h4 id="Iteration">Iteration</h4>
-<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">balanced_parens</span>(n: <span class="hljs-type">u16</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">String</span>&gt; &#123;
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">res</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">stack</span> = <span class="hljs-built_in">vec!</span>[];
-    stack.<span class="hljs-title function_ invoke__">push</span>((n, n, <span class="hljs-type">String</span>::<span class="hljs-title function_ invoke__">new</span>()));
-    <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>((l, r, s)) = stack.<span class="hljs-title function_ invoke__">pop</span>() &#123;
-        <span class="hljs-keyword">if</span> l + r == <span class="hljs-number">0</span> &#123;
-            res.<span class="hljs-title function_ invoke__">push</span>(s);
-            <span class="hljs-keyword">continue</span>;
-        &#125;
-        <span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
-            stack.<span class="hljs-title function_ invoke__">push</span>((l - <span class="hljs-number">1</span>, r, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;(&quot;</span>));
-        &#125;
-        <span class="hljs-keyword">if</span> r &gt; l &#123;
-            stack.<span class="hljs-title function_ invoke__">push</span>((l, r - <span class="hljs-number">1</span>, s.<span class="hljs-title function_ invoke__">clone</span>() + <span class="hljs-string">&quot;)&quot;</span>));
-        &#125;
-    &#125;
-    res
-&#125;</code></pre></div>
-<hr>
-<h3 id="Golang">Golang</h3>
-<h4 id="Recursion-2">Recursion</h4>
-<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BalancedParens</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">string</span> &#123;
-	res := []<span class="hljs-type">string</span>&#123;&#125;
-	balancedParens(n, n, <span class="hljs-string">&quot;&quot;</span>, &amp;res)
-	<span class="hljs-keyword">return</span> res
-&#125;
 
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">balancedParens</span><span class="hljs-params">(l, r <span class="hljs-type">int</span>, s <span class="hljs-type">string</span>, res *[]<span class="hljs-type">string</span>)</span></span> &#123;
-	<span class="hljs-keyword">if</span> l == <span class="hljs-number">0</span> &amp;&amp; r == <span class="hljs-number">0</span> &#123;
-		*res = <span class="hljs-built_in">append</span>(*res, s)
-		<span class="hljs-keyword">return</span>
-	&#125;
-
-	<span class="hljs-keyword">if</span> l &gt; <span class="hljs-number">0</span> &#123;
-		balancedParens(l<span class="hljs-number">-1</span>, r, s+<span class="hljs-string">&quot;(&quot;</span>, res)
-	&#125;
-
-	<span class="hljs-keyword">if</span> r &gt; l &#123;
-		balancedParens(l, r<span class="hljs-number">-1</span>, s+<span class="hljs-string">&quot;)&quot;</span>, res)
-	&#125;
-&#125;</code></pre></div>
-<h4 id="Iteration-2">Iteration</h4>
-<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> stackFrame <span class="hljs-keyword">struct</span> &#123;
-	l <span class="hljs-type">int</span>
-	r <span class="hljs-type">int</span>
-	s <span class="hljs-type">string</span>
-&#125;
-
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BalancedParens</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">string</span> &#123;
-	res := []<span class="hljs-type">string</span>&#123;&#125;
-	stack := <span class="hljs-built_in">make</span>([]stackFrame, <span class="hljs-number">0</span>, n)
-	stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;n, n, <span class="hljs-string">&quot;&quot;</span>&#125;)
-	<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(stack) &gt; <span class="hljs-number">0</span> &#123;
-		<span class="hljs-comment">// pop</span>
-		frame := stack[<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
-		stack = stack[:<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
-
-		<span class="hljs-keyword">if</span> frame.l == <span class="hljs-number">0</span> &amp;&amp; frame.r == <span class="hljs-number">0</span> &#123;
-			res = <span class="hljs-built_in">append</span>(res, frame.s)
-			<span class="hljs-keyword">continue</span>
-		&#125;
-
-		<span class="hljs-keyword">if</span> frame.l &gt; <span class="hljs-number">0</span> &#123;
-			stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;frame.l - <span class="hljs-number">1</span>, frame.r, frame.s + <span class="hljs-string">&quot;(&quot;</span>&#125;)
-		&#125;
-
-		<span class="hljs-keyword">if</span> frame.r &gt; frame.l &#123;
-			stack = <span class="hljs-built_in">append</span>(stack, stackFrame&#123;frame.l, frame.r - <span class="hljs-number">1</span>, frame.s + <span class="hljs-string">&quot;)&quot;</span>&#125;)
-		&#125;
-	&#125;
-	<span class="hljs-keyword">return</span> res
-&#125;</code></pre></div>
-<h2 id="3-Steps-to-Convert">3 Steps to Convert</h2>
-<p>Let’s dissect what’s going on:</p>
+    <div class="fold">
+      <div class="fold-title fold-default collapsed" data-toggle="collapse" href="#collapse-5dbffb8d" role="button" aria-expanded="false" aria-controls="collapse-5dbffb8d">
+        <div class="fold-arrow">▶</div>OUTPUT
+      </div>
+      <div class="fold-collapse collapse" id="collapse-5dbffb8d">
+        <div class="fold-content">
+          <p>HMAC-SHA-256 Hash: 62aedf0125252922581bf109e6efc01ee2fbef97f9d60f5c065ce4a25e75273b</p>
+        </div>
+      </div>
+    </div>
+<p>一般来说，需要参与签名的请求信息主要是请求参数，比如 Binance 给出的命令行示例:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> -n <span class="hljs-string">&quot;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&quot;</span> | openssl dgst -sha256 -hmac <span class="hljs-string">&quot;NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j&quot;</span>
+SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71</code></pre></div>
+<p>生成出来的 <code>signature</code> 作为一个额外的参数附加在请求中捎带给服务器:</p>
+<div class="code-wrapper"><pre><code class="hljs bash">curl -H <span class="hljs-string">&quot;X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A&quot;</span> -X POST <span class="hljs-string">&#x27;https://api.binance.com/api/v3/order&#x27;</span> -d <span class="hljs-string">&#x27;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&amp;signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71&#x27;</span></code></pre></div>
+<p>服务端在接到请求后，会根据请求参数和密钥重新计算签名，然后与请求中的签名进行比对，如果一致则通过，否则拒绝。</p>
+<p>考虑一下比对不一致的情况，有如下两种原因：</p>
 <ol>
-<li>Extract the <strong><code>arguments</code></strong> of the recursive function signature into a <strong><code>frame</code></strong> struct(or tuple, etc.)</li>
-<li>Make a stack and store the <strong><code>first</code></strong> frame with the arguments of the initial call to the recursive function</li>
-<li>Copy the code inside the recursive function to the iteration loop, and…
-<ul>
-<li>replace the recursive <strong><code>call</code></strong> with <strong><code>pushing</code></strong> a new frame to the stack</li>
-<li>replace the <strong><code>return</code></strong> statement with <strong><code>continue</code></strong> to jump to the next iteration</li>
-</ul>
-</li>
+<li>请求被篡改，比如用户想买一个 BTC，被篡改为买 100 个 BTC</li>
+<li>密钥不正确</li>
 </ol>
 <div class="note note-primary">
-            <p>By following these steps, we can 100% convert any recursive function to an iterative one.</p>
+            <p>从上可见，如果签名验证成功，我们可以说请求是合法的。</p><p>因为上述签名是基于密钥的，所以混合了防篡改和鉴权的功能。</p><p>不难看出，签名鉴权的核心在于密钥的管理 —— 用户需要使用密钥生成签名，服务器需要使用相同的密钥验证签名。</p>
           </div>
-<p>Yes, the iterative code still has some space for optimization in some cases, such as reusing variables, etc. But the key point is to show you how to convert recursion to iteration.</p>
-<h2 id="Another-Example-Flip-Tree">Another Example: Flip Tree</h2>
-<p>In this example, <code>go</code> is a lot easier to convert than <code>rust</code>, because the <code>Ownership</code> system in <code>rust</code> makes things more complicated.</p>
-<h3 id="Go">Go</h3>
-<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">type</span> TreeNode <span class="hljs-keyword">struct</span> &#123;
-	Val   <span class="hljs-type">int</span>
-	Left  *TreeNode
-	Right *TreeNode
-&#125;
-
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">flipTreeRecur</span><span class="hljs-params">(root *TreeNode)</span></span> *TreeNode &#123;
-	<span class="hljs-keyword">if</span> root == <span class="hljs-literal">nil</span> &#123;
-		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
-	&#125;
-	root.Left, root.Right = right, left
-	left := flipTree(root.Left)
-	right := flipTree(root.Right)
-	<span class="hljs-keyword">return</span> root
-&#125;
-
-<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">flipTree</span><span class="hljs-params">(root *TreeNode)</span></span> *TreeNode &#123;
-	<span class="hljs-keyword">if</span> root == <span class="hljs-literal">nil</span> &#123;
-		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
-	&#125;
-	stack := []*TreeNode&#123;root&#125;
-	<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(stack) &gt; <span class="hljs-number">0</span> &#123;
-		root := stack[<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
-		stack = stack[:<span class="hljs-built_in">len</span>(stack)<span class="hljs-number">-1</span>]
-		<span class="hljs-keyword">if</span> root.Left != <span class="hljs-literal">nil</span> &#123;
-			stack = <span class="hljs-built_in">append</span>(stack, root.Left)
-		&#125;
-		<span class="hljs-keyword">if</span> root.Right != <span class="hljs-literal">nil</span> &#123;
-			stack = <span class="hljs-built_in">append</span>(stack, root.Right)
-		&#125;
-		root.Left, root.Right = root.Right, root.Left
-	&#125;
-	<span class="hljs-keyword">return</span> root
-&#125;</code></pre></div>
-<hr>
-<h3 id="Rust-2">Rust</h3>
-<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::cell::RefCell;
-<span class="hljs-keyword">use</span> std::rc::Rc;
-
-<span class="hljs-meta">#[derive(Debug, PartialEq, Eq)]</span>
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">TreeNode</span> &#123;
-    <span class="hljs-keyword">pub</span> val: <span class="hljs-type">i32</span>,
-    <span class="hljs-keyword">pub</span> left: <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt;,
-    <span class="hljs-keyword">pub</span> right: <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt;,
-&#125;
-
-<span class="hljs-keyword">impl</span> <span class="hljs-title class_">TreeNode</span> &#123;
-    <span class="hljs-meta">#[inline]</span>
-    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">new</span>(val: <span class="hljs-type">i32</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-keyword">Self</span> &#123;
-        TreeNode &#123;
-            val,
-            left: <span class="hljs-literal">None</span>,
-            right: <span class="hljs-literal">None</span>,
-        &#125;
+<h2 id="用户创建">用户创建</h2>
+<p>前面提到，签名的核心在于密钥的管理，而密钥的初始化就发生在用户创建的时候 —— 用户注册时，我们需要给用户生成一个密钥，后续用户的请求就使用这个密钥进行签名。</p>
+<p>这里引出三个问题：</p>
+<ol>
+<li>
+<p>创建请求本身的鉴权 —— 此时还没有用户密钥</p>
+</li>
+<li>
+<p>用户密钥的安全传输 —— 生成密钥后，如何安全地传输给用户</p>
+</li>
+<li>
+<p>用户密钥的安全存储 —— 如何安全地保存密钥</p>
+</li>
+</ol>
+<h3 id="调用方发起请求">调用方发起请求</h3>
+<pre><code class=" mermaid">classDiagram
+    direction LR
+    class CLIENT &#123;
+        data_key: string
+        fingerprint: string
+        user_info: dict
+        gen_data_key() string
+        gen_fingerprint() string
+        encrypt_user_info(user_info, data_key) dict
+        encrypt_fingerprint(fingerprint, data_key) string
+        encrypt_data_key(data_key) string
+        sign(dict) string
     &#125;
-&#125;
-
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">flip_tree_recur</span>(root: <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt; &#123;
-    root.<span class="hljs-title function_ invoke__">as_ref</span>()?;
-    <span class="hljs-keyword">let</span> <span class="hljs-variable">root</span> = root.<span class="hljs-title function_ invoke__">unwrap</span>();
-    <span class="hljs-keyword">let</span> <span class="hljs-variable">left</span> = root.<span class="hljs-title function_ invoke__">borrow_mut</span>().left.<span class="hljs-title function_ invoke__">take</span>();
-    <span class="hljs-keyword">let</span> <span class="hljs-variable">right</span> = root.<span class="hljs-title function_ invoke__">borrow_mut</span>().right.<span class="hljs-title function_ invoke__">take</span>();
-    root.<span class="hljs-title function_ invoke__">borrow_mut</span>().left = <span class="hljs-title function_ invoke__">flip_tree_recur</span>(right);
-    root.<span class="hljs-title function_ invoke__">borrow_mut</span>().right = <span class="hljs-title function_ invoke__">flip_tree_recur</span>(left);
-    <span class="hljs-title function_ invoke__">Some</span>(root)
-&#125;
-
-<span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">flip_tree_iter</span>(root: <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt;) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Option</span>&lt;Rc&lt;RefCell&lt;TreeNode&gt;&gt;&gt; &#123;
-    root.<span class="hljs-title function_ invoke__">as_ref</span>()?;
-    <span class="hljs-keyword">let</span> <span class="hljs-variable">root</span> = root.<span class="hljs-title function_ invoke__">unwrap</span>();
-    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">stack</span> = <span class="hljs-built_in">vec!</span>[root.<span class="hljs-title function_ invoke__">clone</span>()];
-    <span class="hljs-keyword">while</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(node) = stack.<span class="hljs-title function_ invoke__">pop</span>() &#123;
-        <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">node</span> = node.<span class="hljs-title function_ invoke__">borrow_mut</span>();
-        <span class="hljs-keyword">let</span> <span class="hljs-variable">left</span> = node.left.<span class="hljs-title function_ invoke__">take</span>();
-        <span class="hljs-keyword">let</span> <span class="hljs-variable">right</span> = node.right.<span class="hljs-title function_ invoke__">take</span>();
-        node.left = right;
-        node.right = left;
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(left) = node.left.<span class="hljs-title function_ invoke__">as_ref</span>() &#123;
-            stack.<span class="hljs-title function_ invoke__">push</span>(left.<span class="hljs-title function_ invoke__">clone</span>());
-        &#125;
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-variable">Some</span>(right) = node.right.<span class="hljs-title function_ invoke__">as_ref</span>() &#123;
-            stack.<span class="hljs-title function_ invoke__">push</span>(right.<span class="hljs-title function_ invoke__">clone</span>());
-        &#125;
+    class REQUEST &#123;
+        data_key_encrypted: string
+        fingerprint_encrypted: string
+        user_info_encrypted: dict
+        signature: string
     &#125;
-    <span class="hljs-title function_ invoke__">Some</span>(root)
-&#125;</code></pre></div>
+    CLIENT --&gt; REQUEST : sends</code></pre>
+<p>考虑请求的构建过程如下：</p>
+<ol>
+<li>用户注册时，初始状态下，主要包含 3 个明文信息：</li>
+</ol>
+<ul>
+<li><code>data_key</code>：当前请求的数据加密密钥，是对称的。并且该密钥是临时生成的，特用于处理账号注册请求。</li>
+<li><code>fingerprint</code>：当前用户的指纹，使用特殊算法生成，可以包含设备 ID 或其它的特征。</li>
+<li><code>user_info</code>: 用户的基本信息，比如邮箱、电话等。</li>
+</ul>
+<ol start="2">
+<li>然后根据以上信息生成 <code>signature</code>:</li>
+</ol>
+<div class="note note-primary">
+            <p>考虑这里的签名是如何生成的：</p><p>可以确定的是，这里的签名和用户密钥无关，因为此时用户还没有密钥。<br>这里的签名实际上是调用方在 AWS KMS 中，使用非对称密钥生成的签名，这个密钥对只有两端能够访问，分别是：</p><ul><li>外层调用方服务</li><li>内层基础架构账号服务</li></ul><p>也就是说，内层基础服务依赖 AWS KMS 来验证请求方的身份，只处理真正来自我司外层服务团队发过来的请求。</p>
+          </div>
+<ol start="3">
+<li>接着，使用 <code>data_key</code> 加密 <code>user_info</code> 和 <code>fingerprint</code></li>
+</ol>
+<ul>
+<li><code>data_key + user_info -&gt; user_info_encrypted</code></li>
+<li><code>data_key + fingerprint -&gt; fingerprint_encrypted</code></li>
+</ul>
+<ol start="4">
+<li>最后，加密 <code>data_key</code> 本身<br>
+这一步也是利用 AWS KMS 完成的，同样保证只有两端能够访问。即 <code>data_key + KMS -&gt; data_key_encrypted</code></li>
+</ol>
+<p>至此，我们将上述信息打包成一个请求，发送给服务端。</p>
 
                 
               </div>
@@ -553,9 +458,7 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Golang/" class="print-no-link">#Golang</a>
-      
-        <a href="/tags/Rust/" class="print-no-link">#Rust</a>
+        <a href="/tags/Auth/" class="print-no-link">#Auth</a>
       
     </div>
   
@@ -567,8 +470,8 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Recursion to Iteration</div>
-      <div>https://kayce.world/tech/recur_to_iter/</div>
+      <div>基于签名的鉴权架构</div>
+      <div>https://kayce.world/tech/signature_based_auth_arch/</div>
     </div>
     <div class="license-meta">
       
@@ -580,7 +483,7 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 20, 2024</div>
+          <div>December 26, 2024</div>
         </div>
       
       
@@ -629,18 +532,12 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/tech/signature_based_auth_arch/" title="基于签名的鉴权架构">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">基于签名的鉴权架构</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/tech/rust_cross_compile_on_osx/" title="Rust Cross Compile on OSX">
-                        <span class="hidden-mobile">Rust Cross Compile on OSX</span>
+                      <a href="/tech/recur_to_iter/" title="Recursion to Iteration">
+                        <span class="hidden-mobile">Recursion to Iteration</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -663,7 +560,7 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
         var options = Object.assign(
           {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"485e76d306112a519d43b4118efa8971c3ff6069","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"en-US","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
-            id: 'ec65af4c4b7650eb1e1767919daf1695'
+            id: '171a8a8cd0ead47b859950026789092d'
           }
         )
         var gitalk = new Gitalk(options);
@@ -725,6 +622,27 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
 
   
 
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 
@@ -942,6 +860,49 @@ Such as, with <code>n = 3</code>, a solution set is:<br>
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 

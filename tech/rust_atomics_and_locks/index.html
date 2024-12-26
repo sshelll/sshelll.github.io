@@ -761,28 +761,28 @@ it might be better for the threads to repeatedly try to lock it without actually
 &#125;</code></pre></div>
 <hr>
 <h3 id="Use-Guard-to-auto-unlock">Use Guard to auto unlock</h3>
-<div class="code-wrapper"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Guard</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
-    lock: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">SpinLock</span>&lt;<span class="hljs-type">T</span>&gt;,
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Guard</span>&lt;<span class="hljs-string">&#x27;a, T&gt; &#123;</span>
+<span class="hljs-string">    lock: &amp;&#x27;</span>a SpinLock&lt;T&gt;,
 &#125;
 
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Deref</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
-    type <span class="hljs-type">Target</span> <span class="hljs-operator">=</span> <span class="hljs-type">T</span>;
-    fn deref(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span><span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;
-        unsafe &#123; <span class="hljs-operator">&amp;*</span><span class="hljs-keyword">self</span>.lock.value &#125;
+<span class="hljs-keyword">impl</span>&lt;T&gt; Deref <span class="hljs-keyword">for</span> <span class="hljs-title class_">Guard</span>&lt;<span class="hljs-string">&#x27;_, T&gt; &#123;</span>
+<span class="hljs-string">    type Target = T;</span>
+<span class="hljs-string">    fn deref(&amp;self) -&gt; &amp;Self::Target &#123;</span>
+<span class="hljs-string">        unsafe &#123; &amp;*self.lock.value &#125;</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">impl&lt;T&gt; DerefMut for Guard&lt;&#x27;</span>_, T&gt; &#123;
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">deref_mut</span>(&amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> &amp;<span class="hljs-keyword">mut</span> <span class="hljs-keyword">Self</span>::Target &#123;
+        <span class="hljs-keyword">unsafe</span> &#123; &amp;<span class="hljs-keyword">mut</span> *<span class="hljs-keyword">self</span>.lock.value &#125;
     &#125;
 &#125;
 
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">DerefMut</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
-    fn deref_mut(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; <span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">Self</span>::<span class="hljs-type">Target</span> &#123;
-        unsafe &#123; <span class="hljs-operator">&amp;</span>mut <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.lock.value &#125;
-    &#125;
-&#125;
-
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Guard</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
-    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;
-        <span class="hljs-keyword">self</span>.lock.unlock();
-    &#125;
-&#125;</code></pre></div>
+<span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Guard</span>&lt;<span class="hljs-string">&#x27;_, T&gt; &#123;</span>
+<span class="hljs-string">    fn drop(&amp;mut self) &#123;</span>
+<span class="hljs-string">        self.lock.unlock();</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span></code></pre></div>
 <p>Now let’s change the <code>lock</code> method to return a <code>Guard</code>:</p>
 <div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">impl</span>&lt;T&gt; SpinLock&lt;T&gt; &#123;
     <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">lock</span>(&amp;<span class="hljs-keyword">self</span>) <span class="hljs-punctuation">-&gt;</span> Guard&lt;T&gt; &#123;
@@ -873,74 +873,74 @@ impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span
 <p>And that’s exactly how does the <code>fence</code> synchronizes-with the <code>store</code> in <code>unlock</code>.</p>
 <p>It’s a little bit verbose, but it’s a good way to understand how <code>fence</code> works.</p>
 <h2 id="Chan">Chan</h2>
-<div class="code-wrapper"><pre><code class="hljs swift">pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
-    message: <span class="hljs-type">UnsafeCell</span>&lt;<span class="hljs-type">MaybeUninit</span>&lt;<span class="hljs-type">T</span>&gt;&gt;,
-    ready: <span class="hljs-type">AtomicBool</span>,
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Channel</span>&lt;T&gt; &#123;
+    message: UnsafeCell&lt;MaybeUninit&lt;T&gt;&gt;,
+    ready: AtomicBool,
 &#125;
 
-unsafe impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; <span class="hljs-keyword">where</span> <span class="hljs-type">T</span>: <span class="hljs-type">Send</span> &#123;&#125;
+<span class="hljs-keyword">unsafe</span> <span class="hljs-keyword">impl</span>&lt;T&gt; <span class="hljs-built_in">Sync</span> <span class="hljs-keyword">for</span> <span class="hljs-title class_">Channel</span>&lt;T&gt; <span class="hljs-keyword">where</span> T: <span class="hljs-built_in">Send</span> &#123;&#125;
 
-pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Sender</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
-    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,
-    recv_thread: <span class="hljs-type">Thread</span>,
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Sender</span>&lt;<span class="hljs-string">&#x27;a, T&gt; &#123;</span>
+<span class="hljs-string">    channel: &amp;&#x27;</span>a Channel&lt;T&gt;,
+    recv_thread: Thread,
 &#125;
 
-pub <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Receiver</span>&lt;&#x27;a, <span class="hljs-type">T</span>&gt; &#123;
-    channel: <span class="hljs-operator">&amp;</span>&#x27;a <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt;,
-    _marker: std::marker::<span class="hljs-type">PhantomData</span>&lt;&amp;&#x27;a <span class="hljs-type">T</span>&gt;,
-&#125;
-
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
-    pub const fn new() -&gt; <span class="hljs-keyword">Self</span> &#123;
-        <span class="hljs-keyword">Self</span> &#123;
-            message: <span class="hljs-type">UnsafeCell</span>::new(MaybeUninit::uninit()),
-            ready: <span class="hljs-type">AtomicBool</span>::new(<span class="hljs-literal">false</span>),
-        &#125;
-    &#125;
-
-    pub fn split(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) -&gt; (<span class="hljs-type">Sender</span>&lt;<span class="hljs-type">T</span>&gt;, <span class="hljs-type">Receiver</span>&lt;<span class="hljs-type">T</span>&gt;) &#123;
-        <span class="hljs-operator">*</span><span class="hljs-keyword">self</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">Self</span>::new();
-        (
-            <span class="hljs-type">Sender</span> &#123;
-                channel: <span class="hljs-keyword">self</span>,
-                recv_thread: thread::current(),
-            &#125;,
-            <span class="hljs-type">Receiver</span> &#123;
-                channel: <span class="hljs-keyword">self</span>,
-                _marker: std::marker::<span class="hljs-type">PhantomData</span>,
-            &#125;,
-        )
-    &#125;
-&#125;
-
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Sender</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
-    pub fn send(<span class="hljs-keyword">self</span>, message: <span class="hljs-type">T</span>) &#123;
-        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).write(message) &#125;;
-        <span class="hljs-keyword">self</span>.channel.ready.store(<span class="hljs-literal">true</span>, <span class="hljs-type">Release</span>);
-        <span class="hljs-keyword">self</span>.recv_thread.unpark();
-    &#125;
-&#125;
-
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Receiver</span>&lt;&#x27;<span class="hljs-keyword">_</span>, <span class="hljs-type">T</span>&gt; &#123;
-    pub fn is_ready(<span class="hljs-operator">&amp;</span><span class="hljs-keyword">self</span>) -&gt; bool &#123;
-        <span class="hljs-keyword">self</span>.channel.ready.load(<span class="hljs-type">Relaxed</span>)
-    &#125;
-
-    pub fn receive(<span class="hljs-keyword">self</span>) -&gt; <span class="hljs-type">T</span> &#123;
-        <span class="hljs-keyword">while</span> <span class="hljs-operator">!</span><span class="hljs-keyword">self</span>.channel.ready.swap(<span class="hljs-literal">false</span>, <span class="hljs-type">Acquire</span>) &#123;
-            thread::park();
-        &#125;
-        unsafe &#123; (<span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.channel.message.get()).assume_init_read() &#125;
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Receiver</span>&lt;<span class="hljs-string">&#x27;a, T&gt; &#123;</span>
+<span class="hljs-string">    channel: &amp;&#x27;</span>a Channel&lt;T&gt;,
+    _marker: std::marker::PhantomData&lt;&amp;<span class="hljs-string">&#x27;a T&gt;,</span>
+<span class="hljs-string">&#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">impl&lt;T&gt; Channel&lt;T&gt; &#123;</span>
+<span class="hljs-string">    pub const fn new() -&gt; Self &#123;</span>
+<span class="hljs-string">        Self &#123;</span>
+<span class="hljs-string">            message: UnsafeCell::new(MaybeUninit::uninit()),</span>
+<span class="hljs-string">            ready: AtomicBool::new(false),</span>
+<span class="hljs-string">        &#125;</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">    pub fn split(&amp;mut self) -&gt; (Sender&lt;T&gt;, Receiver&lt;T&gt;) &#123;</span>
+<span class="hljs-string">        *self = Self::new();</span>
+<span class="hljs-string">        (</span>
+<span class="hljs-string">            Sender &#123;</span>
+<span class="hljs-string">                channel: self,</span>
+<span class="hljs-string">                recv_thread: thread::current(),</span>
+<span class="hljs-string">            &#125;,</span>
+<span class="hljs-string">            Receiver &#123;</span>
+<span class="hljs-string">                channel: self,</span>
+<span class="hljs-string">                _marker: std::marker::PhantomData,</span>
+<span class="hljs-string">            &#125;,</span>
+<span class="hljs-string">        )</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">impl&lt;T&gt; Sender&lt;&#x27;</span>_, T&gt; &#123;
+    <span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">send</span>(<span class="hljs-keyword">self</span>, message: T) &#123;
+        <span class="hljs-keyword">unsafe</span> &#123; (*<span class="hljs-keyword">self</span>.channel.message.<span class="hljs-title function_ invoke__">get</span>()).<span class="hljs-title function_ invoke__">write</span>(message) &#125;;
+        <span class="hljs-keyword">self</span>.channel.ready.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-literal">true</span>, Release);
+        <span class="hljs-keyword">self</span>.recv_thread.<span class="hljs-title function_ invoke__">unpark</span>();
     &#125;
 &#125;
 
-impl<span class="hljs-operator">&lt;</span><span class="hljs-type">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-type">Drop</span> <span class="hljs-keyword">for</span> <span class="hljs-type">Channel</span>&lt;<span class="hljs-type">T</span>&gt; &#123;
-    fn drop(<span class="hljs-operator">&amp;</span>mut <span class="hljs-keyword">self</span>) &#123;
-        <span class="hljs-keyword">if</span> <span class="hljs-operator">*</span><span class="hljs-keyword">self</span>.ready.get_mut() &#123;
-            unsafe &#123; <span class="hljs-keyword">self</span>.message.get_mut().assume_init_drop() &#125;
-        &#125;
-    &#125;
-&#125;</code></pre></div>
+<span class="hljs-keyword">impl</span>&lt;T&gt; Receiver&lt;<span class="hljs-string">&#x27;_, T&gt; &#123;</span>
+<span class="hljs-string">    pub fn is_ready(&amp;self) -&gt; bool &#123;</span>
+<span class="hljs-string">        self.channel.ready.load(Relaxed)</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">    pub fn receive(self) -&gt; T &#123;</span>
+<span class="hljs-string">        while !self.channel.ready.swap(false, Acquire) &#123;</span>
+<span class="hljs-string">            thread::park();</span>
+<span class="hljs-string">        &#125;</span>
+<span class="hljs-string">        unsafe &#123; (*self.channel.message.get()).assume_init_read() &#125;</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span>
+<span class="hljs-string"></span>
+<span class="hljs-string">impl&lt;T&gt; Drop for Channel&lt;T&gt; &#123;</span>
+<span class="hljs-string">    fn drop(&amp;mut self) &#123;</span>
+<span class="hljs-string">        if *self.ready.get_mut() &#123;</span>
+<span class="hljs-string">            unsafe &#123; self.message.get_mut().assume_init_drop() &#125;</span>
+<span class="hljs-string">        &#125;</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span></code></pre></div>
 <p>Pay attention to these points:</p>
 <ol>
 <li>Use <code>MaybeUninit</code> to save memory.</li>
@@ -1108,6 +1108,54 @@ In hence, we can use <code>AcqRel</code> for that, however, only the final decre
     <span class="hljs-comment">/// The data. Dropped if there are only weak pointers left.</span>
     data: UnsafeCell&lt;ManuallyDrop&lt;T&gt;&gt;,
 &#125;</code></pre></div>
+<p>We’re not going to copy the code from the book, let’s just summarize the key points:</p>
+<ul>
+<li>Using giant numbers as a limit is feasible, in the usage scenario of <code>Arc</code>, there’re no operating systems that can handle <code>usize::MAX / 2</code> threads.</li>
+<li>The inner data is still accessible even if all the <code>Arc</code> instances are dropped, because the <code>Weak</code> is still holding the <code>ArcData</code>. However, nobody can access it outside of the <code>Arc</code> crate - since we only provide <code>upgrade</code> method, and it’ll return <code>None</code>.</li>
+<li><code>get_mut</code> returns <code>None</code> unless the <code>Arc</code> is the only one holding the data.</li>
+</ul>
+<p>Have a look at this example:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-meta">#[cfg(test)]</span>
+<span class="hljs-keyword">mod</span> tests &#123;
+    <span class="hljs-keyword">use</span> std::thread::&#123;<span class="hljs-keyword">self</span>&#125;;
+
+    <span class="hljs-keyword">use</span> super::*;
+
+    <span class="hljs-meta">#[test]</span>
+    <span class="hljs-keyword">fn</span> <span class="hljs-title function_">test_arc</span>() &#123;
+        thread::<span class="hljs-title function_ invoke__">scope</span>(|s| &#123;
+            <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">arc</span> = Arc::<span class="hljs-title function_ invoke__">new</span>(<span class="hljs-number">42</span>);
+            <span class="hljs-comment">// only one reference, so we can get_mut</span>
+            <span class="hljs-built_in">assert!</span>(Arc::<span class="hljs-title function_ invoke__">get_mut</span>(&amp;<span class="hljs-keyword">mut</span> arc).<span class="hljs-title function_ invoke__">is_some</span>());
+
+            <span class="hljs-keyword">let</span> <span class="hljs-variable">weak1</span> = Arc::<span class="hljs-title function_ invoke__">downgrade</span>(&amp;arc);
+            <span class="hljs-comment">// more than one reference, so we cannot get_mut</span>
+            <span class="hljs-built_in">assert!</span>(Arc::<span class="hljs-title function_ invoke__">get_mut</span>(&amp;<span class="hljs-keyword">mut</span> arc).<span class="hljs-title function_ invoke__">is_none</span>());
+
+            <span class="hljs-keyword">let</span> <span class="hljs-variable">t</span> = s.<span class="hljs-title function_ invoke__">spawn</span>(<span class="hljs-keyword">move</span> || &#123;
+                thread::<span class="hljs-title function_ invoke__">park</span>();
+
+                <span class="hljs-comment">// we cannot upgrade again</span>
+                <span class="hljs-built_in">assert!</span>(weak1.<span class="hljs-title function_ invoke__">upgrade</span>().<span class="hljs-title function_ invoke__">is_none</span>());
+
+                <span class="hljs-comment">// but the data is still there, it&#x27;s just not accessible outside of the crate</span>
+                <span class="hljs-keyword">let</span> <span class="hljs-variable">d</span> = weak1.<span class="hljs-title function_ invoke__">data</span>();
+                <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;arc refs: &#123;:?&#125;&quot;</span>, d.data_ref_count.<span class="hljs-title function_ invoke__">load</span>(Relaxed));
+                <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;weak refs: &#123;:?&#125;&quot;</span>, d.alloc_ref_count.<span class="hljs-title function_ invoke__">load</span>(Relaxed));
+                <span class="hljs-built_in">println!</span>(<span class="hljs-string">&quot;data: &#123;:?&#125;&quot;</span>, <span class="hljs-keyword">unsafe</span> &#123; &amp;*d.data.<span class="hljs-title function_ invoke__">get</span>() &#125;);
+            &#125;);
+
+            <span class="hljs-comment">// wait until the Arc is dropped</span>
+            s.<span class="hljs-title function_ invoke__">spawn</span>(<span class="hljs-keyword">move</span> || &#123;
+                <span class="hljs-title function_ invoke__">drop</span>(arc);
+            &#125;)
+            .<span class="hljs-title function_ invoke__">join</span>()
+            .<span class="hljs-title function_ invoke__">unwrap</span>();
+
+            t.<span class="hljs-title function_ invoke__">thread</span>().<span class="hljs-title function_ invoke__">unpark</span>();
+        &#125;)
+    &#125;
+&#125;</code></pre></div>
 <h2 id="Extra-Primitives">Extra - Primitives</h2>
 <p>We’ve talked about <code>UnsafeCell</code> in the first chapter <a href="#Cell-RefCell">Cell, RefCell</a>, and we’ve seen more primitives in <a href="#Chan">Chan</a> and <a href="#Arc">Arc</a>. So it’s time to summarize them:</p>
 <h3 id="UnsafeCell">UnsafeCell</h3>
@@ -1209,19 +1257,19 @@ Check this out: <a target="_blank" rel="noopener" href="https://doc.rust-lang.or
             <p>This is a quite complex and subtle concept, I recommend you to read this article in <em>Rustonomicon</em>: <u><a target="_blank" rel="noopener" href="https://doc.rust-lang.org/nomicon/subtyping.html">🔗Subtyping and Variance</a></u>.</p>
           </div>
 <p>Anyway, let’s have a quick look of <code>Variance</code> in rust:</p>
-<div class="code-wrapper"><pre><code class="hljs swift">fn debug<span class="hljs-operator">&lt;</span>&#x27;a<span class="hljs-operator">&gt;</span>(a: <span class="hljs-operator">&amp;</span>&#x27;a str, b: <span class="hljs-operator">&amp;</span>&#x27;a str) &#123;
-    println<span class="hljs-operator">!</span>(<span class="hljs-string">&quot;a = &#123;a:?&#125; b = &#123;b:?&#125;&quot;</span>);
-&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">debug</span>&lt;<span class="hljs-string">&#x27;a&gt;(a: &amp;&#x27;</span>a <span class="hljs-type">str</span>, b: &amp;<span class="hljs-string">&#x27;a str) &#123;</span>
+<span class="hljs-string">    println!(&quot;a = &#123;a:?&#125; b = &#123;b:?&#125;&quot;);</span>
+<span class="hljs-string">&#125;</span></code></pre></div>
 <p>We can see that <code>a</code> and <code>b</code> have the same lifetime <code>'a</code>, but does the <code>debug</code> function really requires the same lifetime for <code>a</code> and <code>b</code>?</p>
 <p>The answer is <strong><em>NO</em></strong>:</p>
-<div class="code-wrapper"><pre><code class="hljs swift">fn main() &#123;
-    <span class="hljs-keyword">let</span> hello: <span class="hljs-operator">&amp;</span>&#x27;<span class="hljs-keyword">static</span> str <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello&quot;</span>;
-    &#123;
-        <span class="hljs-keyword">let</span> world <span class="hljs-operator">=</span> <span class="hljs-type">String</span>::from(<span class="hljs-string">&quot;world&quot;</span>);
-        <span class="hljs-keyword">let</span> world <span class="hljs-operator">=</span> <span class="hljs-operator">&amp;</span>world; <span class="hljs-comment">// &#x27;world has a shorter lifetime than &#x27;static</span>
-        debug(hello, world);
-    &#125;
-&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">hello</span>: &amp;<span class="hljs-string">&#x27;static str = &quot;hello&quot;;</span>
+<span class="hljs-string">    &#123;</span>
+<span class="hljs-string">        let world = String::from(&quot;world&quot;);</span>
+<span class="hljs-string">        let world = &amp;world; // &#x27;</span>world has a shorter lifetime than <span class="hljs-string">&#x27;static</span>
+<span class="hljs-string">        debug(hello, world);</span>
+<span class="hljs-string">    &#125;</span>
+<span class="hljs-string">&#125;</span></code></pre></div>
 <p><strong>Let’s break it down without complicated concepts:</strong></p>
 <ul>
 <li>assume there’re 2 lifetimes: <code>'long</code> and <code>'short</code></li>
