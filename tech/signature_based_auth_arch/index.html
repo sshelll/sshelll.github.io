@@ -27,7 +27,7 @@
 <meta property="og:description" content="加密货币交易所中的安全传输实践">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-26T13:40:17.890Z">
-<meta property="article:modified_time" content="2024-12-26T13:40:17.891Z">
+<meta property="article:modified_time" content="2024-12-26T15:15:15.903Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Auth">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@ hash(key, data) = signature<br>
 $$</p>
 <p>我们将它套用到请求场景中，可以变化为:</p>
 <p>$$<br>
-hash(key, request_info) = signature<br>
+hash(key, request\_info) = signature<br>
 $$</p>
 <p>实践中，我们一般使用 HMAC-SHA256 算法进行签名:</p>
 <div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
@@ -350,10 +350,14 @@ $$</p>
       </div>
     </div>
 <p>一般来说，需要参与签名的请求信息主要是请求参数，比如 Binance 给出的命令行示例:</p>
-<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> -n <span class="hljs-string">&quot;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&quot;</span> | openssl dgst -sha256 -hmac <span class="hljs-string">&quot;NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j&quot;</span>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> -n <span class="hljs-string">&quot;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&quot;</span> |
+	openssl dgst -sha256 -hmac <span class="hljs-string">&quot;NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j&quot;</span>
+
 SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71</code></pre></div>
 <p>生成出来的 <code>signature</code> 作为一个额外的参数附加在请求中捎带给服务器:</p>
-<div class="code-wrapper"><pre><code class="hljs bash">curl -H <span class="hljs-string">&quot;X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A&quot;</span> -X POST <span class="hljs-string">&#x27;https://api.binance.com/api/v3/order&#x27;</span> -d <span class="hljs-string">&#x27;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&amp;signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71&#x27;</span></code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs bash">curl -H <span class="hljs-string">&quot;X-MBX-APIKEY: vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A&quot;</span> \
+	-X POST <span class="hljs-string">&#x27;https://api.binance.com/api/v3/order&#x27;</span> \
+	-d <span class="hljs-string">&#x27;symbol=LTCBTC&amp;side=BUY&amp;type=LIMIT&amp;timeInForce=GTC&amp;quantity=1&amp;price=0.1&amp;recvWindow=5000&amp;timestamp=1499827319559&amp;signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71&#x27;</span></code></pre></div>
 <p>服务端在接到请求后，会根据请求参数和密钥重新计算签名，然后与请求中的签名进行比对，如果一致则通过，否则拒绝。</p>
 <p>考虑一下比对不一致的情况，有如下两种原因：</p>
 <ol>
@@ -531,6 +535,12 @@ SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b7
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/dessert/network_topology_at_home/" title="Network Topology at Home">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Network Topology at Home</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
