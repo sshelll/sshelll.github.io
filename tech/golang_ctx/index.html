@@ -481,7 +481,7 @@ main: context deadline exceeded</code></pre></div>
 	ctx, cancel := context.WithCancel(ctx)
 
 	<span class="hljs-keyword">go</span> longTimeWork(ctx)
-	
+
 	<span class="hljs-comment">// 3s 后手动取消</span>
 	timer := time.NewTimer(time.Second * <span class="hljs-number">3</span>)
 	<span class="hljs-keyword">select</span> &#123;
@@ -521,17 +521,19 @@ main: context canceled</code></pre></div>
 <p>我们往往在生产环境会部署若干个服务，用户的请求会经过网关到达一个又一个的服务，最后经过一系列处理后返回结果给客户端。</p>
 <p>此时我们面临着若干的问题：</p>
 <ol>
-<li>网关设置的超时时间如何与后端服务进行联动？</li>
-</ol>
+<li>
+<p>网关设置的超时时间如何与后端服务进行联动？</p>
 <p>注意，网关虽然有自己的超时时间，在超时发生时，网关会拒绝等待后端服务的响应，直接给用户返回 HTTP 504 错误。但是此时如果后端服务没有感知到这一点，就会继续进行无意义的处理和运算，最终返回给网关的结果也会被网关丢弃，造成不必要的资源浪费。同理，服务调用链上的每个节点之间也都面临相同的问题，不局限于网关和网关的下一跳节点。</p>
-<ol start="2">
-<li>通用数据的传递有没有更简洁的方式？</li>
-</ol>
+</li>
+<li>
+<p>通用数据的传递有没有更简洁的方式？</p>
 <p>客户端发起的请求，在处理过程中往往需要很多额外的信息（请求本身的信息可能并不足够），这些信息往往在前置的节点中会被查询出来，然后捎带给下游节点。但是，在服务内部的函数调用链上，如何将所有这些额外的数据进行传递呢？一种简单方式就是将这些中途得到的信息以参数的形式传给函数内部，但是这可能随着数据种类的增多，导致函数的参数列表变得臃肿。</p>
-<ol start="3">
-<li>能不能灵活的终止进行中的任务？</li>
-</ol>
+</li>
+<li>
+<p>能不能灵活的终止进行中的任务？</p>
 <p>与前面「用于手动终止」一节提到的原理类似，仅仅依赖超时时间来进行流程控制是不够灵活的，我们希望可以自己决定何时终止。</p>
+</li>
+</ol>
 </blockquote>
 <p>下面给出一段伪代码演示综合使用的方式（实际使用中可能会封装得更加抽象和优雅，这里只做展示用）</p>
 <ul>
@@ -585,8 +587,8 @@ main: context canceled</code></pre></div>
 
 <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
 	r := gin.Default()
-  
-	<span class="hljs-comment">// 注册解析 ctx 的中间件 </span>
+
+	<span class="hljs-comment">// 注册解析 ctx 的中间件</span>
 	r.Use(ContextMiddleware())
 
 	r.POST(<span class="hljs-string">&quot;/user&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;
@@ -921,7 +923,7 @@ main: context canceled</code></pre></div>
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/economics/analyze_stocks/" title="从「股市」App 看股市">
+                      <a href="/chores/analyze_stocks/" title="从「股市」App 看股市">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">从「股市」App 看股市</span>
                         <span class="visible-mobile">Previous</span>

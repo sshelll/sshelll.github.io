@@ -652,8 +652,8 @@ e --Unlock--&gt; db</code></pre>
 <p>续期的逻辑如下：</p>
 <p>a. 查询持有的锁记录，不存在或过期则直接调用 <code>safeCancelTask</code> 退出。（事实上，这种情况理论上不应存在，除非前置的查询由于 db 的问题不断重试，但为了以防万一还是写上了这段兜底的代码，具体原因见 b）</p>
 <p>b. 锁存在且未过期的情况下，我们调用 Update 函数进行续期，失败时如下处理：</p>
-<p>​	b.1. 如果 Update 失败，且锁的过期时间小于当前时间 + 2 倍的续期间隔，则直接中断</p>
-<p>​	b.2. 否则暂时忽略，等待下一次续期重试</p>
+<p>​ b.1. 如果 Update 失败，且锁的过期时间小于当前时间 + 2 倍的续期间隔，则直接中断</p>
+<p>​ b.2. 否则暂时忽略，等待下一次续期重试</p>
 <p>看到这里，我们应该能明白，为什么说续期时理论上不会发生锁记录不存在或锁过期的情况了，因为在续期过程中，即使续期的 Update 行为发生了错误，我们也会妥善的进行处理 —— 一旦发现锁临近过期，我们就会立即终止任务，防范于未然；如果锁过期时间较为久远，则容忍本次失败。</p>
 </li>
 </ol>
@@ -859,7 +859,7 @@ e --Unlock--&gt; db</code></pre>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/economics/analyze_stocks/" title="从「股市」App 看股市">
+                      <a href="/chores/analyze_stocks/" title="从「股市」App 看股市">
                         <span class="hidden-mobile">从「股市」App 看股市</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
