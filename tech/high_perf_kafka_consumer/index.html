@@ -54,6 +54,8 @@
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
@@ -629,9 +631,8 @@
 in-sync replicas (ISR) 是指能够与主节点保持同步的副本集合。这些副本需要持续跟踪主节点上的最新写入消息，并将其应用到自己的日志中。</p>
 <p>为了避免消息写入消息后，主节点立即宕机导致的消息丢失问题，我们一般会配置 <code>min.insync.replicas</code> 参数，然后协同使用 <code>Ack = all</code> 来保证消息写入多个节点才确认。</p>
 <p><strong>配置思路:</strong></p>
-<p>$$<br>
-replication\ factor=min.insync.replicas+N<br>
-$$</p>
+<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>r</mi><mi>e</mi><mi>p</mi><mi>l</mi><mi>i</mi><mi>c</mi><mi>a</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mtext> </mtext><mi>f</mi><mi>a</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>r</mi><mo>=</mo><mi>m</mi><mi>i</mi><mi>n</mi><mi mathvariant="normal">.</mi><mi>i</mi><mi>n</mi><mi>s</mi><mi>y</mi><mi>n</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>r</mi><mi>e</mi><mi>p</mi><mi>l</mi><mi>i</mi><mi>c</mi><mi>a</mi><mi>s</mi><mo>+</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">replication\ factor=min.insync.replicas+N
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">re</span><span class="mord mathnormal" style="margin-right:0.01968em;">pl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">c</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">i</span><span class="mord mathnormal">o</span><span class="mord mathnormal">n</span><span class="mspace"> </span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal">a</span><span class="mord mathnormal">c</span><span class="mord mathnormal">t</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">min</span><span class="mord">.</span><span class="mord mathnormal">in</span><span class="mord mathnormal" style="margin-right:0.03588em;">sy</span><span class="mord mathnormal">n</span><span class="mord mathnormal">c</span><span class="mord">.</span><span class="mord mathnormal">re</span><span class="mord mathnormal" style="margin-right:0.01968em;">pl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">c</span><span class="mord mathnormal">a</span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span></span></p>
 <p>上述公式能够保证我们在 N 个节点宕机的情况下，仍然能够保证系统的可用性。</p>
 <p>举例来说，假设我们需要让某个 topic 的消息至少被 3 个节点保存（一主两从），此时我们能够接受一个（主）节点宕机，那么 <code>min.insync.replicas</code> 为 2。<br>
 这也就是我之前在加密货币交易所的交易系统团队工作时，内部默认的配置。（这里再次提醒，我们需要使用 <code>Ack = all</code> 才能与上述配置协同工作保证消息可靠）。</p>
@@ -925,7 +926,6 @@ $$</p>
 
 
 
-
     
 
     
@@ -1137,49 +1137,6 @@ $$</p>
 
 
   <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 
