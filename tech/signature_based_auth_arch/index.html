@@ -26,8 +26,8 @@
 <meta property="og:site_name" content="kayce">
 <meta property="og:description" content="加密货币交易所中的安全传输实践">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-12-26T13:40:17.890Z">
-<meta property="article:modified_time" content="2024-12-26T15:15:15.903Z">
+<meta property="article:published_time" content="2024-12-27T10:48:00.000Z">
+<meta property="article:modified_time" content="2024-12-30T13:34:49.203Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Auth">
 <meta name="twitter:card" content="summary_large_image">
@@ -245,8 +245,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-26 21:40" pubdate>
-          December 26, 2024 pm
+        <time datetime="2024-12-27 18:48" pubdate>
+          December 27, 2024 pm
         </time>
       </span>
     
@@ -303,7 +303,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on December 26, 2024 pm
+                    Last updated on December 30, 2024 pm
                   
                 
               </p>
@@ -311,10 +311,7 @@
             
               <div class="markdown-body">
                 
-                <div class="note note-warning">
-            <p>WIP, No ETA provided.</p>
-          </div>
-<blockquote>
+                <blockquote>
 <p>请求处理的核心一环是鉴权，而在加密货币交易所中，鉴权的要求更为严格，因为它涉及到用户的资产安全。本文介绍一下我在前司基础架构组工作时瞥见的鉴权架构与实践。</p>
 </blockquote>
 <h2 id="核心原理">核心原理</h2>
@@ -365,7 +362,7 @@ SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b7
 <li>密钥不正确</li>
 </ol>
 <div class="note note-primary">
-            <p>从上可见，如果签名验证成功，我们可以说请求是合法的。</p><p>因为上述签名是基于密钥的，所以混合了防篡改和鉴权的功能。</p><p>不难看出，签名鉴权的核心在于密钥的管理 —— 用户需要使用密钥生成签名，服务器需要使用相同的密钥验证签名。</p>
+            <p><strong><em>SUMMARY:</em></strong></p><p>从上可见，如果签名验证成功，我们可以说请求是合法的。</p><p>因为上述签名是基于密钥的，所以混合了防篡改和鉴权的功能。</p><p>不难看出，签名鉴权的核心在于密钥的管理 —— 用户需要使用密钥生成签名，服务器需要使用相同的密钥验证签名。</p>
           </div>
 <h2 id="用户创建">用户创建</h2>
 <p>前面提到，签名的核心在于密钥的管理，而密钥的初始化就发生在用户创建的时候 —— 用户注册时，我们需要给用户生成一个密钥，后续用户的请求就使用这个密钥进行签名。</p>
@@ -414,7 +411,7 @@ SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b7
 <ol start="2">
 <li>然后根据以上信息生成 <code>signature</code>:</li>
 </ol>
-<div class="note note-primary">
+<div class="note note-light">
             <p>考虑这里的签名是如何生成的：</p><p>可以确定的是，这里的签名和用户密钥无关，因为此时用户还没有密钥。<br>这里的签名实际上是调用方在 AWS KMS 中，使用非对称密钥生成的签名，这个密钥对只有两端能够访问，分别是：</p><ul><li>外层调用方服务</li><li>内层基础架构账号服务</li></ul><p>也就是说，内层基础服务依赖 AWS KMS 来验证请求方的身份，只处理真正来自我司外层服务团队发过来的请求。</p>
           </div>
 <ol start="3">
@@ -429,6 +426,281 @@ SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b7
 这一步也是利用 AWS KMS 完成的，同样保证只有两端能够访问。即 <code>data_key + KMS -&gt; data_key_encrypted</code></li>
 </ol>
 <p>至此，我们将上述信息打包成一个请求，发送给服务端。</p>
+<div class="note note-primary">
+            <p><strong><em>SUMMARY:</em></strong></p><p>考虑这里的请求是如何保证安全性的：</p><ol><li><code>data_key</code> 的理论粒度是请求级别的, 每个新用户注册时使用的 <code>data_key</code> 都是不同的。</li><li>所有数据都使用 <code>data_key</code> 加密，保证了数据的机密性。</li><li>使用基于 AWS KMS 的内部签名，保证了请求的完整性和 ACL 功能。</li></ol>
+          </div>
+<hr>
+<h3 id="服务端验证请求">服务端验证请求</h3>
+<p>接下来看服务端接到请求之后如何对请求进行验证。</p>
+<pre><code class=" mermaid">classDiagram
+    direction LR
+    class REQUEST &#123;
+        data_key_encrypted: string
+        fingerprint_encrypted: string
+        user_info_encrypted: dict
+        signature: string
+    &#125;
+    class KMS &#123;
+        decrypt_data_key() string
+        decrypt_common_salt() string
+        sign()
+    &#125;
+    class SERVER &#123;
+        data_key: string
+        common_salt: string
+    &#125;
+    class DATABASE &#123;
+        common_salt_encrypted: string
+    &#125;
+    REQUEST --&gt; KMS
+    DATABASE --&gt; KMS
+    KMS --&gt; SERVER : data_key + common_salt</code></pre>
+<ol>
+<li>服务端经过上面步骤可以拿到 <code>data_key</code> 和 <code>common_salt</code></li>
+<li>然后使用 <code>data_key</code> 对请求中的 <code>user_info</code> 和 <code>fingerprint</code> 进行解密，得到明文信息</li>
+<li>使用解密后的信息找 KMS 验证签名</li>
+</ol>
+<p>至此，验证步骤已经完成。</p>
+<hr>
+<h3 id="用户密钥的生成、存储和返回">用户密钥的生成、存储和返回</h3>
+<p>生成步骤比较简单，根据一定算法随机生成一下即可。这里省略具体的生成算法。假设我们已经生成了 <span class="label label-info">secret_key_plain_text</span>，重点关注后续步骤：即存储和返回。</p>
+<ol>
+<li>
+<p><strong>存储</strong><br>
+分两步骤考虑存储问题：</p>
+<ul>
+<li>如何加密存储 <code>secret_key_plain_text</code> —— 显然我们不能直接存储明文。</li>
+<li>进一步的，密钥的粒度是什么 —— 全局唯一吗？</li>
+</ul>
+<p>一个简单的思路是，继续利用 AWS KMS 对这个 <code>secret_key_plain_text</code> 进行加密，然后存储密文在数据库中。其实对于大部分场景，这个方案是基本够用的，但是这个方案最明显的问题在于：所有用户的 <code>secret_key</code> 都用的一个密钥加密。假设这个唯一的密钥被破解了，那么所有用户的密钥都可以被解密。</p>
+<p>因此我们选择了另外一种方案，在不影响性能的情况下，做到用户粒度的密钥加密，即每个用户的密钥都使用不同的密钥加密。这样即使某个密钥被破解，也只能影响到一个用户:</p>
+<p>上一步中我们拿到了 <code>common_salt</code> 以及 <code>fingerprint</code> 的明文，我们可以直接使用这两个信息拼接生成加密密钥。</p>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">GenStorageKey</span><span class="hljs-params">(commonSalt, fingerprint <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">string</span> &#123;
+    <span class="hljs-keyword">return</span> hash(commonSalt + fingerprint)
+&#125;</code></pre></div>
+<p>然后我们使用该 <code>storage_key</code> 加密 <code>secret_key</code> 得到 <code>secret_key_encrypted</code> 再进行存储。</p>
+<p>存储了用户 <code>secret_key</code> 还不够，<code>storage_key</code> 也需要存储，否则后续无法解密 <code>secret_key</code>。这一步我们选择使用 AWS KMS 分别加密 <code>fingerprint</code> 和 <code>common_salt</code>，然后存储在数据库中，而不是加密 <code>storage_key</code> 在存储。</p>
+<pre><code class=" mermaid">classDiagram
+ direction RL
+	class UserSecretKeyRecord &#123;
+		user_id: u64
+		secret_key_encrypted: string
+		fingerprint_encrypted: string
+	&#125;
+ class CommonSecretRecord &#123;
+		common_salt_encrypted: string
+ &#125;
+ UserSecretKeyRecord --|&gt; &quot;+&quot; CommonSecretRecord</code></pre>
+</li>
+<li>
+<p><strong>返回生成的密钥，结束请求</strong><br>
+使用调用方传过来的 <code>data_key</code> 加密我们生成的 <code>secret_key</code> 进行返回即可。保证该响应只有调用方能够解密查看。</p>
+</li>
+</ol>
+<div class="note note-primary">
+            <p><strong><em>SUMMARY:</em></strong></p><table><thead><tr><th>Field</th><th>Security Layer</th><th>Helper</th></tr></thead><tbody><tr><td>data_key</td><td>请求本身的加密</td><td>KMS</td></tr><tr><td>signature</td><td>请求的完整性</td><td>KMS</td></tr><tr><td>fingerprint</td><td>用户指纹，secret_key 的构成部分</td><td>KMS</td></tr><tr><td>common_salt</td><td>secret_key 的构成部分</td><td>KMS</td></tr></tbody></table>
+          </div>
+<h2 id="用户请求">用户请求</h2>
+<p>用户注册完成后，用户拿到了自己的密钥，接下来的请求就可以使用这个密钥进行签名了。</p>
+<pre><code class=" mermaid">classDiagram
+    direction LR
+    class USER &#123;
+        api_key: string
+        secret_key: string
+        sign(dict) string
+    &#125;
+    class REQUEST &#123;
+        params: dict
+        signature: string
+        api_key: string
+    &#125;
+    USER --&gt; REQUEST : sends</code></pre>
+<p>服务端接到请求后，首先根据 <code>api_key</code> 找到对应的 <code>secret_key</code>（前面我们省略了关于 <code>api_key</code> 的细节，在这个场景下可以简单理解为 <code>user_id</code>），然后使用 <code>secret_key</code> 对请求参数进行签名，最后与请求中的签名进行比对即可。</p>
+<p>上述核心原理比较好理解，复杂的点在于工程实践上的实际架构。出于保密等原因，这里不展开说明。</p>
+<h2 id="多层签名的实践">多层签名的实践</h2>
+<p>前面的场景中，主要介绍的是如何利用签名进行用户请求的合法性校验。在实际工作中，前司的 CTO 提出了一个更高级的要求 —— 基于多层签名验证全链路的合法性。</p>
+<p>考虑一个典型的场景：</p>
+<pre><code class=" mermaid">flowchart LR
+    User --&gt; Gateway --&gt; Service_A --&gt; Service_B --&gt; Service_C</code></pre>
+<p>对于服务 C 来说，假设它需要验证请求是否合法，方式与用户请求类似，验证请求中的签名。考虑验证通过的情况下，能够说明什么问题？</p>
+<div class="note note-warning">
+            <p>服务能过验证说明请求是合法的，但是并不能说明请求的来源是合法的。</p><p>换句话来说，服务 C 在这种状况下不关心请求的来源，只关心请求的合法性。无论是谁，只要发送相同的请求到 C，都能通过验证。</p>
+          </div>
+<p>CTO 提出，为了避免员工&quot;监守自盗&quot;的问题，需要在基础架构服务上加入验证机制，保证请求来源的可信。</p>
+<div class="note note-light">
+            <p>这里指的是，假设服务 A 作为入口上游是可信的，服务 C 作为公司基础架构层也是可靠的，此时假设中间服务 B 是外包开发。<br>那么 B 开发者可以利用自己的权限，在没有接到 A 的调用的情况下，手动构造发送一个转账请求到服务 C，于是就未经用户授权，直接将用户的资产转走了。</p>
+          </div>
+<p>为了应对这种情况，我们引入了多层签名验证机制。</p>
+<pre><code class=" mermaid">classDiagram
+    direction LR
+    class REQUEST_A &#123;
+        payload_a: string
+        signature_a: string
+    &#125;
+    class REQUEST_B &#123;
+        payload_b: string
+        signature_b: string
+    &#125;
+    class SERVICE_C &#123;
+    &#125;
+    REQUEST_A &quot;wrap&quot; &lt;-- REQUEST_B
+    REQUEST_B --&gt; SERVICE_C : sends</code></pre>
+<ol>
+<li>
+<p>A 构造消息：<br>
+A 构造原始请求 PAYLOAD_A<br>
+A 生成签名 SIGN_A(PAYLOAD_A)，然后使用 A 的私钥加密<br>
+将消息打包为 REQUEST_A = (PAYLOAD_A, SIGN_A)，发送给 B</p>
+</li>
+<li>
+<p>B 接收并签名：<br>
+B 收到 REQUEST_A 后，使用 A 的公钥解密 SIGN_A，再验证 A 的签名是否有效。<br>
+如果有效，B 对 PAYLOAD_A 和自己的 PAYLOAD_B 信息整体签名，生成 SIGN_B(PAYLOAD_A, PAYLOAD_B)。<br>
+将消息打包为 REQUEST_B = (PAYLOAD_A, SIGN_A, PAYLOAD_B, SIGN_B)，发送给 C。</p>
+</li>
+<li>
+<p>C 接收并验证：<br>
+C 收到 REQUEST_B 后，逐层验证签名：<br>
+先使用 A 的公钥解密后，验证 SIGN_A(PAYLOAD_A) 是否有效。<br>
+再使用 B 的公钥解密后，验证 SIGN_B(PAYLOAD_A, PAYLOAD_B) 是否有效。<br>
+如果所有签名都通过，C 可以确定请求从 A → B → C 的过程中未被篡改。</p>
+</li>
+</ol>
+<p>这里给一个 Demo 演示基本原理：</p>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main
+
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">&quot;crypto&quot;</span>
+	<span class="hljs-string">&quot;crypto/rand&quot;</span>
+	<span class="hljs-string">&quot;crypto/rsa&quot;</span>
+	<span class="hljs-string">&quot;crypto/sha256&quot;</span>
+	<span class="hljs-string">&quot;encoding/base64&quot;</span>
+	<span class="hljs-string">&quot;encoding/json&quot;</span>
+	<span class="hljs-string">&quot;time&quot;</span>
+)
+
+<span class="hljs-keyword">var</span> (
+	PubKeyA *rsa.PublicKey
+	PriKeyA *rsa.PrivateKey
+	PubKeyB *rsa.PublicKey
+	PriKeyB *rsa.PrivateKey
+)
+
+<span class="hljs-keyword">type</span> RequestA <span class="hljs-keyword">struct</span> &#123;
+	Payload   <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>
+	Signature <span class="hljs-type">string</span>
+&#125;
+
+<span class="hljs-keyword">type</span> RequestB <span class="hljs-keyword">struct</span> &#123;
+	PayloadA   <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span> <span class="hljs-comment">// A&#x27;s payload</span>
+	SignatureA <span class="hljs-type">string</span>
+	Payload    <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span> <span class="hljs-comment">// B&#x27;s payload</span>
+	Signature  <span class="hljs-type">string</span>
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+	chC := serviceC()
+	chB := serviceB(chC)
+
+	<span class="hljs-comment">// 模拟 A 发送请求给 B</span>
+	payload := <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;serviceA&quot;</span>: <span class="hljs-string">&quot;serviceA&quot;</span>&#125;
+	signature := sign(payload, PriKeyA)
+	req := RequestA&#123;
+		Payload:   payload,
+		Signature: signature,
+	&#125;
+	chB &lt;- req
+
+	<span class="hljs-comment">// 等待异步处理完成</span>
+	time.Sleep(<span class="hljs-number">1</span> * time.Second)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">serviceB</span><span class="hljs-params">(chanC <span class="hljs-keyword">chan</span> RequestB)</span></span> <span class="hljs-keyword">chan</span> RequestA &#123;
+	ch := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> RequestA)
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-keyword">for</span> req := <span class="hljs-keyword">range</span> ch &#123;
+			params := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>)
+			params[<span class="hljs-string">&quot;serviceB&quot;</span>] = <span class="hljs-string">&quot;serviceB&quot;</span>
+			<span class="hljs-keyword">for</span> k, v := <span class="hljs-keyword">range</span> req.Payload &#123;
+				params[k] = v
+			&#125;
+			signature := sign(params, PriKeyB)
+			reqB := RequestB&#123;
+				PayloadA:   req.Payload,
+				SignatureA: req.Signature,
+				Payload:    <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;serviceB&quot;</span>: <span class="hljs-string">&quot;serviceB&quot;</span>&#125;,
+				Signature:  signature,
+			&#125;
+			chanC &lt;- reqB
+		&#125;
+	&#125;()
+	<span class="hljs-keyword">return</span> ch
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">serviceC</span><span class="hljs-params">()</span></span> <span class="hljs-keyword">chan</span> RequestB &#123;
+	ch := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> RequestB)
+	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;
+		<span class="hljs-keyword">for</span> req := <span class="hljs-keyword">range</span> ch &#123;
+			<span class="hljs-comment">// Verify signature A</span>
+			<span class="hljs-keyword">if</span> !verifySignature(req.PayloadA, req.SignatureA, PubKeyA) &#123;
+				<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Invalid signature A&quot;</span>)
+				<span class="hljs-keyword">continue</span>
+			&#125;
+
+			<span class="hljs-comment">// Verify signature B</span>
+			payload := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>)
+			<span class="hljs-keyword">for</span> k, v := <span class="hljs-keyword">range</span> req.Payload &#123;
+				payload[k] = v
+			&#125;
+			<span class="hljs-keyword">for</span> k, v := <span class="hljs-keyword">range</span> req.PayloadA &#123;
+				payload[k] = v
+			&#125;
+			<span class="hljs-keyword">if</span> !verifySignature(payload, req.Signature, PubKeyB) &#123;
+				<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Invalid signature B&quot;</span>)
+				<span class="hljs-keyword">continue</span>
+			&#125;
+
+			<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Verify OK&quot;</span>)
+		&#125;
+	&#125;()
+	<span class="hljs-keyword">return</span> ch
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sign</span><span class="hljs-params">(payload <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>, privateKey *rsa.PrivateKey)</span></span> <span class="hljs-type">string</span> &#123;
+	payloadBs, _ := json.Marshal(payload)
+	h := sha256.New()
+	h.Write(payloadBs)
+	hash := h.Sum(<span class="hljs-literal">nil</span>)
+
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash)
+	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+		<span class="hljs-built_in">panic</span>(err)
+	&#125;
+	<span class="hljs-keyword">return</span> base64.StdEncoding.EncodeToString(signature)
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">verifySignature</span><span class="hljs-params">(payload <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span>, signature <span class="hljs-type">string</span>, publicKey *rsa.PublicKey)</span></span> <span class="hljs-type">bool</span> &#123;
+	payloadBs, _ := json.Marshal(payload)
+	h := sha256.New()
+	h.Write(payloadBs)
+	hash := h.Sum(<span class="hljs-literal">nil</span>)
+
+	signatureBytes, _ := base64.StdEncoding.DecodeString(signature)
+	err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hash, signatureBytes)
+	<span class="hljs-keyword">return</span> err == <span class="hljs-literal">nil</span>
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span> &#123;
+	generateRSAKeyPair := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(bits <span class="hljs-type">int</span>)</span></span> (*rsa.PrivateKey, *rsa.PublicKey, <span class="hljs-type">error</span>) &#123;
+		privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;
+			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, err
+		&#125;
+		<span class="hljs-keyword">return</span> privateKey, &amp;privateKey.PublicKey, <span class="hljs-literal">nil</span>
+	&#125;
+	PriKeyA, PubKeyA, _ = generateRSAKeyPair(<span class="hljs-number">2048</span>)
+	PriKeyB, PubKeyB, _ = generateRSAKeyPair(<span class="hljs-number">2048</span>)
+&#125;</code></pre></div>
 
                 
               </div>
@@ -487,13 +759,13 @@ SHA2-256(stdin)= c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b7
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 26, 2024</div>
+          <div>December 27, 2024</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>December 26, 2024</div>
+          <div>December 30, 2024</div>
         </div>
       
       

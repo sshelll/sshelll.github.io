@@ -19,24 +19,25 @@
   <meta name="author" content="kayce">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Home network diagram">
+    <meta name="description" content="WIP FOEVER">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Network Topology at Home">
-<meta property="og:url" content="https://kayce.world/dessert/network_topology_at_home/index.html">
+<meta property="og:title" content="Backend Misc">
+<meta property="og:url" content="https://kayce.world/chores/backend_misc/index.html">
 <meta property="og:site_name" content="kayce">
-<meta property="og:description" content="Home network diagram">
+<meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-12-29T14:57:39.000Z">
-<meta property="article:modified_time" content="2024-12-29T15:47:32.552Z">
+<meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
+<meta property="article:modified_time" content="2024-12-30T13:57:27.000Z">
 <meta property="article:author" content="kayce">
-<meta property="article:tag" content="Network">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="Misc">
 <meta name="twitter:card" content="summary_large_image">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Network Topology at Home - kayce</title>
+  <title>Backend Misc - kayce</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -229,7 +230,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Network Topology at Home"></span>
+            <span id="subtitle" data-typed-text="Backend Misc"></span>
           
         </div>
 
@@ -245,8 +246,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-29 22:57" pubdate>
-          December 29, 2024 pm
+        <time datetime="2024-12-30 21:38" pubdate>
+          December 30, 2024 pm
         </time>
       </span>
     
@@ -298,12 +299,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Network Topology at Home</h1>
+            <h1 id="seo-header">Backend Misc</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on December 29, 2024 pm
+                    Last updated on December 30, 2024 pm
                   
                 
               </p>
@@ -311,50 +312,58 @@
             
               <div class="markdown-body">
                 
-                <blockquote>
-<p>Simple</p>
-</blockquote>
-<pre><code class=" mermaid">flowchart TD
-    0[Optical Fiber] --&gt; 1
-    1[/Optical Modem\] --&gt; 2&#123;&#123;Router&#125;&#125;
-    2 --&gt; PC
-    2 --&gt; SmartTV
-    2 --&gt; Mobile</code></pre>
+                <div class="note note-warning">
+            <p>WIP FOREVER!</p>
+          </div>
+<div class="note note-secondary">
+            <p>Some problems that I encountered, some solutions that I found, and some thoughts that I had.</p>
+          </div>
+<h2 id="PostgreSQL">PostgreSQL</h2>
+<p><strong>Conditional Index</strong></p>
+<p>Assume we have a state machine table with stages ‘1’, ‘2’ and ‘3’, and there’s a ‘user_id’ column in the table.</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>user_id</th>
+<th>stage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>38413</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>38418</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>38413</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>38413</td>
+<td>3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>38413</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>If we want to make sure that the ‘user_id’ is unique within the stage ‘1’ and ‘2’, but it’s allowed to be duplicated in the stage ‘3’, we can create a conditional index like this:</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">UNIQUE</span> INDEX index_name <span class="hljs-keyword">ON</span> table_name (user_id) <span class="hljs-keyword">WHERE</span> stage <span class="hljs-keyword">IN</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);</code></pre></div>
 <hr>
-<blockquote>
-<p>Normal</p>
-</blockquote>
-<pre><code class=" mermaid">graph TD
-    0[Optical Fiber] --&gt; A
-    A[/Optical Modem\] --&gt; B&#123;&#123;Router&#125;&#125;
-    B --&gt; C[Switch]
-    C --&gt; SmartTV
-    C --&gt; n[(NAS)]
-    B --&gt; Mobile
-    B --&gt; D&#123;&#123;Access Point 1&#125;&#125;
-    D --&gt; Mobile
-    D --&gt; p[PC in Bedroom]
-    B --&gt; E&#123;&#123;Access Point 2&#125;&#125;
-    E --&gt; Mobile
-    E --&gt; q2[PC in Living Room]</code></pre>
-<hr>
-<blockquote>
-<p>Use a switch to speed up the internal network</p>
-</blockquote>
-<pre><code class=" mermaid">graph TD
-    0[Optical Fiber] --&gt; A
-    A[/Optical Modem\] --&gt; B&#123;&#123;Switch&#125;&#125;
-    B --&gt; X&#123;&#123;Main Router&#125;&#125; --&gt; C[Switch]
-    X --&gt; Mobile
-    C --&gt; SmartTV
-    C --&gt; n[(NAS)]
-    B --&gt; Mobile
-    B --&gt; D&#123;&#123;Access Point 1&#125;&#125;
-    D --&gt; Mobile
-    D --&gt; p[PC in Bedroom]
-    B --&gt; E&#123;&#123;Access Point 2&#125;&#125;
-    E --&gt; Mobile
-    E --&gt; q2[PC in Living Room]</code></pre>
+<p><strong>Concurrent Queries on One Connection</strong></p>
+<p><u><em>This is not allowed</em></u> due to the limitation of the PostgreSQL protocol. If you want to run multiple queries in parallel, you need to use multiple connections.</p>
+<p>However, you can use <code>pipelining</code> to send multiple queries to the server in a batch.</p>
+<p>Check this out: <a target="_blank" rel="noopener" href="https://github.com/MagicStack/asyncpg/issues/738">Concurrent queries on single connection #738</a></p>
 
                 
               </div>
@@ -373,7 +382,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/dessert/" class="category-chain-item">dessert</a>
+  <a href="/categories/chores/" class="category-chain-item">chores</a>
   
   
 
@@ -388,7 +397,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Network/" class="print-no-link">#Network</a>
+        <a href="/tags/Backend/" class="print-no-link">#Backend</a>
+      
+        <a href="/tags/Misc/" class="print-no-link">#Misc</a>
       
     </div>
   
@@ -400,8 +411,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Network Topology at Home</div>
-      <div>https://kayce.world/dessert/network_topology_at_home/</div>
+      <div>Backend Misc</div>
+      <div>https://kayce.world/chores/backend_misc/</div>
     </div>
     <div class="license-meta">
       
@@ -413,13 +424,13 @@
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 29, 2024</div>
+          <div>December 30, 2024</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>December 29, 2024</div>
+          <div>December 30, 2024</div>
         </div>
       
       
@@ -462,18 +473,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/chores/backend_misc/" title="Backend Misc">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Backend Misc</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/tech/signature_based_auth_arch/" title="基于签名的鉴权架构">
-                        <span class="hidden-mobile">基于签名的鉴权架构</span>
+                      <a href="/dessert/network_topology_at_home/" title="Network Topology at Home">
+                        <span class="hidden-mobile">Network Topology at Home</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -496,7 +501,7 @@
         var options = Object.assign(
           {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"485e76d306112a519d43b4118efa8971c3ff6069","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"en-US","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
-            id: '57f7fddc3b6044b4fda573b5a13c0e82'
+            id: '7666dc0583494d217bedce260f434f89'
           }
         )
         var gitalk = new Gitalk(options);
@@ -558,21 +563,6 @@
 
   
 
-
-
-  <script>
-  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
-    mermaid.initialize({"theme":"default"});
-
-    Fluid.utils.listenDOMLoaded(function() {
-      Fluid.events.registerRefreshCallback(function() {
-        if ('mermaid' in window) {
-          mermaid.init();
-        }
-      });
-    });
-  });
-</script>
 
 
 
