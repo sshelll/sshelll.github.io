@@ -361,6 +361,11 @@
 </table>
 <p>If we want to make sure that the ‘user_id’ is unique within the stage ‘1’ and ‘2’, but it’s allowed to be duplicated in the stage ‘3’, we can create a conditional index like this:</p>
 <div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">UNIQUE</span> INDEX index_name <span class="hljs-keyword">ON</span> table_name (user_id) <span class="hljs-keyword">WHERE</span> stage <span class="hljs-keyword">IN</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);</code></pre></div>
+<p>If the scope is defined by a <code>varchar</code> column, the DDL is a little bit more complex:</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">unique</span> index index_name
+    <span class="hljs-keyword">on</span> table_name (user_id, to_user_id)
+    <span class="hljs-keyword">where</span> ((status)::text <span class="hljs-operator">=</span> <span class="hljs-keyword">ANY</span>
+           ((<span class="hljs-keyword">ARRAY</span> [<span class="hljs-string">&#x27;INIT&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;PENDING&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;ACCEPTED&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>])::text[]));</code></pre></div>
 <hr>
 <p><strong>Concurrent Queries on One Connection</strong></p>
 <p><u><em>This is not allowed</em></u> due to the limitation of the PostgreSQL protocol. If you want to run multiple queries in parallel, you need to use multiple connections.</p>
@@ -392,6 +397,9 @@ m / n,&amp; \text{if } n &lt; m, \text{and the last n gets smaller}: n-m \bmod n
 <div class="note note-light">
             <p>However, things’re going well in the real world in most cases.</p><p>Because the average query time shoule be quite small (like 10ms), while the connection pool size is usually large enough(like 50).</p><p>Then the limit of QPS is quite high(5000 in this case).</p>
           </div>
+<h2 id="Rust">Rust</h2>
+<p><strong>Cross Compile</strong></p>
+<p>See this blog: <a href="https://kayce.world/tech/rust_cross_compile_on_osx/">Rust Cross Compile on OSX</a></p>
 
                 
               </div>
