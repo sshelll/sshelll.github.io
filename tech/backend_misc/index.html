@@ -400,6 +400,22 @@ m / n,&amp; \text{if } n &lt; m, \text{and the last n gets smaller}: n-m \bmod n
 <h2 id="Rust">Rust</h2>
 <p><strong>Cross Compile</strong></p>
 <p>See this blog: <a href="https://kayce.world/tech/rust_cross_compile_on_osx/">Rust Cross Compile on OSX</a></p>
+<h2 id="Common">Common</h2>
+<p><strong>Don’t forget ssh-agent</strong></p>
+<p>One day a colleague asked me why he couldn’t clone the git repo from github. I checked his github ssh key settings, and it’s all good.</p>
+<p>Then I tried to regenerate a brand new ssh key pair and configured it in the github settings. But it still didn’t work.</p>
+<p>I solved the problem by doing these steps:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># Check the ssh connection to github</span>
+ssh -T git@github.com
+<span class="hljs-comment"># The output was like this:</span>
+<span class="hljs-comment"># Hi $&#123;another_guys_username&#125;! You&#x27;ve successfully authenticated, but GitHub does not provide shell access.</span>
+
+<span class="hljs-comment"># Bingo! The reason must be that he forgot to clean the `ssh-agent`.</span>
+<span class="hljs-comment"># So I checked with this command and of course, there was an old key in the agent:</span>
+ssh-add -l
+
+<span class="hljs-comment"># Finally, I removed the old key from the agent:</span>
+ssh-add -D</code></pre></div>
 
                 
               </div>
