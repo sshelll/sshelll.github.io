@@ -19,25 +19,24 @@
   <meta name="author" content="kayce">
   <meta name="keywords" content="">
   
-    <meta name="description" content="WIP FOEVER">
+    <meta name="description" content="一种基于规则而非编码的权限系统实践">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Backend Misc">
-<meta property="og:url" content="https://kayce.world/tech/backend_misc/index.html">
+<meta property="og:title" content="基于规则的权限系统">
+<meta property="og:url" content="https://kayce.world/tech/rule_based_auth_sys/index.html">
 <meta property="og:site_name" content="kayce">
-<meta property="og:description" content="WIP FOEVER">
+<meta property="og:description" content="一种基于规则而非编码的权限系统实践">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2024-12-30T13:57:27.000Z">
+<meta property="article:published_time" content="2025-01-12T04:41:00.000Z">
+<meta property="article:modified_time" content="2025-01-12T04:49:30.254Z">
 <meta property="article:author" content="kayce">
-<meta property="article:tag" content="Backend">
-<meta property="article:tag" content="Misc">
+<meta property="article:tag" content="Auth">
 <meta name="twitter:card" content="summary_large_image">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Backend Misc - kayce</title>
+  <title>基于规则的权限系统 - kayce</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -48,8 +47,6 @@
   <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
 
 
 
@@ -232,7 +229,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Backend Misc"></span>
+            <span id="subtitle" data-typed-text="基于规则的权限系统"></span>
           
         </div>
 
@@ -248,8 +245,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-30 21:38" pubdate>
-          December 30, 2024 pm
+        <time datetime="2025-01-12 12:41" pubdate>
+          January 12, 2025 pm
         </time>
       </span>
     
@@ -301,12 +298,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Backend Misc</h1>
+            <h1 id="seo-header">基于规则的权限系统</h1>
             
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on December 30, 2024 pm
+                    Last updated on January 12, 2025 pm
                   
                 
               </p>
@@ -314,115 +311,316 @@
             
               <div class="markdown-body">
                 
-                <div class="note note-warning">
-            <p>WIP FOREVER!</p>
-          </div>
-<div class="note note-secondary">
-            <p>Some problems that I encountered, some solutions that I found, and some thoughts that I had.</p>
-          </div>
-<h2 id="PostgreSQL">PostgreSQL</h2>
-<p><strong>Conditional Index</strong></p>
-<p>Assume we have a state machine table with stages ‘1’, ‘2’ and ‘3’, and there’s a ‘user_id’ column in the table.</p>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>user_id</th>
-<th>stage</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>38413</td>
-<td>1</td>
-</tr>
-<tr>
-<td>2</td>
-<td>38418</td>
-<td>2</td>
-</tr>
-<tr>
-<td>3</td>
-<td>38413</td>
-<td>3</td>
-</tr>
-<tr>
-<td>4</td>
-<td>38413</td>
-<td>3</td>
-</tr>
-<tr>
-<td>5</td>
-<td>38413</td>
-<td>3</td>
-</tr>
-</tbody>
-</table>
-<p>If we want to make sure that the ‘user_id’ is unique within the stage ‘1’ and ‘2’, but it’s allowed to be duplicated in the stage ‘3’, we can create a conditional index like this:</p>
-<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">UNIQUE</span> INDEX index_name <span class="hljs-keyword">ON</span> table_name (user_id) <span class="hljs-keyword">WHERE</span> stage <span class="hljs-keyword">IN</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);</code></pre></div>
-<p>If the scope is defined by a <code>varchar</code> column, the DDL is a little bit more complex:</p>
-<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">unique</span> index index_name
-    <span class="hljs-keyword">on</span> table_name (user_id, to_user_id)
-    <span class="hljs-keyword">where</span> ((status)::text <span class="hljs-operator">=</span> <span class="hljs-keyword">ANY</span>
-           ((<span class="hljs-keyword">ARRAY</span> [<span class="hljs-string">&#x27;INIT&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;PENDING&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;ACCEPTED&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>])::text[]));</code></pre></div>
-<hr>
-<p><strong>Concurrent Queries on One Connection</strong></p>
-<p><u><em>This is not allowed</em></u> due to the limitation of the PostgreSQL protocol. If you want to run multiple queries in parallel, you need to use multiple connections.</p>
-<p>However, you can use <code>pipelining</code> to send multiple queries to the server in a batch.</p>
-<p>Check this out: <a target="_blank" rel="noopener" href="https://github.com/MagicStack/asyncpg/issues/738">Concurrent queries on single connection #738</a></p>
-<hr>
-<p><strong>Connection Pool Size and QPS</strong></p>
-<p>Assume:</p>
+                <p>提到鉴权，我们往往会联想到基于 <code>Cookie-Session</code> / <code>Access Token</code> / <code>JWT</code> / <code>Siganature</code> 的方式，然而这些方式的解决的问题是在无状态的系统中进行用户身份识别从而达到有状态的目的的。</p>
+<p>然而在实际的业务场景中，我们还有一种更为复杂的权限需求，比如：</p>
 <ul>
-<li>Average query time: t <em>seconds</em></li>
-<li>Connection pool size: n</li>
-<li>QPS: q</li>
+<li>A 用户可以查看所有用户的信息，B 则只能查看自己的信息</li>
+<li>A 有权修改系统内的数据，B 则只能查看</li>
 </ul>
-<p>We have the following formula:</p>
-<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>q</mi><mo>≤</mo><mfrac><mi>n</mi><mi>t</mi></mfrac><mo>=</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>q</mi><mi>p</mi><mi>s</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">q \leq \frac{n}{t} = \max(qps)
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8304em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.7936em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">qp</span><span class="mord mathnormal">s</span><span class="mclose">)</span></span></span></span></span></p>
-<p>What will happen if the QPS exceeds the limit? - The connection pool will be exhausted.</p>
-<p>Let’s say that <code>q &gt; n/t</code>, then we have:</p>
-<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Extra Reqs</mtext><mo>=</mo><mi>m</mi><mo>=</mo><mi>q</mi><mo>−</mo><mfrac><mi>n</mi><mi>t</mi></mfrac><mspace linebreak="newline"></mspace></mrow><annotation encoding="application/x-tex">\text{Extra Reqs} = m = q - \frac{n}{t}\\
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Extra Reqs</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.7936em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span><span class="mspace newline"></span></span></span></span></p>
-<p>These requests will be queued and wait for the connection to be available.</p>
-<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>delay rounds</mtext><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>n</mi><mo>≥</mo><mi>m</mi><mo separator="true">,</mo><mtext>but the next n gets smaller</mtext><mo>:</mo><mi>n</mi><mo>−</mo><mi>m</mi></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>m</mi><mi mathvariant="normal">/</mi><mi>n</mi><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>n</mi><mo>&lt;</mo><mi>m</mi><mo separator="true">,</mo><mtext>and the last n gets smaller</mtext><mo>:</mo><mi>n</mi><mo>−</mo><mi>m</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>n</mi></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{delay rounds} =
-\begin{cases}
-0,&amp; \text{if } n \geq m, \text{but the next n gets smaller}: n-m\\
-m / n,&amp; \text{if } n &lt; m, \text{and the last n gets smaller}: n-m \bmod n\\
-\end{cases}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">delay rounds</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mpunct">,</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="mord">/</span><span class="mord mathnormal">n</span><span class="mpunct">,</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">but the next n gets smaller</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">m</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">and the last n gets smaller</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.0556em;"></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>So if the qps is too high, it’ll cause a delay in the response time. What’s worse, <u><em>if the qps consistently exceeds the limit, the delay will be accumulated</em></u>.</p>
+<p>这类场景更偏向 「鉴权」 而非 「认证」，因为它们更多的是在描述用户在系统中的行为权限而非身份。所以你可以称之为 <code>Access Control</code> or <code>Permission Control</code>。</p>
+<p>而在鉴权的场景下，一般有两种最佳实践：</p>
+<ol>
+<li>基于角色的权限控制（RBAC, Role-based access control）</li>
+<li>基于属性的权限控制（ABAC, Attribute-based access control）</li>
+</ol>
+<h2 id="RBAC">RBAC</h2>
+<p>RBAC 是一种基于角色的权限控制，它的核心思想是将用户分配到不同的角色，而角色拥有不同的权限。这种方式的优势在于简单易懂，易于维护，适用于中小型系统。</p>
+<p>比如我们可以定义三种角色：</p>
+<ul>
+<li>Admin</li>
+<li>User</li>
+<li>Guest</li>
+</ul>
+<p>对于不同的角色，我们可以定义不同的权限：</p>
+<ul>
+<li>Admin: CRUD</li>
+<li>User: CR</li>
+<li>Guest: R</li>
+</ul>
+<p>最后，我们赋予每个 User 不同的 Role：</p>
+<ul>
+<li>User A
+<ul>
+<li>Admin</li>
+</ul>
+</li>
+<li>User B
+<ul>
+<li>User</li>
+</ul>
+</li>
+<li>User C
+<ul>
+<li>Guest</li>
+</ul>
+</li>
+</ul>
+<p>然后我们可以“硬编码”我们想要的权限逻辑，然后在用户试图进行 CRUD 任意一种操作时，我们基于用户身份，找到其对应的角色，再根据角色的权限判断当前请求是否允许通过即可。</p>
+<pre><code class=" mermaid">classDiagram
+	class user&#123;
+		+int64 user_id
+	&#125;
+	class role&#123;
+		+int64 role_id
+		+String desc
+	&#125;
+	class user_role_ref&#123;
+		+int64 user_id
+		+int64 role_id
+	&#125;
+
+	user o--o user_role_ref
+  role o--o user_role_ref
+</code></pre>
+<p>鉴权方式类似于：<code>check_role(user)</code>。</p>
+<h2 id="ABAC">ABAC</h2>
+<p>简单来说，ABAC 的权限校验点相比于 RBAC 从 <code>Role</code> 转化为了 <code>Attribute</code>，从而让鉴权粒度更细了，并且组合起来更自由了。沿用上面的例子，我们可以使用 ABAC 实现如下：</p>
+<p>我们不再需要 Role 这个角色的定义，所有人都视为 User：</p>
+<ul>
+<li>User
+<ul>
+<li>User A</li>
+<li>User B</li>
+<li>User C</li>
+</ul>
+</li>
+</ul>
+<p>然后把 Role 具有的权限抽象为 <code>Attribute</code>：</p>
+<ul>
+<li>Attribute
+<ul>
+<li>Create</li>
+<li>Read</li>
+<li>Update</li>
+<li>Delete</li>
+</ul>
+</li>
+</ul>
+<p>最后赋予每个 User 不同的 Attribute：</p>
+<ul>
+<li>User A
+<ul>
+<li>Create + Read + Update + Delete</li>
+</ul>
+</li>
+<li>User B
+<ul>
+<li>Create + Read</li>
+</ul>
+</li>
+<li>User C
+<ul>
+<li>Read</li>
+</ul>
+</li>
+</ul>
+<p>鉴权方式类似于: <code>check_attribute(user_id, attribute)</code> 。</p>
 <div class="note note-light">
-            <p>However, things’re going well in the real world in most cases.</p><p>Because the average query time shoule be quite small (like 10ms), while the connection pool size is usually large enough(like 50).</p><p>Then the limit of QPS is quite high(5000 in this case).</p>
+            <p>事实上，k8s 中就可以使用 ABAC 来进行权限控制，参见：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/abac/"><u>使用 ABAC 鉴权</u></a></p>
           </div>
-<h2 id="Rust">Rust</h2>
-<p><strong>Cross Compile</strong></p>
-<p>See this blog: <a href="https://kayce.world/tech/rust_cross_compile_on_osx/">Rust Cross Compile on OSX</a></p>
-<h2 id="Common">Common</h2>
-<p><strong>Don’t forget ssh-agent</strong></p>
-<p>One day a colleague asked me why he couldn’t clone the git repo from github. I checked his github ssh key settings, and it’s all good.</p>
-<p>Then I tried to regenerate a brand new ssh key pair and configured it in the github settings. But it still didn’t work.</p>
-<p>I solved the problem by doing these steps:</p>
-<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># Check the ssh connection to github</span>
-ssh -T git@github.com
-<span class="hljs-comment"># The output was like this:</span>
-<span class="hljs-comment"># Hi $&#123;another_guys_username&#125;! You&#x27;ve successfully authenticated, but GitHub does not provide shell access.</span>
-
-<span class="hljs-comment"># Bingo! The reason must be that he forgot to clean the `ssh-agent`.</span>
-<span class="hljs-comment"># So I checked with this command and of course, there was an old key in the agent:</span>
-ssh-add -l
-
-<span class="hljs-comment"># Finally, I removed the old key from the agent:</span>
-ssh-add -D</code></pre></div>
+<h2 id="R-A">R+A</h2>
+<p>在实际的业务场景中，我们往往会使用 RBAC 和 ABAC 的混合方式，因为 Attribute 的数量可能会非常多，因此直接管理 Attribute 的成本比较高，业务一般不会这么设计。</p>
+<p>通常来说，业务都会基于 R - A 的双层结构来进行不同粒度的权限管控，代入实际例子可以这么说：</p>
+<ul>
+<li>R：系统管理员可以访问某个 resource</li>
+<li>A：普通用户被授予访问该 resource 的权限后，虽然他不是管理员，但也可以访问</li>
+</ul>
+<p>这么做还有一个好处，就是方便用户进行快捷的权限管控，用户把某个员工设置为系统管理员，显然比用户把所有 Attribute 都添加到该员工头上来的简单。</p>
+<p>除此之外，我们一般可以使用 R 进行快速决策，当 R 无法满足时，再引入 A 进行复杂决策，这么做也可以提升鉴权本身的效率。</p>
+<p>总而言之，我们可以使用 Role 来进行基本的权限控制，然后使用 Attribute 来进行更细粒度的权限控制。</p>
+<h2 id="常见架构设计">常见架构设计</h2>
+<p><strong>1. 架构总体设计</strong></p>
+<p>鉴权系统可以分为以下几个核心模块：</p>
+<p><strong>1.1 数据层</strong></p>
+<p>用于存储用户、角色、权限、属性和规则。数据层需要保证高效查询和及时更新。</p>
+<ul>
+<li>
+<p><strong>用户数据</strong>：包含用户基本信息和关联的角色。</p>
+</li>
+<li>
+<p><strong>角色数据</strong>：存储角色与权限、属性的映射关系。</p>
+</li>
+<li>
+<p><strong>属性数据</strong>：存储 ABAC 中需要的用户属性、资源属性等信息。</p>
+</li>
+<li>
+<p><strong>规则存储</strong>：存储复杂场景下的规则，比如条件表达式或策略脚本。</p>
+</li>
+</ul>
+<p><strong>1.2 数据同步层</strong></p>
+<p>负责从各个业务系统同步数据（用户信息、角色、属性等）到鉴权系统。</p>
+<ul>
+<li>
+<p><strong>拉模式</strong>：定期从业务系统拉取更新（如使用 REST API 或消息队列）。</p>
+</li>
+<li>
+<p><strong>推模式</strong>：业务系统在数据变化时推送更新到鉴权系统。</p>
+</li>
+<li>
+<p><strong>缓存层</strong>：对于频繁访问的数据，可以使用内存缓存（如 Redis）以提升性能。</p>
+</li>
+</ul>
+<p><strong>1.3 鉴权核心</strong></p>
+<p>负责权限判断的核心模块。支持 RBAC 和 ABAC 的组合逻辑。</p>
+<ul>
+<li>
+<p><strong>RBAC 模块</strong>：通过用户关联的角色判断权限。</p>
+</li>
+<li>
+<p><strong>ABAC 模块</strong>：通过用户、资源的属性和规则判断权限。</p>
+</li>
+<li>
+<p><strong>规则引擎</strong>：支持动态规则匹配，可能使用 DSL 或标准语言（如 JSONLogic 或 Drools）。</p>
+</li>
+<li>
+<p><strong>决策引擎</strong>：综合 RBAC 和 ABAC 结果，根据优先级或策略作出最终鉴权决策。</p>
+</li>
+</ul>
+<p><strong>1.4 API 接口层</strong></p>
+<p>提供统一的鉴权接口供业务系统调用。</p>
+<ul>
+<li><strong>简单接口</strong>：例如 checkAttr(userId, attr)，用于快速校验简单场景。</li>
+<li><strong>复杂接口</strong>：例如 checkPermission(userId, action, resource)，支持复杂规则判断。</li>
+</ul>
+<p><strong>1.5 日志和审计</strong></p>
+<p>记录所有鉴权请求和结果，便于后续排查和分析。</p>
+<ul>
+<li><strong>日志存储</strong>：记录访问日志。</li>
+<li><strong>审计功能</strong>：提供接口供管理员查询权限决策过程。</li>
+</ul>
 <hr>
-<p><strong>Tools</strong></p>
-<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># compress image</span>
-magick before.png -resize 35% after.png
-
-<span class="hljs-comment"># transcode audio</span>
-ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav</code></pre></div>
+<p><strong>2. 数据同步设计</strong></p>
+<p>鉴权系统需要构建一套机制，与各个业务系统同步数据：</p>
+<p><strong>2.1 数据源和 ETL</strong></p>
+<ul>
+<li>
+<p><strong>用户数据源</strong>：从用户管理系统同步用户信息。</p>
+</li>
+<li>
+<p><strong>角色数据源</strong>：从权限管理系统同步角色及权限。</p>
+</li>
+<li>
+<p><strong>属性数据源</strong>：从多个业务系统同步 ABAC 所需的属性（如用户部门、资源类型）。</p>
+</li>
+<li>
+<p><strong>ETL 管道</strong>：实现数据提取、清洗和加载到鉴权系统。</p>
+</li>
+</ul>
+<p><strong>2.2 数据实时性</strong></p>
+<p>对于属性变化可能影响权限的场景，需要实现实时同步或延迟最小化。</p>
+<ul>
+<li>
+<p>使用事件驱动架构（如 Kafka）捕获数据变化。</p>
+</li>
+<li>
+<p>增量更新而非全量同步。</p>
+</li>
+</ul>
+<p><strong>2.3 数据缓存</strong></p>
+<ul>
+<li>
+<p>对于高频访问的权限数据，可以使用 Redis 等缓存。</p>
+</li>
+<li>
+<p>缓存失效策略应与同步机制匹配，保证数据一致性。</p>
+</li>
+</ul>
+<hr>
+<p><strong>3. 规则引擎设计</strong></p>
+<p>复杂场景下，需要引入规则引擎来动态判断权限。</p>
+<p><strong>3.1 规则表达</strong></p>
+<p>规则可以用 DSL 或标准语言表示：</p>
+<ul>
+<li>
+<p><strong>DSL（领域特定语言）</strong>：如 <code>role == &quot;admin&quot; AND resource.type == &quot;file&quot; AND resource.owner == user.id</code></p>
+</li>
+<li>
+<p><strong>标准规则语言</strong>：如 JSONLogic、Drools 或 Open Policy Agent (OPA)。</p>
+</li>
+</ul>
+<p><strong>3.2 规则存储</strong></p>
+<ul>
+<li>
+<p>存储规则到数据库（如 PostgreSQL）。</p>
+</li>
+<li>
+<p>对复杂规则，可以用版本化管理，支持回滚。</p>
+</li>
+</ul>
+<p><strong>3.3 规则执行</strong></p>
+<ul>
+<li>
+<p><strong>RBAC 优先</strong>：先快速检查角色权限，减少不必要的规则计算。</p>
+</li>
+<li>
+<p><strong>ABAC 动态计算</strong>：根据规则动态计算属性权限。</p>
+</li>
+</ul>
+<p><strong>3.4 规则优化</strong></p>
+<ul>
+<li>使用缓存存储常用规则的结果。</li>
+<li>分析规则的覆盖范围，优化冗余规则。</li>
+</ul>
+<hr>
+<p><strong>4. API 接口层</strong></p>
+<p>提供对外访问接口，并确保性能与安全性。</p>
+<p><strong>4.1 简单接口</strong></p>
+<ul>
+<li>
+<p>checkAttr(userId, attr)：适用于 RBAC 和简单 ABAC 场景。</p>
+</li>
+<li>
+<p>快速校验是否具备某属性（如管理员身份）。</p>
+</li>
+</ul>
+<p><strong>4.2 复杂接口</strong></p>
+<ul>
+<li>
+<p>checkPermission(userId, action, resource)：综合用户角色和属性判断权限。</p>
+</li>
+<li>
+<p>支持返回详细的决策依据（如角色命中、规则匹配等）。</p>
+</li>
+</ul>
+<p><strong>4.3 批量接口</strong></p>
+<p>支持批量鉴权的接口（如批量检查多个资源的权限），提高效率。</p>
+<hr>
+<p><strong>5. 示例工作流</strong></p>
+<p>假设用户 user1 想访问资源 file123：</p>
+<ol>
+<li>
+<p>数据层查询 user1 的角色和属性，以及 file123 的属性。</p>
+</li>
+<li>
+<p>RBAC 模块判断用户是否具备相关角色权限。</p>
+</li>
+<li>
+<p>如果 RBAC 无法决定，则调用 ABAC 模块：</p>
+</li>
+</ol>
+<ul>
+<li>加载 user1 和 file123 的属性。</li>
+<li>加载相关规则并执行。</li>
+</ul>
+<ol start="4">
+<li>决策引擎综合 RBAC 和 ABAC 的结果，返回最终判断。</li>
+</ol>
+<hr>
+<p><strong>6. 扩展功能</strong></p>
+<ul>
+<li>
+<p><strong>动态更新规则</strong>：支持管理员实时更新规则，立即生效。</p>
+</li>
+<li>
+<p><strong>多租户支持</strong>：为不同业务系统提供隔离的鉴权规则和数据。</p>
+</li>
+<li>
+<p><strong>性能优化</strong>：分析高频鉴权请求，使用缓存或索引优化查询。</p>
+</li>
+</ul>
+<h2 id="实例">实例</h2>
+<p>这里有一个以我在飞书工作期间为灵感的一个鉴权原型服务, 这个 Demo 主要用于演示 / 验证 RBAC + ABAC 的结合, 并没有完整的工程实现, 例如目前并没有考虑 API 设计 / ETL 数据同步等。</p>
+<p>See: <a target="_blank" rel="noopener" href="https://github.com/sshelll/raac-demo">raac-demo</a></p>
 
                 
               </div>
@@ -456,9 +654,7 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Backend/" class="print-no-link">#Backend</a>
-      
-        <a href="/tags/Misc/" class="print-no-link">#Misc</a>
+        <a href="/tags/Auth/" class="print-no-link">#Auth</a>
       
     </div>
   
@@ -470,8 +666,8 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Backend Misc</div>
-      <div>https://kayce.world/tech/backend_misc/</div>
+      <div>基于规则的权限系统</div>
+      <div>https://kayce.world/tech/rule_based_auth_sys/</div>
     </div>
     <div class="license-meta">
       
@@ -483,13 +679,13 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 30, 2024</div>
+          <div>January 12, 2025</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>December 30, 2024</div>
+          <div>January 12, 2025</div>
         </div>
       
       
@@ -532,18 +728,12 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/tech/rule_based_auth_sys/" title="基于规则的权限系统">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">基于规则的权限系统</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/chores/network_topology_at_home/" title="Network Topology at Home">
-                        <span class="hidden-mobile">Network Topology at Home</span>
+                      <a href="/tech/backend_misc/" title="Backend Misc">
+                        <span class="hidden-mobile">Backend Misc</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -566,7 +756,7 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
         var options = Object.assign(
           {"clientID":"b25aa0a3d88c5fc4dbeb","clientSecret":"485e76d306112a519d43b4118efa8971c3ff6069","repo":"sshelll.github.io","owner":"sshelll","admin":["sshelll"],"language":"en-US","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
           {
-            id: 'a7efac520e27696342849a6c00ef1e7e'
+            id: '39cf0beebae2999373729a6221c6979f'
           }
         )
         var gitalk = new Gitalk(options);
@@ -629,10 +819,20 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
   
 
 
-  
-  
 
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
 
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
 
 
 
