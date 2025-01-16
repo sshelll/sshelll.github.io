@@ -1,5 +1,5 @@
-https://kayce.world/tech/rule_based_auth_sys/
 https://kayce.world/tech/signature_based_auth_arch/
+https://kayce.world/tech/rule_based_auth_sys/
 https://kayce.world/tech/rust_cross_compile_on_osx/
 https://kayce.world/chores/network_topology_at_home/
 https://kayce.world/tech/rust_atomics_and_locks/
