@@ -1,9 +1,9 @@
+https://kayce.world/tech/backend_misc/
 https://kayce.world/tech/signature_based_auth_arch/
 https://kayce.world/tech/rule_based_auth_sys/
 https://kayce.world/tech/rust_cross_compile_on_osx/
 https://kayce.world/chores/network_topology_at_home/
 https://kayce.world/tech/rust_atomics_and_locks/
-https://kayce.world/tech/backend_misc/
 https://kayce.world/tech/recur_to_iter/
 https://kayce.world/tech/high_perf_kafka_consumer/
 https://kayce.world/about/index.html
@@ -29,8 +29,8 @@ https://kayce.world/tags/ByteDance/
 https://kayce.world/tags/%E8%B4%A7%E5%B8%81/
 https://kayce.world/tags/Marx/
 https://kayce.world/tags/Golang/
-https://kayce.world/tags/Kafka/
 https://kayce.world/tags/Network/
+https://kayce.world/tags/Kafka/
 https://kayce.world/tags/Rust/
 https://kayce.world/tags/Database/
 https://kayce.world/categories/chores/

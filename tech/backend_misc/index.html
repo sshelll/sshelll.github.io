@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2024-12-30T13:57:27.000Z">
+<meta property="article:modified_time" content="2025-01-17T12:31:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on December 30, 2024 pm
+                    Last updated on January 17, 2025 pm
                   
                 
               </p>
@@ -321,7 +321,7 @@
             <p>Some problems that I encountered, some solutions that I found, and some thoughts that I had.</p>
           </div>
 <h2 id="PostgreSQL">PostgreSQL</h2>
-<p><strong>Conditional Index</strong></p>
+<h3 id="Conditional-Index">Conditional Index</h3>
 <p>Assume we have a state machine table with stages ‘1’, ‘2’ and ‘3’, and there’s a ‘user_id’ column in the table.</p>
 <table>
 <thead>
@@ -367,12 +367,12 @@
     <span class="hljs-keyword">where</span> ((status)::text <span class="hljs-operator">=</span> <span class="hljs-keyword">ANY</span>
            ((<span class="hljs-keyword">ARRAY</span> [<span class="hljs-string">&#x27;INIT&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;PENDING&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>, <span class="hljs-string">&#x27;ACCEPTED&#x27;</span>::<span class="hljs-type">character</span> <span class="hljs-type">varying</span>])::text[]));</code></pre></div>
 <hr>
-<p><strong>Concurrent Queries on One Connection</strong></p>
+<h3 id="Concurrent-Queries-on-One-Connection">Concurrent Queries on One Connection</h3>
 <p><u><em>This is not allowed</em></u> due to the limitation of the PostgreSQL protocol. If you want to run multiple queries in parallel, you need to use multiple connections.</p>
 <p>However, you can use <code>pipelining</code> to send multiple queries to the server in a batch.</p>
 <p>Check this out: <a target="_blank" rel="noopener" href="https://github.com/MagicStack/asyncpg/issues/738">Concurrent queries on single connection #738</a></p>
 <hr>
-<p><strong>Connection Pool Size and QPS</strong></p>
+<h3 id="Connection-Pool-Size-and-QPS">Connection Pool Size and QPS</h3>
 <p>Assume:</p>
 <ul>
 <li>Average query time: t <em>seconds</em></li>
@@ -398,10 +398,35 @@ m / n,&amp; \text{if } n &lt; m, \text{and the last n gets smaller}: n-m \bmod n
             <p>However, things’re going well in the real world in most cases.</p><p>Because the average query time shoule be quite small (like 10ms), while the connection pool size is usually large enough(like 50).</p><p>Then the limit of QPS is quite high(5000 in this case).</p>
           </div>
 <h2 id="Rust">Rust</h2>
-<p><strong>Cross Compile</strong></p>
+<h3 id="Cross-Compile">Cross Compile</h3>
 <p>See this blog: <a href="https://kayce.world/tech/rust_cross_compile_on_osx/">Rust Cross Compile on OSX</a></p>
 <h2 id="Common">Common</h2>
-<p><strong>Don’t forget ssh-agent</strong></p>
+<h3 id="Max-open-files-limit">Max open files limit</h3>
+<p>One day I found that the <code>max open files limit</code> of my server was set to <code>1024</code>:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">ulimit</span> -n
+1024
+
+<span class="hljs-built_in">ulimit</span> -Hn
+1048576</code></pre></div>
+<p>And then I checked the java service process:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> /proc/2562403/limits
+
+Limit                     Soft Limit           Hard Limit           Units
+Max open files            1048576              1048576              files</code></pre></div>
+<p>I checked another rust process:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> /proc/2562403/limits
+
+Limit                     Soft Limit           Hard Limit           Units
+Max open files            1024                 1048576              files</code></pre></div>
+<p>As we can see, the <code>Max open files</code> limit of the <code>java</code> process was set to <code>1048576</code>, which was increased to the hard limit of the system. Both of them were set to <code>1048576</code>.</p>
+<p>So I did a little bit research and figured out that was the <u>JVM default behavior</u>.</p>
+<p>Check this out:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/30487284/how-and-when-and-where-jvm-change-the-max-open-files-value-of-linux">stackoverflow</a></li>
+<li><a target="_blank" rel="noopener" href="https://access.redhat.com/solutions/1339423#:~:text=Issue-,Java%20process%20ignores%20the%20soft%20limit%20of%20%22open%20files%22%20%28%2C%2Dn%22%20of%20the%20user.%29">redhat</a></li>
+</ul>
+<hr>
+<h3 id="Don’t-forget-ssh-agent">Don’t forget ssh-agent</h3>
 <p>One day a colleague asked me why he couldn’t clone the git repo from github. I checked his github ssh key settings, and it’s all good.</p>
 <p>Then I tried to regenerate a brand new ssh key pair and configured it in the github settings. But it still didn’t work.</p>
 <p>I solved the problem by doing these steps:</p>
@@ -417,7 +442,7 @@ ssh-add -l
 <span class="hljs-comment"># Finally, I removed the old key from the agent:</span>
 ssh-add -D</code></pre></div>
 <hr>
-<p><strong>Tools</strong></p>
+<h3 id="Tools">Tools</h3>
 <div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># compress image</span>
 magick before.png -resize 35% after.png
 
@@ -489,7 +514,7 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>December 30, 2024</div>
+          <div>January 17, 2025</div>
         </div>
       
       
