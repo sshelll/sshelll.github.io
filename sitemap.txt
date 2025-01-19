@@ -1,3 +1,4 @@
+https://kayce.world/tech/scenario_misc/
 https://kayce.world/tech/backend_misc/
 https://kayce.world/tech/signature_based_auth_arch/
 https://kayce.world/tech/rule_based_auth_sys/
