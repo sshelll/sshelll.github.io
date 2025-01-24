@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2025-01-17T12:31:00.000Z">
+<meta property="article:modified_time" content="2025-01-24T14:45:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on January 17, 2025 pm
+                    Last updated on January 24, 2025 pm
                   
                 
               </p>
@@ -447,7 +447,152 @@ ssh-add -D</code></pre></div>
 magick before.png -resize 35% after.png
 
 <span class="hljs-comment"># transcode audio</span>
-ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav</code></pre></div>
+ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav
+
+<span class="hljs-comment"># convert flac to alac</span>
+xld -o ~/Downloads song.flac -f alac
+
+<span class="hljs-comment"># generate gpg keys</span>
+gpg --full-generate-key
+gpg --list-secret-keys --keyid-format=long
+gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)</code></pre></div>
+<hr>
+<h3 id="Simple-Math">Simple Math</h3>
+<p>I’ve been doing some practicing(kata) on Codewars, and I’ve noticed that there’re some frequently used math tricks / formulas.</p>
+<div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// gcd(a, b) = gcd(b, a % b)</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gcd</span><span class="hljs-params">(a, b *big.Int)</span></span> *big.Int &#123;
+	<span class="hljs-keyword">for</span> b.Cmp(big.NewInt(<span class="hljs-number">0</span>)) != <span class="hljs-number">0</span> &#123;
+		a, b = b, <span class="hljs-built_in">new</span>(big.Int).Mod(a, b)
+	&#125;
+	<span class="hljs-keyword">return</span> a
+&#125;
+
+<span class="hljs-comment">// (a * b) / gcd(a, b)</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">lcm</span><span class="hljs-params">(a, b *big.Int)</span></span> *big.Int &#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-built_in">new</span>(big.Int).Div(<span class="hljs-built_in">new</span>(big.Int).Mul(a, b), gcd(a, b))
+&#125;</code></pre></div>
+<h2 id="Network">Network</h2>
+<h3 id="Hub-switch-router">Hub, switch, router</h3>
+<ul>
+<li>
+<p>Hub: all the devices are connected to the hub(with cable), and the hub broadcasts the packets to all the devices.</p>
+</li>
+<li>
+<p>Switch: basically the same as hub, but it has a MAC addr table, so it can forward the packets to the specific device.</p>
+</li>
+<li>
+<p>Router: it’s used to connect different networks, and it has an IP addr table, so it can forward the packets to the specific network.</p>
+</li>
+</ul>
+<p>To be short, assume the topology is like this:</p>
+<div class="code-wrapper"><pre><code class="hljs text">A - Switch1 - B
+      |
+    Router
+      |
+C - Switch2 - D</code></pre></div>
+<p>If a packet is send to a device which is in the same subnet, the packet will be sent to the target device directly (or through switch), like A to B.</p>
+<blockquote>
+<p>To judge whether the target device is in the same subnet, we do calculation like this: <code>IP &amp; Mask</code> and compare this value.</p>
+</blockquote>
+<p>Otherwise if the target device is not in the same subnet, the packet will be sent to the Router, and the Router will forward the packet to the target device.</p>
+<p>And the router is normally known as the <strong>default gateway</strong>. Actually, in the real world, <u>the default gateway is somewhere you send the packet to when you don’t know where to send it</u>.</p>
+<p>A typical route table can be like this:</p>
+<table>
+<thead>
+<tr>
+<th>Network</th>
+<th>Gateway</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0.0.0/0</td>
+<td>ISP Gateway</td>
+<td>ppp0</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>All the unrecognized packets will be treated as <code>0.0.0.0</code> and be sent to the ISP gateway.</p>
+<hr>
+<h3 id="NAT">NAT</h3>
+<p>To be short, all the devices behind a router share the same public IP address, and the router will translate the private IP address to the public IP address when the packet is sent to the internet.</p>
+<p>The NAT table is like this:</p>
+<table>
+<thead>
+<tr>
+<th>Source IP</th>
+<th>Source Port</th>
+<th>Target IP</th>
+<th>Target Port</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.31.100</td>
+<td>54321</td>
+<td>140.82.113.3</td>
+<td>443</td>
+<td>ESTABLISHED</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>If there’re 2 devices connected to the same target, we need to add <strong><em>another layer</em></strong> to avoid conflict:</p>
+<table>
+<thead>
+<tr>
+<th>Internal IP</th>
+<th>Internal Port</th>
+<th>External IP</th>
+<th>External Port</th>
+<th>Target IP</th>
+<th>Target Port</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.31.100</td>
+<td>54321</td>
+<td>203.0.113.2</td>
+<td>50001</td>
+<td>140.82.113.3</td>
+<td>443</td>
+<td>ESTABLISHED</td>
+</tr>
+<tr>
+<td>192.168.33.100</td>
+<td>54321</td>
+<td>203.0.113.2</td>
+<td>50002</td>
+<td>140.82.113.3</td>
+<td>443</td>
+<td>ESTABLISHED</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
 
                 
               </div>
@@ -514,7 +659,7 @@ ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audi
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>January 17, 2025</div>
+          <div>January 24, 2025</div>
         </div>
       
       
