@@ -249,13 +249,6 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/tags/Golang/</loc>
-    <lastmod>2025-01-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://kayce.world/tags/%E8%B4%A7%E5%B8%81/</loc>
     <lastmod>2025-01-26</lastmod>
     <changefreq>weekly</changefreq>
@@ -264,6 +257,13 @@
   
   <url>
     <loc>https://kayce.world/tags/Marx/</loc>
+    <lastmod>2025-01-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Golang/</loc>
     <lastmod>2025-01-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

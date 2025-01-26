@@ -407,22 +407,22 @@ m / n,&amp; \text{if } n &lt; m, \text{and the last n gets smaller}: n-m \bmod n
 <p>The “real” differences / considerations are:</p>
 <ul>
 <li>
-<p>user-friendliness<br>
+<p><strong>user-friendliness</strong><br>
 No schema means less work, but it also means less control. Do you really need it? – Think about this question.<br>
 What’s more, MongoDB also provides a collection of friendly APIs, which makes it easier to use.</p>
 </li>
 <li>
-<p>scalability<br>
+<p><strong>scalability</strong><br>
 MongoDB provides both <strong><em>sharded cluster</em></strong> and <strong><em>replica set</em></strong> to scale horizontally and vertically, while MySQL doesn’t.</p>
 </li>
 <li>
-<p>performance<br>
+<p><strong>performance</strong><br>
 Like we’ve mentioned above, this is usually not the primary factor cuz it’s really difficult to assessing two completely different database systems.<br>
 For example, MySQL is optmized for <code>join</code> tables that have been appropriately indexed, while MongoDB uses <code>$lookup</code> to achieve this function - which is slower.<br>
 However, <code>join</code> is not how Mongo Doc tend to be used - why don’t you merge those collections into the same one to make it simple and compact?</p>
 </li>
 <li>
-<p>dev experience<br>
+<p><strong>dev experience</strong><br>
 <u>You do not need to exec any DDL with MongoDB.</u><br>
 You do not need ORM with MongoDB.</p>
 </li>
@@ -430,15 +430,15 @@ You do not need ORM with MongoDB.</p>
 <p>And here’re some frequently asked questions within the community:</p>
 <ol>
 <li>
-<p>Does MongoDB faster than MySQL?<br>
+<p><em><strong>Does MongoDB faster than MySQL?</strong></em><br>
 Hard to explain and assess, cuz you can always choose to denormalize the tables when using MySQL. Generally speaking, query a single collection from MongoDB is faster than using <code>join</code> with MySQL.</p>
 </li>
 <li>
-<p>Does MongoDB support ACID Tx?<br>
+<p><em><strong>Does MongoDB support ACID Tx?</strong></em><br>
 Yes, and it makes MongoDB even more user-friendly.</p>
 </li>
 <li>
-<p>Does MySQL support JSON docs?<br>
+<p><em><strong>Does MySQL support JSON docs?</strong></em><br>
 Yes, but still, it’s not as good as MySQL’s BSON. Cuz MySQL’s approach can detract from developer productivity, consider the following:</p>
 <ul>
 <li>You’ll have to spend time on learning the MySQL-specific SQL functions to access documents - not user-friendly enough.</li>
