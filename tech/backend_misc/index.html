@@ -318,7 +318,7 @@
             <p>WIP FOREVER!</p>
           </div>
 <div class="note note-secondary">
-            <p><strong>problems</strong> I encountered + <strong>solutions</strong> I found =&gt; <strong>knowledges</strong> I learned.</p>
+            <p><strong>problems</strong> I encountered(wondered) + <strong>solutions</strong> I found =&gt; <strong>knowledges</strong> I learned.</p>
           </div>
 <h2 id="Database">Database</h2>
 <h3 id="Core-types">Core types</h3>
@@ -328,6 +328,34 @@
 <li>LSM Tree</li>
 <li>Hash</li>
 </ul>
+<p>Comparison:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Benifits</th>
+<th>Downsides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hash</td>
+<td>Super fast</td>
+<td>No range queries;<br>keys need to fit in memory</td>
+</tr>
+<tr>
+<td>B / B+ Tree</td>
+<td>Fast range-queries;<br>Number of keys not limited by memory</td>
+<td>Slow write to btree on disk</td>
+</tr>
+<tr>
+<td>LSM Tree</td>
+<td>Number of keys not limited by memory;<br>Write faster than B tree and slower than Hash;<br>Support range-queries but slower than B tree</td>
+<td>Extra CPU cost for Compaction</td>
+</tr>
+</tbody>
+</table>
+<p>Check this video for more details: <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ciGAVER_erw">LSM Tree + SSTable</a></p>
 <hr>
 <h3 id="Transactions">Transactions</h3>
 <h4 id="Optimistic-and-pessimistic-Txs-like-TiDB">Optimistic and pessimistic Txs(like TiDB)</h4>
