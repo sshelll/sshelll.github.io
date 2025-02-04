@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOREVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-01-19T10:20:00.000Z">
-<meta property="article:modified_time" content="2025-01-19T10:20:00.000Z">
+<meta property="article:modified_time" content="2025-02-04T15:00:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -301,6 +301,14 @@
           <article class="post-content mx-auto">
             <h1 id="seo-header">Scenario Misc</h1>
             
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    Last updated on February 4, 2025 pm
+                  
+                
+              </p>
+            
             
               <div class="markdown-body">
                 
@@ -367,6 +375,10 @@
 </ol>
 <p><u>消息表是另外一种思路：</u></p>
 <p>也就是将事务落库 N 张表，修改为事务落库 1（主表） + 1（消息表）张表。然后异步处理的逻辑基于消息表进行，这样能以一种比较简单的方式实现一致性，但是也会造成一定延迟问题。</p>
+<h2 id="读写分离">读写分离</h2>
+<p>这个思想很简单，无非就是读接口和写接口部署在不同的服务上，从而降低单台服务器的压力，并且一般来说读接口是无状态的（数据单纯来源于数据库等持久化组件），所以可以对读服务进行水平扩容，最终压力给到 DB。</p>
+<p>一般来说这个架构适合于<strong>读多写少</strong>的场景，采用写单点+读水平扩展的架构可以应付绝大部分情况。</p>
+<p>如果写服务的压力过大，一般使用分片的方式进行拆分（注意和扩容的区别），比如我们之前在加密货币交易所的账户系统中基本就是采用这个架构进行支撑，简单来说就是线上的 100K+ 用户被分配到 42 个分片上进行处理，每个分片大约处理 3~5000 个用户的请求，即使一个分片出现问题也不会影响整体的用户。基于这个思路还可以对数据库也进行分库分表，比如每个分片的用户使用不同的数据库表甚至是 database 进行存储，和写服务一一对应，当然实际情况不一定需要我们这么做。</p>
 
                 
               </div>
@@ -430,6 +442,11 @@
           <div>January 19, 2025</div>
         </div>
       
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Updated on</div>
+          <div>February 4, 2025</div>
+        </div>
       
       
         <div class="license-meta-item">
