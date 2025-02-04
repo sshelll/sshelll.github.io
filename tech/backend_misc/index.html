@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2025-02-02T07:03:00.000Z">
+<meta property="article:modified_time" content="2025-02-04T06:55:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 2, 2025 pm
+                    Last updated on February 4, 2025 pm
                   
                 
               </p>
@@ -396,6 +396,73 @@
 <div class="note note-primary">
             <p>The applicable cases are:</p><ul><li>rows are not too many</li><li>the inner table has proper indexes</li></ul><p>Time complexity: <code>O(n * m)</code>, where <code>n</code> is the number of rows in <code>TableA</code> and <code>m</code> is the number of rows in <code>TableB</code>.<br>With index: <code>O(n * log(m))</code>, if the index provides the <code>O(log(m))</code> time complexity – like B+ Tree.</p>
           </div>
+<hr>
+<h4 id="Hash-Join">Hash Join</h4>
+<ul>
+<li>
+<p>Pseudo code:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// Build: walk the inner table to build a hash table</span>
+hash_table = HashMap::<span class="hljs-title function_ invoke__">new</span>();
+<span class="hljs-keyword">for</span> <span class="hljs-variable">rowB</span> <span class="hljs-keyword">in</span> TableB &#123;
+    hash_table.<span class="hljs-title function_ invoke__">insert</span>(rowB.key, rowB);
+&#125;
+
+<span class="hljs-comment">// Probe: walk the outer table to find the corresponding rows</span>
+<span class="hljs-keyword">for</span> <span class="hljs-variable">rowA</span> <span class="hljs-keyword">in</span> TableA &#123;
+    <span class="hljs-keyword">if</span> hash_table.<span class="hljs-title function_ invoke__">contains_key</span>(rowA.key) &#123;
+        <span class="hljs-title function_ invoke__">output</span>(rowA, hash_table[rowA.key]);
+    &#125;
+&#125;</code></pre></div>
+</li>
+</ul>
+<div class="note note-primary">
+            <p>The applicable cases are:</p><ul><li>no indexes</li><li>many rows but fit in the mem</li><li>no sorting requirements</li></ul><p>Time complexity: <code>O(n)</code> for building hash table, <code>O(m)</code> for probing, thus the total time complexity is <code>O(n + m)</code> which is faster than <code>Nested Loop Join</code>.</p>
+          </div>
+<h4 id="Merged-Join">Merged Join</h4>
+<ul>
+<li>
+<p>Pseudo code:</p>
+<div class="code-wrapper"><pre><code class="hljs rust">iterA = TableA.<span class="hljs-title function_ invoke__">iterator</span>();
+iterB = TableB.<span class="hljs-title function_ invoke__">iterator</span>();
+rowA = iterA.<span class="hljs-title function_ invoke__">next</span>();
+rowB = iterB.<span class="hljs-title function_ invoke__">next</span>();
+
+<span class="hljs-keyword">while</span> rowA and rowB &#123;
+    <span class="hljs-keyword">if</span> rowA.key == rowB.key &#123;
+        <span class="hljs-title function_ invoke__">output</span>(rowA, rowB);
+        rowA = iterA.<span class="hljs-title function_ invoke__">next</span>();
+        rowB = iterB.<span class="hljs-title function_ invoke__">next</span>();
+    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rowA.key &lt; rowB.key &#123;
+        rowA = iterA.<span class="hljs-title function_ invoke__">next</span>();
+    &#125; <span class="hljs-keyword">else</span> &#123;
+        rowB = iterB.<span class="hljs-title function_ invoke__">next</span>();
+    &#125;
+&#125;</code></pre></div>
+</li>
+</ul>
+<div class="note note-primary">
+            <p>The applicable cases are:</p><ul><li>both tables are sorted</li><li>need sorting</li><li>range query</li></ul><p>Time complexity: <code>O(n + m)</code>.</p>
+          </div>
+<hr>
+<h4 id="Another-example">Another example</h4>
+<p>SQL:</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">user</span>
+<span class="hljs-keyword">JOIN</span> avatar <span class="hljs-keyword">ON</span> user.user_id <span class="hljs-operator">=</span> avatar.user_id
+<span class="hljs-keyword">WHERE</span> user.user_id <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;</code></pre></div>
+<p>If we have the <code>user_id_idx</code> on both tables, the exec process should be like:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">for</span> <span class="hljs-variable">rowA</span> <span class="hljs-keyword">in</span> (SELECT * FROM user WHERE user_id = <span class="hljs-number">1</span>) &#123;
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">rowB</span> <span class="hljs-keyword">in</span> (SELECT * FROM avatar WHERE user_id = rowA.user_id) &#123;
+        <span class="hljs-title function_ invoke__">output</span>(rowA, rowB);
+    &#125;
+&#125;</code></pre></div>
+<p>If not, the process is like:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">for</span> <span class="hljs-variable">rowA</span> <span class="hljs-keyword">in</span> (SELECT * FROM user WHERE user_id = <span class="hljs-number">1</span>) &#123;
+    <span class="hljs-keyword">for</span> <span class="hljs-variable">rowB</span> <span class="hljs-keyword">in</span> (SELECT * FROM avatar) &#123; <span class="hljs-comment">// PERF: scan all the table</span>
+        <span class="hljs-keyword">if</span> rowA.user_id == rowB.user_id &#123;
+            <span class="hljs-title function_ invoke__">output</span>(rowA, rowB);
+        &#125;
+    &#125;
+&#125;</code></pre></div>
 <hr>
 <h3 id="PostgreSQL">PostgreSQL</h3>
 <h4 id="Conditional-Index">Conditional Index</h4>
@@ -857,7 +924,7 @@ C - Switch2 - D</code></pre></div>
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 2, 2025</div>
+          <div>February 4, 2025</div>
         </div>
       
       
