@@ -352,7 +352,7 @@
 <p><img src="/img/kafka-go/simple.png" srcset="/img/loading.gif" lazyload alt="一次消费一条消息"></p>
 <p>当消费成功时直接提交；当消费失败时，根据需要进行无限重试，或是直接丢弃（提交 commit 请求视为成功）。</p>
 <p>为什么我们一定要阻塞在某一条消息的处理上，为什么不能使用一个 <code>sync.WaitGroup</code> 来进行一定程度的并发呢？</p>
-<p>因为对于 Kafka 而言，它的提交行为是不区分 <code>ACK </code> / <code> NACK</code> 的，它的 commit 请求中只包含一个 <code>offset</code> 参数来标识当前消费者的消费进度。与此同时，kafka-go sdk 又在内存中将消息缓存到 chan 中，当我开启若干个协程调用 FetchMessage 方法时，获取到的消息是完全不同的。也就是说，当我开启三个协程处理三条消息时，可能分别在处理 offset = <code>1</code> / <code>2</code> / <code>3</code> 的 3 条消息，当 1 和 2 处理失败但 3 处理成功时，一旦将 3 commit 到 Kafka 中，1 和 2 就永久的丢失了（再也不会被消费了）。</p>
+<p>因为对于 Kafka 而言，它的提交行为是不区分 <code>ACK</code> / <code>NACK</code> 的，它的 commit 请求中只包含一个 <code>offset</code> 参数来标识当前消费者的消费进度。与此同时，kafka-go sdk 又在内存中将消息缓存到 chan 中，当我开启若干个协程调用 FetchMessage 方法时，获取到的消息是完全不同的。也就是说，当我开启三个协程处理三条消息时，可能分别在处理 offset = <code>1</code> / <code>2</code> / <code>3</code> 的 3 条消息，当 1 和 2 处理失败但 3 处理成功时，一旦将 3 commit 到 Kafka 中，1 和 2 就永久的丢失了（再也不会被消费了）。</p>
 <p>这种模型虽然很简单，但也十分低效，适合的场景也非常有限，举几个实际的例子：</p>
 <ol>
 <li>新增 / 注销账号产生的消息。类似的场景下消息产生的 QPS 很可能 &lt; 1，因此使用该模型并不会造成性能瓶颈，反而在一定程度上可以提升开发效率。</li>
