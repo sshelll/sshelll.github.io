@@ -357,6 +357,64 @@
 </table>
 <p>Check this video for more details: <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ciGAVER_erw">LSM Tree + SSTable</a></p>
 <hr>
+<h3 id="LSM-Tree">LSM-Tree</h3>
+<p><strong>Core primitives:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs text">
+                                          ┌───────┐ ┌───────┐
+                                      ┌──►│SSTable├►│SSTable│ ... L0
+┌───────────┐   ┌───────────────────┐ │   └───┬───┘ └───────┘
+│ MemTable  ├──►│ ImmutableMemTable ├─┘   ┌───┴───┐ ┌───────┐
+└───────────┘   └───────────────────┘     │SSTable├►│SSTable│ ... L1+
+                                          └───┬───┘ └───────┘
+                                          ┌───┴───┐ ┌───────┐
+                                          │SSTable├►│SSTable│ ... L1+
+                                          └───────┘ └───────┘
+</code></pre></div>
+<p><strong>Writing:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs text">
+ disk
+┌───┐     ┌────────┐
+│WAL├────►│MemTable│
+└───┘     └──┬─────┘
+             │
+             │ if data is too much
+      ┌──────┴─────────────────┐
+ ┌────┴────────────┐    ┌──────┴─────┐
+ │ImmutableMemTable│    │New MemTable│
+ └───────┬─────────┘    └────────────┘
+         │
+         │ inorder traversal the tree
+         │
+     ┌───┴───┐
+     │SSTable│ disk L0
+     └───┬───┘
+         │ compaction
+     ┌───┴───┐
+     │SSTable│ disk L1
+     └───────┘
+</code></pre></div>
+<p><strong>Querying:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs text">
+     ┌────────┐
+     │MemTable│ mem query
+     └────┬───┘
+          │
+  ┌───────┴─────────┐
+  │ImmutableMemTable│  mem query
+  └───┬─────────────┘
+      │
+      ├─────────────────┐
+┌─────┴──────┐    ┌─────┴──────┐
+│Bloom Filter│    │Bloom Filter│  use bloom filter to check if the target exists in the file
+│------------│    │------------│
+│  SSTable   │    │  SSTable   │  L0, the SSTables might intersect, so we have to check each of &#x27;em
+└─────┬──────┘    └────────────┘
+      │
+┌─────┴──────┐    ┌────────────┐
+│  SSTable   │    │  SSTable   │  L1+, the SSTables aren&#x27;t intersected, so we can use a binary search to get the target file
+└────────────┘    └────────────┘
+     ...
+</code></pre></div>
 <h3 id="Transactions">Transactions</h3>
 <h4 id="Optimistic-and-pessimistic-Txs-like-TiDB">Optimistic and pessimistic Txs(like TiDB)</h4>
 <ul>
