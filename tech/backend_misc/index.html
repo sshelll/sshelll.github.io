@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2025-02-05T08:32:00.000Z">
+<meta property="article:modified_time" content="2025-02-07T09:10:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 5, 2025 pm
+                    Last updated on February 7, 2025 pm
                   
                 
               </p>
@@ -594,7 +594,10 @@ You do not need ORM with MongoDB.</p>
 <ol>
 <li>
 <p><strong><em>Does MongoDB faster than MySQL?</em></strong><br>
-Hard to explain and assess, cuz you can always choose to denormalize the tables when using MySQL. Generally speaking, query a single collection from MongoDB is faster than using <code>join</code> with MySQL.</p>
+Hard to explain and assess, cuz you can always choose to denormalize the tables when using MySQL, and anohter consideration is how you query the data.</p>
+<div class="note note-info">
+            <ul><li><p>Generally speaking, <u><em>querying a single doc</em></u> from MongoDB is faster than using <code>join</code> with MySQL.</p><blockquote><p>It’s easy to understand, join cross a lot of tables and it’s slow, while MongoDB stores the doc in a single collection.</p></blockquote></li><li><p><u><em>Querying a single document</em></u> from MongoDB is <strong><em>theoretically</em></strong> faster than querying a single row from MySQL in theory when <u>using secondary indexes and the queried columns are not covered by the indexes</u>.</p><blockquote><p>Be aware of that’s only ‘in theory’, the reason is MongoDB stores the disk pointer at the leaf nodes, while MySQL stores the primary key at the leaf nodes, thus MySQL has to do an extra lookup on the clustered index.</p></blockquote></li><li><p><u><em>Range query docs</em></u> from MongoDB is <strong><em>theoretically</em></strong> slower than range query rows from MySQL.</p><blockquote><p>The reason is the same as above, MySQL can use the clustered index to get the rows directly, while MongoDB has to do an extra lookup on the disk.</p></blockquote></li></ul><p>However, the real world is more complex, and the performance of the database is not just about the query speed. For example, the <code>join</code> in MySQL is slow, but it’s not a big deal if you have a small dataset.</p>
+          </div>
 </li>
 <li>
 <p><strong><em>Does MongoDB support ACID Tx?</em></strong><br>
@@ -615,6 +618,19 @@ Yes, but still, it’s not as good as MySQL’s BSON. Cuz MySQL’s approach can
 <h2 id="Rust">Rust</h2>
 <h3 id="Cross-Compile">Cross Compile</h3>
 <p>See this blog: <a href="https://kayce.world/tech/rust_cross_compile_on_osx/">Rust Cross Compile on OSX</a></p>
+<h2 id="Neovim">Neovim</h2>
+<p>Check my NeoVim configuration <a target="_blank" rel="noopener" href="https://github.com/sshelll/dotconfigs/tree/master/nvim">here</a>.</p>
+<h3 id="Lua-snippet">Lua snippet</h3>
+<div class="code-wrapper"><pre><code class="hljs lua"><span class="hljs-comment">-- print debug info to another buf</span>
+vim.cmd(<span class="hljs-string">&quot;new&quot;</span>)
+<span class="hljs-keyword">local</span> buf = vim.api.nvim_get_current_buf()
+vim.api.nvim_buf_set_lines(buf, <span class="hljs-number">0</span>, <span class="hljs-number">-1</span>, <span class="hljs-literal">false</span>, vim.split(vim.inspect(your_own_target), <span class="hljs-string">&quot;\n&quot;</span>))
+
+<span class="hljs-keyword">local</span> buf = vim.api.nvim_create_buf(<span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>)
+vim.api.nvim_buf_set_lines(buf, <span class="hljs-number">0</span>, <span class="hljs-number">-1</span>, <span class="hljs-literal">false</span>, result)
+vim.api.nvim_buf_set_option(buf, <span class="hljs-string">&quot;modifiable&quot;</span>, ext_opt.display_with_buf.modifiable) <span class="hljs-comment">-- deprecated</span>
+vim.api.nvim_set_option_value(<span class="hljs-string">&quot;modifiable&quot;</span>, ext_opt.display_with_buf.modifiable, &#123; buf = buf &#125;)
+vim.cmd(<span class="hljs-string">&#x27;botright &#x27;</span> .. ext_opt.display_with_buf.height .. <span class="hljs-string">&#x27; split | &#x27;</span> .. buf .. <span class="hljs-string">&#x27;buffer&#x27;</span>)</code></pre></div>
 <h2 id="Common">Common</h2>
 <h3 id="Max-open-files-limit">Max open files limit</h3>
 <p>One day I found that the <code>max open files limit</code> of my server was set to <code>1024</code>:</p>
@@ -671,10 +687,9 @@ xld -o ~/Downloads song.flac -f alac
 gpg --full-generate-key
 gpg --list-secret-keys --keyid-format=long
 gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)</code></pre></div>
-<hr>
-<h3 id="Simple-Math">Simple Math</h3>
+<h2 id="Simple-Math">Simple Math</h2>
 <p>I’ve been doing some practicing(kata) on Codewars, and I’ve noticed that there’re some frequently used math tricks / formulas.</p>
-<h4 id="GCD-LCM">GCD / LCM</h4>
+<h3 id="GCD-LCM">GCD / LCM</h3>
 <div class="code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// gcd(a, b) = gcd(b, a % b)</span>
 <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gcd</span><span class="hljs-params">(a, b *big.Int)</span></span> *big.Int &#123;
 	<span class="hljs-keyword">for</span> b.Cmp(big.NewInt(<span class="hljs-number">0</span>)) != <span class="hljs-number">0</span> &#123;
@@ -688,7 +703,7 @@ gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)<
 	<span class="hljs-keyword">return</span> <span class="hljs-built_in">new</span>(big.Int).Div(<span class="hljs-built_in">new</span>(big.Int).Mul(a, b), gcd(a, b))
 &#125;</code></pre></div>
 <hr>
-<h4 id="Prime">Prime</h4>
+<h3 id="Prime">Prime</h3>
 <div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-comment">// gen prime of [0, m]</span>
 <span class="hljs-keyword">fn</span> <span class="hljs-title function_">gen_prime</span>(m: <span class="hljs-type">u64</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Vec</span>&lt;<span class="hljs-type">u64</span>&gt; &#123;
     <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">primes</span> = <span class="hljs-built_in">vec!</span>[<span class="hljs-number">2</span>];
@@ -731,7 +746,7 @@ gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)<
     factors
 &#125;</code></pre></div>
 <hr>
-<h4 id="Bit-Op">Bit Op</h4>
+<h3 id="Bit-Op">Bit Op</h3>
 <ul>
 <li>xor</li>
 </ul>
@@ -758,7 +773,7 @@ gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)<
     data.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">fold</span>(<span class="hljs-number">0</span>, |acc, &amp;x| acc ^ x)
 &#125;</code></pre></div>
 <hr>
-<h4 id="Which-x-for-that-sum">Which x for that sum?</h4>
+<h3 id="Which-x-for-that-sum">Which x for that sum?</h3>
 <p>This is a Codewars kata, you can find it <a target="_blank" rel="noopener" href="https://www.codewars.com/kata/5b1cd19fcd206af728000056">here</a>.</p>
 <p>Actually this isn’t that ‘simple’… Cuz I almost forgot those math fundamentals. <strong>And thanks to the ChatGPT which helped me solve this kata!!! (•`_´•)!!!</strong></p>
 <p>Consider we have a sum of the num sequence below:</p>
@@ -1029,7 +1044,7 @@ C - Switch2 - D</code></pre></div>
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 5, 2025</div>
+          <div>February 7, 2025</div>
         </div>
       
       
