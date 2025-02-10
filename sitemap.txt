@@ -1,4 +1,5 @@
 https://kayce.world/tech/backend_misc/
+https://kayce.world/tech/high_perf_kafka_consumer/
 https://kayce.world/tech/scenario_misc/
 https://kayce.world/tech/rust_atomics_and_locks/
 https://kayce.world/tech/rule_based_auth_sys/
@@ -8,7 +9,6 @@ https://kayce.world/chores/network_topology_at_home/
 https://kayce.world/tech/recur_to_iter/
 https://kayce.world/about/index.html
 https://kayce.world/music/index.html
-https://kayce.world/tech/high_perf_kafka_consumer/
 https://kayce.world/music-2024/index.html
 https://kayce.world/resume/index.html
 https://kayce.world/chores/double_entry_bookkeeping/
