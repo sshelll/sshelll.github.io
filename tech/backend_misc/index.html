@@ -574,6 +574,71 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
             <p>The lock is a little bit different, cuz we usually use locks to gurantee the resources are modified correctly.</p><p>E.g. if we try to deduct the inventory of a item:<br>using a optimistic lock is like: <code>update item set amount = amount - 1 where amount &gt; 0 and id = 1</code>, and then we check whether the rows affected is <code>1</code>;<br>while using a pessimistic lock is like <code>BEGIN; select amount of item where id = 1; check the amount and do sth; COMMIT;</code></p>
           </div>
 <hr>
+<h3 id="MVCC">MVCC</h3>
+<p>MVCC (Multi-Version Concurrency Control) is a solution designed to address transaction management challenges in concurrent environments, allowing for consistent reads and writes without locking.</p>
+<p>Therefore, MVCC is <u>tightly coupled with transactions</u> and is typically a requirement in <u>relational databases</u> to ensure data consistency and concurrency control.</p>
+<p>Different dbs have different approaches, and I don’t intend to go into detail on each of them. Instead, let’s focus on the core ideas:</p>
+<p>Since there’re multi txs trying to perform r/w ops to a same line at the same time(before they ‘COMMIT’), <u>a single row might have several different versions</u>. And when a tx tries to read a row, it’ll try its best to read the latest version.</p>
+<p>To achieve the target, there’re 2 things to be done:</p>
+<ul>
+<li>Determine which version is the ‘latest’ - so I can read it exactly(neither the outdated data nor the uncommitted data).</li>
+<li>And to determine it, we need to know the order of the txs.</li>
+</ul>
+<p><u>Keeping the global tx order is easy, all we need to do is using a serial adder to generate the tx id.</u></p>
+<p>With the tx id, the row might look like this:</p>
+<div class="code-wrapper"><pre><code class="hljs text">              ┌────────────────────┐
+          ┌──►│ id=1 | data | tx_0 │
+          │   └────────────────────┘
+          └─────────────────────┐
+         ┌────────────────────┐ │
+       ┌►│ id=1 | data | tx_1 ├─┘
+       │ └────────────────────┘
+       └───────────────────┐
+    ┌────────────────────┐ │
+    │ id=1 | data | tx_2 ├─┘
+    └────────────────────┘
+
+All of these versions of data can be read</code></pre></div>
+<p>Don’t worry about the disk usage, thoese copies will be cleaned up after the tx is committed by a daemon thread / task asynchronously.</p>
+<p>Now, we can easily get the below information when we’re creating a READ VIEW:</p>
+<ul>
+<li>current active txs
+<ul>
+<li>the minimal tx_id indicates the oldest active tx</li>
+<li>the maximum tx_id indicates the newest active tx</li>
+</ul>
+</li>
+</ul>
+<p>Finally, we can determine whether a specific version of row can be read with the following steps:</p>
+<div class="code-wrapper"><pre><code class="hljs rust">
+<span class="hljs-comment">// cur_v is the version of the row we&#x27;re trying to access</span>
+<span class="hljs-comment">// min_id, max_id, my_id are literal meanings</span>
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">can_read</span>(cur_v: <span class="hljs-type">i32</span>, active_tx_ids: &amp;[<span class="hljs-type">i32</span>], min_id: <span class="hljs-type">i32</span>, max_id: <span class="hljs-type">i32</span>, my_id: <span class="hljs-type">i32</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">bool</span> &#123;
+    <span class="hljs-comment">// current version is old enough</span>
+    <span class="hljs-keyword">if</span> cur_v &lt; min_id &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+
+    <span class="hljs-comment">// current version is created by me</span>
+    <span class="hljs-keyword">if</span> cur_v == my_id &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+
+    <span class="hljs-comment">// current version is newer than the newest active tx</span>
+    <span class="hljs-keyword">if</span> cur_v &gt; max_id &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    &#125;
+
+    <span class="hljs-comment">// if not contains, that means the cur_v was committed before the read view is created</span>
+    <span class="hljs-comment">// otherwise it means the cur_v is still active and uncommitted</span>
+    active_tx_ids.<span class="hljs-title function_ invoke__">contains</span>(&amp;cur_v)
+&#125;</code></pre></div>
+<p>Moreover, we can achieve different <strong>isolation levels</strong> by adjusting the timing of READ VIEW creation:</p>
+<ul>
+<li>If we create a READ VIEW before starting a tx and keep it until the transaction completes, we achieve Repeatable Read (RR) isolation, as the view remains unchanged throughout the transaction’s lifetime.</li>
+<li>If we create a READ VIEW before each query within a transaction, we achieve Read Committed (RC) isolation, as each view may differ, but the data read is always committed.</li>
+</ul>
+<hr>
 <h3 id="Join">Join</h3>
 <h4 id="Nested-Loop-Join">Nested Loop Join</h4>
 <ul>
@@ -759,8 +824,8 @@ Time: 0.262s</code></pre></div>
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8304em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.7936em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">qp</span><span class="mord mathnormal">s</span><span class="mclose">)</span></span></span></span></span></p>
 <p>What will happen if the QPS exceeds the limit? - The connection pool will be exhausted.</p>
 <p>Let’s say that <code>q &gt; n/t</code>, then we have:</p>
-<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Extra Reqs</mtext><mo>=</mo><mi>m</mi><mo>=</mo><mi>q</mi><mo>−</mo><mfrac><mi>n</mi><mi>t</mi></mfrac><mspace linebreak="newline"></mspace></mrow><annotation encoding="application/x-tex">\text{Extra Reqs} = m = q - \frac{n}{t}\\
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Extra Reqs</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.7936em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span><span class="mspace newline"></span></span></span></span></p>
+<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Extra Reqs</mtext><mo>=</mo><mi>m</mi><mo>=</mo><mi>q</mi><mo>−</mo><mfrac><mi>n</mi><mi>t</mi></mfrac></mrow><annotation encoding="application/x-tex">\text{Extra Reqs} = m = q - \frac{n}{t}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Extra Reqs</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.7936em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
 <p>These requests will be queued and wait for the connection to be available.</p>
 <p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>delay rounds</mtext><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>n</mi><mo>≥</mo><mi>m</mi><mo separator="true">,</mo><mtext>but the next n gets smaller</mtext><mo>:</mo><mi>n</mi><mo>−</mo><mi>m</mi></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>m</mi><mi mathvariant="normal">/</mi><mi>n</mi><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><mi>n</mi><mo>&lt;</mo><mi>m</mi><mo separator="true">,</mo><mtext>and the last n gets smaller</mtext><mo>:</mo><mi>n</mi><mo>−</mo><mi>m</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>n</mi></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{delay rounds} =
 \begin{cases}
