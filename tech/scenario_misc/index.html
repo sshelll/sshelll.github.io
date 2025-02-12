@@ -26,12 +26,14 @@
 <meta property="og:site_name" content="kayce">
 <meta property="og:description" content="WIP FOREVER">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
 <meta property="article:published_time" content="2025-01-19T10:20:00.000Z">
-<meta property="article:modified_time" content="2025-02-04T15:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-12T16:30:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -304,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 4, 2025 pm
+                    Last updated on February 13, 2025 am
                   
                 
               </p>
@@ -379,6 +381,108 @@
 <p>这个思想很简单，无非就是读接口和写接口部署在不同的服务上，从而降低单台服务器的压力，并且一般来说读接口是无状态的（数据单纯来源于数据库等持久化组件），所以可以对读服务进行水平扩容，最终压力给到 DB。</p>
 <p>一般来说这个架构适合于<strong>读多写少</strong>的场景，采用写单点+读水平扩展的架构可以应付绝大部分情况。</p>
 <p>如果写服务的压力过大，一般使用分片的方式进行拆分（注意和扩容的区别），比如我们之前在加密货币交易所的账户系统中基本就是采用这个架构进行支撑，简单来说就是线上的 100K+ 用户被分配到 42 个分片上进行处理，每个分片大约处理 3~5000 个用户的请求，即使一个分片出现问题也不会影响整体的用户。基于这个思路还可以对数据库也进行分库分表，比如每个分片的用户使用不同的数据库表甚至是 database 进行存储，和写服务一一对应，当然实际情况不一定需要我们这么做。</p>
+<h2 id="1-n-的推送问题">1 -&gt; n 的推送问题</h2>
+<p>典型的业务场景：</p>
+<ul>
+<li>直播中，主播的音视频数据需要被 N 个观众订阅</li>
+<li>交易所中，某个交易对的 depth 数据需要被用户实时查看到</li>
+</ul>
+<p>假如我们采用简单的循环 push 方案，显然当 N 变大时性能会急剧下降，其原因包括但不限于：</p>
+<ul>
+<li>服务端需要维护的连接过多，N 个</li>
+<li>网络带宽受限，原始数据包上传时占用的带宽为 1，则下放时会写扩散为 N</li>
+</ul>
+<p>针对这个问题上述的两个业务场景的解决方案不太一样，但是本质上还是从以下几个方面着手：</p>
+<ul>
+<li>减小报文体积</li>
+<li>降低推送频次</li>
+<li>分片处理下游</li>
+</ul>
+<p>其中前两点主要依赖应用层实现，比如选用 HLS / HTTP-FLV / WebRTC 等协议和对应的 SDK，推送频次则根据具体的业务要求和 tolerance 进行调优。</p>
+<p>分片的逻辑对于直播场景来说，一般是借助 CDN 来处理：</p>
+<div class="code-wrapper"><pre><code class="hljs text">        ┌──────────┐
+        │ streamer │
+        └─────┬────┘
+              │
+              │
+       ┌──────┴──────┐
+       │  CDN Entry  │
+       └──────┬──────┘
+              │
+   ┌──────────┴──────────┐
+   ▼                     ▼
+┌───────────┐     ┌───────────┐
+│ CDN EdgeA │ ... │ CDN EdgeN │
+└───────────┘     └───────────┘
+      ▲                ▲
+      │                │
+ 观众拉流1          观众拉流N</code></pre></div>
+<p>对于交易所的 depth 订阅场景而言，则稍微复杂一些：</p>
+<ol>
+<li>一般选用增量 + 全量结合的方式进行数据推送，下游需要自行构建维护好不同档位的 depth，这样有助于减少报文体积</li>
+<li>推送的频次适当降低，比如我们可以 wait 200ms 的窗口的数据整合后进行推送</li>
+<li>分片的逻辑一般不会采用 CDN 架构，因为 CDN 更适合 PULL 模式而不是 PUSH</li>
+</ol>
+<div class="code-wrapper"><pre><code class="hljs text">     ┌──────────────┐
+     │ Match Engine │
+     └──────┬───────┘
+            │
+┌───────────┴──────────────┐
+│ MQ (Kafka / Redis / ...) │
+└───────────┬──────────────┘
+            │
+  ┌─────────┴───────────┐
+  │   WebSocket Fanout  │
+  └─────────┬───────────┘
+            │
+       ┌────┴───┐
+       │ Client │
+       └────────┘</code></pre></div>
+<p>对于不同的 Symbol, 肯定推出来是分不同的 partition 甚至 topic 的，常见的策略是：大币独占，小币适当合并。</p>
+<p>对于 Fan-out 层，要做的事情其实就是订阅 MQ 处理后推送给客户端。不难看出这里是可以轻松的进行水平扩容的 —— Fan-out 和 Client 之间显然会有一个 LB。</p>
+<h2 id="分布式事务">分布式事务</h2>
+<p>网络上资料比较多，我看到很多文章都会写&quot;7 种分布式事务的原理&quot;，这里不重复做原理和术语的介绍，主要看一下实际业务场景中的落地方式。事务原理本身并不复杂，实际业务中全部套用教条的模板往往很不灵活，大部分场景下我们完全可以使用更简单的方式进行快速实现，当然前提是逻辑必须闭环。</p>
+<p>个人认为，不论是 TCC 还是 SAGA 的模式，都离不开一点：事务的恢复。</p>
+<p>具体来说，假设事务执行中发生了重启 —— 最常见的也最不可避免的就是发版，这个事务如何恢复现场继续处理。</p>
+<p>基于这个思路，就能衍生出很多类似于业内最佳实践的方案：一般来说，实现的内核无非就是基于事务表重试 + 基于状态机幂等。</p>
+<p>当然，实际落地的时候，我们主要关注的点是在于「重试」和「幂等」，达成这两点的方式有很多种，比如我在 crypto 交易所工作期间，团队整体采用的方式就是基于 Kafka 的 EventSourcing 架构。</p>
+<p>考虑这个场景：假设购买一件商品时，用户账户的扣款和商品库存的扣减需要形成一个事务。</p>
+<p>基于任务表和状态机的方案如下：</p>
+<div class="code-wrapper"><pre><code class="hljs text">Task: [task_id, status, user_id, good_id]
+
+Status: pending
+-&gt; balance_frozen
+-&gt; inventory_deducted
+-&gt; balance_transfered
+-&gt; finished</code></pre></div>
+<p>全局可以基于上面这个任务表达到最终一致性。</p>
+<p>而 TCC / SAGA 的模式下，原理其实是类似的，落地上的差异也许是这样的：</p>
+<ol>
+<li>把上面的 TASK 表以 Order 表的方式实现，全局事务的开始起源于下单。</li>
+<li>上面 STATUS 的枚举未必需要如此细致，实际场景中，可能订单服务会捎带订单 id 去账户服务进行清结算，也就是说某些状态可能是分离保存在账户/库存服务中的，事务的协调者即使不保存状态也可以通过询问的方式计算状态。</li>
+</ol>
+<p>Anyway，只要逻辑能够自洽和闭环，即便引入一些人工操作也未尝不可，实现时不必照搬教条，完全可以根据业务状况进行简化。当然，也有一些大厂开源的框架已经对这类分布式事务的逻辑进行了比较好的封装，你也可以根据实际情况进行选用，E.g. <a target="_blank" rel="noopener" href="https://github.com/dtm-labs/dtm">DTM</a>。</p>
+<blockquote>
+<p>引入一个框架一般会对编程范式有严格的要求，灵活性和开发者友好性的问题是不应该但时常是被忽视的。</p>
+</blockquote>
+<h2 id="HyperSwitch">HyperSwitch</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/juspay/hyperswitch">Github Repo</a></p>
+<p>这个东西是支付场景下一个比较有名的解决方案，对接了非常多支付厂商的接口，并且内部对支付流程做了完善的编排。它不是一个所谓的框架或者是寻常的中间件，而是一整套前后端服务本身。</p>
+<p>值得思考的是，我觉得在业内直接部署一整套不具备 Saas 属性的源码不太现实，主要原因有如下几点：</p>
+<ol>
+<li>对于小公司来说，这种完整的解决方案显得太重</li>
+<li>对于大公司来说，这种解决方案无法妥善地解决内部的特化需求，在如山的代码中适配自己公司的要求实在有些强人所难。</li>
+<li>当然还有很多上下游更新带来的兼容问题等，这里不再赘述。</li>
+</ol>
+<p>所以一般我们会以这些解决方案作为参考，而不是开箱即用。</p>
+<p>这个仓库中比较值得关注的点，就是它的架构图展示了一些现代化的存储/时序数据/数据分析的解决方案：</p>
+<p><img src="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true" srcset="/img/loading.gif" lazyload alt="arch"></p>
+<ul>
+<li>时序数据和结构化的 metrics: OpenTelemetry(数据收集) + Promethus(时序数据读写) + Grafana(可视化)。</li>
+<li>日志收集：Promtail + Loki</li>
+<li>其它埋点和事件：<a target="_blank" rel="noopener" href="https://github.com/vectordotdev/vector">Vector</a>(这个组件比较新，可视化数据管道) + Kafka(MQ) + ClickHouse(OLAP) + ES(搜索)</li>
+<li>持久化/缓存：PostgreSQL + Redis</li>
+</ul>
 
                 
               </div>
@@ -445,7 +549,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 4, 2025</div>
+          <div>February 13, 2025</div>
         </div>
       
       
