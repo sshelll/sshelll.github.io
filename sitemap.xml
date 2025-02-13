@@ -83,7 +83,7 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/music/index.html</loc>
+    <loc>https://kayce.world/about/index.html</loc>
     
     <lastmod>2024-12-24</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/about/index.html</loc>
+    <loc>https://kayce.world/music/index.html</loc>
     
     <lastmod>2024-12-24</lastmod>
     
@@ -200,6 +200,13 @@
 
   
   <url>
+    <loc>https://kayce.world/tags/Finance/</loc>
+    <lastmod>2025-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://kayce.world/tags/AWS/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -208,13 +215,6 @@
   
   <url>
     <loc>https://kayce.world/tags/Auth/</loc>
-    <lastmod>2025-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://kayce.world/tags/Finance/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -249,27 +249,6 @@
   </url>
   
   <url>
-    <loc>https://kayce.world/tags/Network/</loc>
-    <lastmod>2025-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://kayce.world/tags/Rust/</loc>
-    <lastmod>2025-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://kayce.world/tags/Golang/</loc>
-    <lastmod>2025-02-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://kayce.world/tags/%E8%B4%A7%E5%B8%81/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -284,7 +263,28 @@
   </url>
   
   <url>
+    <loc>https://kayce.world/tags/Golang/</loc>
+    <lastmod>2025-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://kayce.world/tags/Kafka/</loc>
+    <lastmod>2025-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Network/</loc>
+    <lastmod>2025-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://kayce.world/tags/Rust/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -300,14 +300,14 @@
 
   
   <url>
-    <loc>https://kayce.world/categories/tech/</loc>
+    <loc>https://kayce.world/categories/chores/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://kayce.world/categories/chores/</loc>
+    <loc>https://kayce.world/categories/tech/</loc>
     <lastmod>2025-02-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
