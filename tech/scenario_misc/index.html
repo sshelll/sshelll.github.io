@@ -26,12 +26,14 @@
 <meta property="og:site_name" content="kayce">
 <meta property="og:description" content="WIP FOREVER">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
 <meta property="article:published_time" content="2025-01-19T10:20:00.000Z">
-<meta property="article:modified_time" content="2025-02-11T06:40:00.000Z">
+<meta property="article:modified_time" content="2025-02-12T16:30:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -304,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 11, 2025 pm
+                    Last updated on February 13, 2025 am
                   
                 
               </p>
@@ -463,6 +465,24 @@ Status: pending
 <blockquote>
 <p>引入一个框架一般会对编程范式有严格的要求，灵活性和开发者友好性的问题是不应该但时常是被忽视的。</p>
 </blockquote>
+<h2 id="HyperSwitch">HyperSwitch</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/juspay/hyperswitch">Github Repo</a></p>
+<p>这个东西是支付场景下一个比较有名的解决方案，对接了非常多支付厂商的接口，并且内部对支付流程做了完善的编排。它不是一个所谓的框架或者是寻常的中间件，而是一整套前后端服务本身。</p>
+<p>值得思考的是，我觉得在业内直接部署一整套不具备 Saas 属性的源码不太现实，主要原因有如下几点：</p>
+<ol>
+<li>对于小公司来说，这种完整的解决方案显得太重</li>
+<li>对于大公司来说，这种解决方案无法妥善地解决内部的特化需求，在如山的代码中适配自己公司的要求实在有些强人所难。</li>
+<li>当然还有很多上下游更新带来的兼容问题等，这里不再赘述。</li>
+</ol>
+<p>所以一般我们会以这些解决方案作为参考，而不是开箱即用。</p>
+<p>这个仓库中比较值得关注的点，就是它的架构图展示了一些现代化的存储/时序数据/数据分析的解决方案：</p>
+<p><img src="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true" srcset="/img/loading.gif" lazyload alt="arch"></p>
+<ul>
+<li>时序数据和结构化的 metrics: OpenTelemetry(数据收集) + Promethus(时序数据读写) + Grafana(可视化)。</li>
+<li>日志收集：Promtail + Loki</li>
+<li>其它埋点和事件：<a target="_blank" rel="noopener" href="https://github.com/vectordotdev/vector">Vector</a>(这个组件比较新，可视化数据管道) + Kafka(MQ) + ClickHouse(OLAP) + ES(搜索)</li>
+<li>持久化/缓存：PostgreSQL + Redis</li>
+</ul>
 
                 
               </div>
@@ -529,7 +549,7 @@ Status: pending
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 11, 2025</div>
+          <div>February 13, 2025</div>
         </div>
       
       
