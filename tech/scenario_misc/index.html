@@ -28,7 +28,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
 <meta property="article:published_time" content="2025-01-19T10:20:00.000Z">
-<meta property="article:modified_time" content="2025-02-17T03:30:00.000Z">
+<meta property="article:modified_time" content="2025-02-17T10:44:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 17, 2025 am
+                    Last updated on February 17, 2025 pm
                   
                 
               </p>
@@ -532,6 +532,24 @@ Status: pending
 </li>
 </ol>
 <p>总的来说，这种场景下的安全问题并不是某个特定领域的特殊需求，可以用常见的或者 Hack 的方式进行简单的处理 —— 比如登陆态和鉴权这类问题，往往有通用的解决方案。而这类场景的解决方案往往是发散的，不是只存活于链路的某个点的，相对完善的解决思路一般都离不开风控的需求，然而风控（Risk Control）往往在策略（业务层面）和落地（工程层面）都是一件复杂的事情。</p>
+<h2 id="定时任务">定时任务</h2>
+<p>这个场景相对比较简单，首先我们需要明白：定时任务在软件的实现中一定是离不开轮询的，只是这个轮询本身如何做优化的问题。</p>
+<p>首先任务肯定需要持久化到数据库中，那么我们要做的肯定是要把这些任务扫描出来，然后在内存中计算后触发调度。</p>
+<p>为了提高效率，我们可以通过批量的方式扫描出未来一段时间的任务，然后在内存中以小顶堆或者其它的优先级队列的方式进行维护，根据 peek 的结果决定轮询出堆的频次。</p>
+<p>核心的原理其实就是这样了，但是有很多通用的后端思路都可以被应用在工程中进行进一步优化，以 RocketMQ 为例，它实现了不同时间单位下的延时消息，其实现原理也无非是将各个维度的延时消息进行分区，然后使用一个轮询调度器进行查询并把 ready 的消息投递出去:</p>
+<div class="code-wrapper"><pre><code class="hljs text">┌──────────┐
+│    1s    │◄──────┐
+└──────────┘       │
+     ...           │
+┌──────────┐    ┌──┴──┐    ┌─────┐
+│    5m    │◄───┤timer├───►│queue│
+└──────────┘    └──┬──┘    └─────┘
+     ...           │
+┌──────────┐       │
+│    2h    │◄──────┘
+└──────────┘</code></pre></div>
+<p>那么，在实际的定时任务服务中，我们也可以根据数据的量级，考虑是否要进行任务的分片来避免单点数据过多而导致调度不及时的问题 —— 此时还需要妥善处理任务可能被多个节点触发带来的幂等性问题等。</p>
+<p>值得一提的是，MQ 的使用场景中，天然就带有时序递增的属性，后到的消息就应该排在后面（相同队列）。而实际的定时任务系统中，我们还需要花精力去处理任务执行时间的更新和取消所带来的复杂逻辑甚至是写扩散的问题。</p>
 
                 
               </div>
