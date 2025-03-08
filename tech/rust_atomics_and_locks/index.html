@@ -27,7 +27,7 @@
 <meta property="og:description" content="(WIP) POV - Rust Atomics and Locks">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-18T08:01:50.000Z">
-<meta property="article:modified_time" content="2025-01-20T06:50:00.000Z">
+<meta property="article:modified_time" content="2025-02-27T10:20:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary_large_image">
@@ -305,7 +305,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on January 20, 2025 pm
+                    Last updated on February 27, 2025 pm
                   
                 
               </p>
@@ -1378,7 +1378,105 @@ Check this out: <a target="_blank" rel="noopener" href="https://doc.rust-lang.or
 Which indicates that you as a programmer, are responsible for keeping track of it and never reading it if it’s uninitialized</li>
 </ul>
 <hr>
-<h3 id="PhantomData-TODO">PhantomData(TODO)</h3>
+<h3 id="PhantomData">PhantomData</h3>
+<p>This is a marker for static analysis, and it’s used to tell the compiler that you’re using a type parameter in a struct for a reason other than storing a value of that type.</p>
+<p>For exmaple, sometimes we want to correlate the lifetime of a struct with the lifetime of a reference in it:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Iter</span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: <span class="hljs-symbol">&#x27;a</span>&gt; &#123;
+    ptr: *<span class="hljs-keyword">const</span> T,
+    end: *<span class="hljs-keyword">const</span> T,
+&#125;</code></pre></div>
+<p>Since the lifetime specifier is not used inside the struct, the lifetime is actually boundless, we can fix that issue with <code>PhantomData</code> like this:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::marker;
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Iter</span>&lt;<span class="hljs-symbol">&#x27;a</span>, T: <span class="hljs-symbol">&#x27;a</span>&gt; &#123;
+    ptr: *<span class="hljs-keyword">const</span> T,
+    end: *<span class="hljs-keyword">const</span> T,
+    _marker: marker::PhantomData&lt;&amp;<span class="hljs-symbol">&#x27;a</span> T&gt;,
+&#125;</code></pre></div>
+<p>Another typical usage of <code>PhantomData</code> is make a raw pointer own the data:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">use</span> std::marker:
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Vec</span>&lt;T&gt; &#123;
+    data: *<span class="hljs-keyword">const</span> T,
+    len: <span class="hljs-type">usize</span>,
+    cap: <span class="hljs-type">usize</span>,
+    _marker: marker::PhantomData&lt;T&gt;,
+&#125;</code></pre></div>
+<p>Without the <code>_marker</code>, the <code>Vec</code> will not own the data, then the data will not be dropped when the <code>Vec</code> is dropped.</p>
+<hr>
+<h2 id="Processors">Processors</h2>
+<h3 id="Quick-view-of-differences-between-RISC-and-CISC">Quick view of differences between RISC and CISC</h3>
+<p>Rust:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">add_10</span>(n: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-type">i32</span>) &#123;
+    *n += <span class="hljs-number">10</span>;
+&#125;</code></pre></div>
+<p>RISC(ARM):</p>
+<div class="code-wrapper"><pre><code class="hljs asm">add_10:
+    ldr w8, [x0]    // load
+    add w8, w8, #10 // modify
+    str w8, [x0]    // store
+    ret</code></pre></div>
+<p>CISC(x86-64, Intel, AMD):</p>
+<div class="code-wrapper"><pre><code class="hljs asm">add_10:
+    add dword ptr [rdi], 10 // all in one
+    ret</code></pre></div>
+<h3 id="Simple-Load-Store">Simple Load / Store</h3>
+<p>For both of the atomic and non-atomic rust codes, the compiled asm codes are the same:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">store</span>(x: &amp;<span class="hljs-keyword">mut</span> <span class="hljs-type">i32</span>) &#123;
+    *x = <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">atomic_store</span>(x: &amp;AtomicI32) &#123;
+    x.<span class="hljs-title function_ invoke__">store</span>(<span class="hljs-number">0</span>, Relaxed);
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs asm">x86_store:
+    mov dword ptr [rdi], 0
+    ret
+
+arm_store:
+    str wzr, [x0]
+    ret</code></pre></div>
+<p><strong><em>Because <code>mov</code> and <code>str</code> are already atomic.</em></strong></p>
+<h3 id="x86-Lock-Prefix">x86 Lock Prefix</h3>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">add</span>(x: &amp;AtomicI32) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i32</span> &#123;
+    x.<span class="hljs-title function_ invoke__">fetch_add</span>(<span class="hljs-number">10</span>, Relaxed)
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs asm">add:
+    mov eax, 10
+    lock xadd dword ptr [rdi], eax
+    ret</code></pre></div>
+<p>Note that not all the instructions can be prefixed with <code>lock</code>.</p>
+<p><code>lock</code> originally caused the processor to temporarily block all other cores from accessing memory for the duration of the instruction, but newer processors won’t stop other cores from operating on unrelated memory.</p>
+<h3 id="x86-compare-and-exchange">x86 compare and exchange</h3>
+<p><code>fetch-and-modify</code> operation can be implemented as a <code>compare-and-exchange</code> loop:</p>
+<div class="code-wrapper"><pre><code class="hljs rust"><span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">a</span>(x: &amp;AtomicI32) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i32</span> &#123;
+    x.<span class="hljs-title function_ invoke__">fetch_or</span>(<span class="hljs-number">10</span>, Relaxed)
+&#125;
+
+<span class="hljs-comment">// a is same as b</span>
+
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">b</span>(x: &amp;AtomicI32) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">i32</span> &#123;
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">current</span> = x.<span class="hljs-title function_ invoke__">load</span>(Relaxed);
+    <span class="hljs-keyword">loop</span> &#123;
+        <span class="hljs-keyword">let</span> <span class="hljs-variable">new</span> = current | <span class="hljs-number">10</span>;
+        <span class="hljs-keyword">match</span> x.<span class="hljs-title function_ invoke__">compare_exchange</span>(current, new, Relaxed, Relaxed) &#123;
+            <span class="hljs-title function_ invoke__">Ok</span>(v) =&gt; <span class="hljs-keyword">return</span> v,
+            <span class="hljs-title function_ invoke__">Err</span>(v) =&gt; current = v,
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs asm">a:
+    mov eax, dword ptr [rdi]
+.L1: // loop until cas success
+    mov ecx, eax
+    or ecx, 10
+    // note that [cmpxchg dest, src] compares the dest with eax
+    lock cmpxchg dword ptr [rdi], ecx
+    jne .L1
+    ret</code></pre></div>
+<div class="note note-primary">
+            <p>On x86-64, there is no difference between compare_exchange and compare_exchange_weak. Both compile down to a lock cmpxchg instruction.</p>
+          </div>
 
                 
               </div>
@@ -1443,7 +1541,7 @@ Which indicates that you as a programmer, are responsible for keeping track of i
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>January 20, 2025</div>
+          <div>February 27, 2025</div>
         </div>
       
       

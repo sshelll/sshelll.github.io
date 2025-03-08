@@ -28,7 +28,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://github.com/juspay/hyperswitch/blob/main/docs/imgs/hyperswitch-architecture-v1.png?raw=true">
 <meta property="article:published_time" content="2025-01-19T10:20:00.000Z">
-<meta property="article:modified_time" content="2025-02-17T10:44:00.000Z">
+<meta property="article:modified_time" content="2025-03-08T04:53:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 17, 2025 pm
+                    Last updated on March 8, 2025 pm
                   
                 
               </p>
@@ -381,6 +381,27 @@
 <p>这个思想很简单，无非就是读接口和写接口部署在不同的服务上，从而降低单台服务器的压力，并且一般来说读接口是无状态的（数据单纯来源于数据库等持久化组件），所以可以对读服务进行水平扩容，最终压力给到 DB。</p>
 <p>一般来说这个架构适合于<strong>读多写少</strong>的场景，采用写单点+读水平扩展的架构可以应付绝大部分情况。</p>
 <p>如果写服务的压力过大，一般使用分片的方式进行拆分（注意和扩容的区别），比如我们之前在加密货币交易所的账户系统中基本就是采用这个架构进行支撑，简单来说就是线上的 100K+ 用户被分配到 42 个分片上进行处理，每个分片大约处理 3~5000 个用户的请求，即使一个分片出现问题也不会影响整体的用户。基于这个思路还可以对数据库也进行分库分表，比如每个分片的用户使用不同的数据库表甚至是 database 进行存储，和写服务一一对应，当然实际情况不一定需要我们这么做。</p>
+<p><u>更进一步的说，读写分离的思想在某些场景中，可以进一步的拆分为「算」+「读」+「写」。</u></p>
+<p>例如，交易所的指数价格（Index Price）服务就是一个典型场景：</p>
+<div class="code-wrapper"><pre><code class="hljs text">┌───────────────┐      ┌────────┐     ┌─────────────┐
+│Matching Engine│ ───► │ Trades │───► │ Cal Service │  here
+└───────────────┘      └────────┘     └─────────────┘
+                                             │
+                                             ▼
+                                      ┌──────────────┐
+                                  ┌───┤ Index Prices ├──────┐
+                                  │   └──────────────┘      │
+                                  ▼                         ▼
+                            ┌─────────────────────┐    ┌───────────────┐
+                            │ Downstream Services │    │ Store Service │  here
+                            └─────────────────────┘    └───────┬───────┘
+                                                               │
+                                                               ▼
+                           ┌───────────────┐              ┌──────────┐
+                     here  │ Query Service │◄─────────────┤ Database │
+                           └───────────────┘              └──────────┘</code></pre></div>
+<p>在上述的架构下，计算节点可以作为单点部署（当然，如果成交信息根据不同的 Symbol 进行了 topic 拆分，我们也可以部署对应数量的服务），存储服务主要实现了异步落库，也就是一个典型的高吞吐的 Kafka 消费模型。最后读服务可以根据数据库的信息进行水平扩展。</p>
+<p>这种架构有一个可能的问题在于：异步落库带来的查询延迟。因此对于实时性比较高的业务来说，应该直接订阅我们的 Kafka 数据源，而不是通过 RestFul API 查询。</p>
 <h2 id="1-n-的推送问题">1 -&gt; n 的推送问题</h2>
 <p>典型的业务场景：</p>
 <ul>
@@ -584,6 +605,9 @@ Status: pending
 <p>Flink 的流式处理特别适合这个场景，避免了传统解决方案中定时扫表可能带来的延迟和压力问题。</p>
 </li>
 </ul>
+<p>值得一提的是，提到缓存和数据库之间的一致性，我们往往会采用先写数据库再更新或者删除缓存的方式进行处理，因为往往我们都会认为数据库中的数据才是最终的唯一性的来源。</p>
+<p><u>但是部分场景其实是反过来的</u>，比如说对于秒杀场景下商品库存的管理，其实我们一般是先修改缓存中的数据，然后异步的进行落库 - 即便出现落库导致少卖的情况，我们的业务也是允许的。这种反过来的方式往往有一个特点，就是数据库中的数据哪怕后置写入，与缓存数据无法对上，业务也是接受的。</p>
+<p>总而言之，缓存与数据库中的一致性问题，都离不开重试补偿，以此实现最终一致，对于某些特殊的并发问题，如果业务本身无法容忍数据不一致，那我们就必须额外引入分布式锁等机制进行处理，强一致和高性能本身是无法兼得的。</p>
 
                 
               </div>
@@ -650,7 +674,7 @@ Status: pending
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 17, 2025</div>
+          <div>March 8, 2025</div>
         </div>
       
       
