@@ -27,7 +27,7 @@
 <meta property="og:description" content="WIP FOEVER">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-30T13:38:27.000Z">
-<meta property="article:modified_time" content="2025-02-25T07:55:00.000Z">
+<meta property="article:modified_time" content="2025-04-05T09:55:00.000Z">
 <meta property="article:author" content="kayce">
 <meta property="article:tag" content="Backend">
 <meta property="article:tag" content="Misc">
@@ -306,7 +306,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    Last updated on February 25, 2025 pm
+                    Last updated on April 5, 2025 pm
                   
                 
               </p>
@@ -959,6 +959,44 @@ vim.api.nvim_buf_set_option(buf, <span class="hljs-string">&quot;modifiable&quot
 vim.api.nvim_set_option_value(<span class="hljs-string">&quot;modifiable&quot;</span>, ext_opt.display_with_buf.modifiable, &#123; buf = buf &#125;)
 vim.cmd(<span class="hljs-string">&#x27;botright &#x27;</span> .. ext_opt.display_with_buf.height .. <span class="hljs-string">&#x27; split | &#x27;</span> .. buf .. <span class="hljs-string">&#x27;buffer&#x27;</span>)</code></pre></div>
 <h2 id="Common">Common</h2>
+<h3 id="Git-Github-Setup">Git / Github Setup</h3>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># generate ssh key pair and configure it on github settings</span>
+ssh-keygen -t ed25519 -C <span class="hljs-string">&quot;your_email&quot;</span>
+
+<span class="hljs-comment"># generate gpg key and configure it on github settings</span>
+gpg --full-generate-key
+gpg --list-secret-keys --keyid-format=long
+gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)</code></pre></div>
+<p>To use different ssh/gpg keys on the same device on different repos, follow these steps:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> repo
+git config user.name <span class="hljs-string">&quot;your_name&quot;</span>
+git config user.email <span class="hljs-string">&quot;your_email&quot;</span>
+git config user.signingkey <span class="hljs-string">&quot;gpg_key_id&quot;</span>
+git config commit.gpgsign <span class="hljs-literal">true</span>
+ssh-add ~/.ssh/id_ed25519
+ssh-add ~/.ssh/another_ssh_key</code></pre></div>
+<p>And to pull different repos with different ssh keys, you should configure the ssh config like this:</p>
+<div class="code-wrapper"><pre><code class="hljs text">Host github-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/another_ssh_key</code></pre></div>
+<p>After that, you should replace the original clone address to a new one:</p>
+<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># replace</span>
+git <span class="hljs-built_in">clone</span> git@github.com:kayce/kayce.git
+<span class="hljs-comment"># with</span>
+git <span class="hljs-built_in">clone</span> git@github-work:kayce/kayce.git</code></pre></div>
+<hr>
+<h3 id="Go-vendor-and-Makefile">Go vendor and Makefile</h3>
+<p>We don’t want to run <code>go mod vendor</code> each time, we only want to run it when we modify the <code>go.mod</code> file.</p>
+<div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-section">tidy:</span>
+	@go mod tidy
+
+<span class="hljs-section">vendor: tidy vendor/modules.txt</span>
+
+<span class="hljs-section">vendor/modules.txt: go.mod go.sum</span>
+	<span class="hljs-comment"># use `vendor` to avoid `go get` in docker build</span>
+	@go mod vendor</code></pre></div>
+<hr>
 <h3 id="Common-Sense">Common Sense</h3>
 <ul>
 <li>
@@ -1020,12 +1058,7 @@ magick before.png -resize 35% after.png
 ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav
 
 <span class="hljs-comment"># convert flac to alac</span>
-xld -o ~/Downloads song.flac -f alac
-
-<span class="hljs-comment"># generate gpg keys</span>
-gpg --full-generate-key
-gpg --list-secret-keys --keyid-format=long
-gpg --armor --<span class="hljs-built_in">export</span> $(KEY_ID_OR_SUB_KEY_ID)</code></pre></div>
+xld -o ~/Downloads song.flac -f alac</code></pre></div>
 <hr>
 <h3 id="Mac">Mac</h3>
 <p>to change the password of root: the <code>Directory Utility.app</code></p>
@@ -1433,7 +1466,7 @@ C - Switch2 - D</code></pre></div>
       
         <div class="license-meta-item license-meta-date">
           <div>Updated on</div>
-          <div>February 25, 2025</div>
+          <div>April 5, 2025</div>
         </div>
       
       
