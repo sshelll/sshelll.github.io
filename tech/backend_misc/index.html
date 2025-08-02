@@ -421,8 +421,7 @@
 <p>I didn’t intend to go into detail on each of them—just a brief introduction and the core ideas.</p>
 </blockquote>
 <ol>
-<li>
-<p><u><strong>Group by storage</strong></u></p>
+<li><u><strong>Group by storage</strong></u>
 <ul>
 <li><strong>Row-oriented</strong>: store the data in rows, and it’s good for OLTP.</li>
 <li><strong>Column-oriented</strong>: store the data in columns, and it’s good for OLAP.</li>
@@ -514,8 +513,7 @@ Row2: (SF, TX)</code></pre></div>
 </ul>
 <hr>
 <ol start="2">
-<li>
-<p><u><strong>Different Aims</strong></u></p>
+<li><u><strong>Different Aims</strong></u>
 <ul>
 <li>GraphDB: solves the n-degree relationship problem.</li>
 <li>TSDB: solves the time series data problem.</li>
@@ -1011,6 +1009,14 @@ git <span class="hljs-built_in">clone</span> git@github.com:kayce/kayce.git
 <span class="hljs-comment"># with</span>
 git <span class="hljs-built_in">clone</span> git@github-work:kayce/kayce.git</code></pre></div>
 <hr>
+<h3 id="SSH">SSH</h3>
+<p>Using proxy for ssh:</p>
+<div class="code-wrapper"><pre><code class="hljs ssh_config">Host hertz-dev-server
+    HostName 1.2.3.4
+    User ubuntu
+    ProxyCommand nc -X 5 -x 127.0.0.1:7897 %h %p
+    ProxyCommand nc -X connect -x 127.0.0.1:7897 %h %p
+    IdentityFile ~/.ssh/id_ed25519</code></pre></div>
 <h3 id="Go-vendor-and-Makefile">Go vendor and Makefile</h3>
 <p>We don’t want to run <code>go mod vendor</code> each time, we only want to run it when we modify the <code>go.mod</code> file.</p>
 <div class="code-wrapper"><pre><code class="hljs make"><span class="hljs-section">tidy:</span>
