@@ -982,6 +982,21 @@ vim.api.nvim_buf_set_option(buf, <span class="hljs-string">&quot;modifiable&quot
 vim.api.nvim_set_option_value(<span class="hljs-string">&quot;modifiable&quot;</span>, ext_opt.display_with_buf.modifiable, &#123; buf = buf &#125;)
 vim.cmd(<span class="hljs-string">&#x27;botright &#x27;</span> .. ext_opt.display_with_buf.height .. <span class="hljs-string">&#x27; split | &#x27;</span> .. buf .. <span class="hljs-string">&#x27;buffer&#x27;</span>)</code></pre></div>
 <h2 id="Common">Common</h2>
+<h3 id="Alternatives-and-great-cmd-tools">Alternatives and great cmd tools</h3>
+<div class="code-wrapper"><pre><code class="hljs bash"> <span class="hljs-comment"># du -h --max-depth 1</span>
+dust -d 1
+
+ <span class="hljs-comment"># vim-mode file management</span>
+yazi
+
+<span class="hljs-comment"># compress image</span>
+magick before.png -resize 35% after.png
+
+<span class="hljs-comment"># transcode audio</span>
+ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav
+
+<span class="hljs-comment"># convert flac to alac</span>
+xld -o ~/Downloads song.flac -f alac</code></pre></div>
 <h3 id="Git-Github-Setup">Git / Github Setup</h3>
 <div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># generate ssh key pair and configure it on github settings</span>
 ssh-keygen -t ed25519 -C <span class="hljs-string">&quot;your_email&quot;</span>
@@ -1080,16 +1095,6 @@ ssh-add -l
 
 <span class="hljs-comment"># Finally, I removed the old key from the agent:</span>
 ssh-add -D</code></pre></div>
-<hr>
-<h3 id="Tools">Tools</h3>
-<div class="code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># compress image</span>
-magick before.png -resize 35% after.png
-
-<span class="hljs-comment"># transcode audio</span>
-ffmpeg -i path/to/input_audio.flac -ar 44100 -sample_fmt s16 path/to/output_audio.wav
-
-<span class="hljs-comment"># convert flac to alac</span>
-xld -o ~/Downloads song.flac -f alac</code></pre></div>
 <hr>
 <h3 id="Mac">Mac</h3>
 <p>to change the password of root: the <code>Directory Utility.app</code></p>
